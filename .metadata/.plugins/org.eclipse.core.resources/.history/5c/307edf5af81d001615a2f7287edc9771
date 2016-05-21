@@ -1,0 +1,29 @@
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
+public class Parser {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		String command = sc.nextLine();
+		
+		if(Pattern.matches("insert airport [a-z A-Z]{3} -?[1-9]+.[1-9]+ -?[1-9]+.[1-9]+",command)){
+			String[] res = command.split(" ");
+			System.out.println(res[2] + " " +res[3] +" "+res[4]  );
+			AirportManager airportM = new AirportManager();
+			Double lat = new Double(res[3]);
+			Double length = new Double(res[4]);
+			System.out.println(lat+length);
+			airportM.addAirport(res[2], lat, length);
+		}
+		
+		else if(Pattern.matches("(delete airport [a-z A-Z]{3} -?[1-9]+.[1-9]+ -?[1-9]+.[1-9]+)",command)){
+			String[] res = command.split(" ");
+			System.out.println(res[2] + " " +res[3] +" "+res[4]  );
+			AirportManager airportM = new AirportManager();
+			Double lat = new Double(res[3]);
+			Double length = new Double(res[4]);
+			System.out.println(lat+length);
+			airportM.addAirport(res[2], lat, length);
+		}
+	}
+}

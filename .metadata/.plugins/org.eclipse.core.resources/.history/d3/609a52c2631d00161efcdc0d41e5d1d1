@@ -1,0 +1,20 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class AirportManager {
+	private Map<String,Airport> airports = new HashMap<String,Airport>();
+	
+	public void addAirport(String name,double lat,double length){
+		if(!airports.containsKey(name)){
+			airports.put(name, new Airport(name,lat,length));
+		}
+	}
+	
+	public void deleteAirport(String name){
+		if(airports.containsKey(name)){
+			airports.remove(name);
+		}
+	}
+	
+	public void 
+}

@@ -1,0 +1,40 @@
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
+public class Parser {
+	public boolean parse(String command){ 
+		AirportManager airportM = new AirportManager();
+		String addExp = "insert airport [a-z A-Z]{3} -?[0-9]+.[0-9]+ -?[0-9]+.[0-9]+";
+		String delExp = "delete airport [a-z A-Z]{3}";
+		String quitExp = "quit";
+		
+		if(Pattern.matches(addExp,command)){
+			String[] res = command.split(" ");	
+			String name = res[2];
+			Double lat = new Double(res[3]);
+			Double length = new Double(res[4]);
+			if(lat > 90.0 || lat < -90.0){
+				System.out.println("La latitud debe estar entre -90.0 y 90.0");
+			}
+			if(length > 180.0 || length < -180.0){
+				System.out.println( "La longitud debe estar entre -180.0 y 180.0");
+			}
+			airportM.addAirport(new Airport(name, lat, length));
+			return false;
+		}
+		
+		else if(Pattern.matches(delExp,command)){
+			String[] res = command.split(" ");
+			String name = res [2];
+			airportM.deleteAirport(name);
+			return false;
+		}
+		
+		else if(Pattern.matches(quitExp, command)){
+			return true;
+		}
+		else
+			System.out.println("Ingreso un comando no válido");
+		return false;
+	}
+}

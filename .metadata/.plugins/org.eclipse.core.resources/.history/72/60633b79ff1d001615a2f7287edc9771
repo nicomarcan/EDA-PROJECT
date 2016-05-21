@@ -1,0 +1,66 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class AirportManager {
+	private Map<String,Node> airports = new HashMap<String,Node>();
+
+	public void addAirport(Airport airport){
+		if(!airports.containsKey(airport.getName())){
+			airports.put(airport.getName(),new Node(airport));
+		}
+	}
+	
+	public void deleteAirport(String name){
+		if(airports.containsKey(name)){
+			airports.remove(name);
+		}
+	}
+	
+	public void addAirports(List<Airport> airports){
+		for(Airport a : airports){
+			addAirport(a);
+		}
+	}
+	
+	private static class Node{
+		Airport airport;
+		List<Flight> priceOrder = new ArrayList<Flight>();
+		List<Flight> timeOrder = new ArrayList<Flight>();
+		public boolean visited;
+		
+		public Node(Airport airport) {
+			super();
+			this.airport = airport;
+		}
+		
+		
+	}
+	
+	
+	private static class Flight{
+		private String Airline;
+		private int flightNumber;
+		private Day[] days;
+		private Airport target;
+		private int price;
+		private int flightTime;
+		private int departureTime;
+		
+		public Flight(String airline, int flightNumber, Day[] days, Airport target, int price, int flightTime,
+				int departureTime) {
+			super();
+			Airline = airline;
+			this.flightNumber = flightNumber;
+			this.days = days;
+			this.target = target;
+			this.price = price;
+			this.flightTime = flightTime;
+			this.departureTime = departureTime;
+		}
+		
+		
+	}
+	 
+}

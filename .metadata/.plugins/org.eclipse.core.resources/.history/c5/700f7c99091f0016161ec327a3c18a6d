@@ -1,0 +1,44 @@
+package TPE;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
+
+public class FileManager {
+
+	
+	public List<Flight> readFlights(String file){
+		return null;
+	}
+	public boolean writeRoute(List<Flight> route,String file){
+		return true;
+		
+	}
+	
+	  public  List<String> readAirports(String name) throws IOException, ClassNotFoundException {
+	        File toRead = new File(name);
+	        Scanner sc = new Scanner(toRead);
+	        List<String> res = new LinkedList<String>();
+	        while(sc.hasNext()){
+	        	String s = sc.nextLine();
+	        	res.addAll(split(s,"#")); 	
+	        }
+	        sc.close();
+	        return res;
+	    }
+	
+	  
+	  private List<String> splitAndCheckLength(String s, String pattern,int length) {
+		String[] a = s.split(pattern);
+		List<String> res = new LinkedList<String>();
+    	if(a.length != length){
+    		System.out.println("formato no valido");
+    	}
+    	for(int i = 0; i < a.length;i++){
+    		res.add(a[i]);
+    	}
+    	return res;
+	}
+}

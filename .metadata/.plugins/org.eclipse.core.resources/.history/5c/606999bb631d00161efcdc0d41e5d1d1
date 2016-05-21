@@ -1,0 +1,14 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class AirportManager {
+	private Map<String,Airport> airports = new HashMap<String,Airport>();
+	
+	public void addAirport(String name,double lat,double length){
+		if(airports.containsKey(name)){
+			System.out.println("Ya existe un aeropuerto con dicho nombre");
+			return;
+		}
+		airports.put(name, new Airport(name,lat,length));
+	}
+}

@@ -1,0 +1,6 @@
+
+public class Airport {
+	private String name;
+	private double lat;
+	private double length;
+}

@@ -1,0 +1,30 @@
+import java.util.Scanner;
+
+public class FlightAssisstant {
+	
+	
+	public void start(){
+		boolean quit = false;
+		Parser p = new Parser();
+		Scanner sc = new Scanner(System.in);
+		String c = sc.nextLine();
+		while(true){
+			printScreen();
+			c = sc.nextLine();
+			System.out.println(c);
+			quit = p.parse(c);
+		}
+		sc.close();
+	}
+		
+	
+	private void printScreen() {
+		System.out.println("Bienvenido al asistente de viajes");
+		System.out.println("Apreta H para ver los comandos");
+		return;
+	}
+	public static void main(String[] args) {
+		FlightAssisstant fa = new FlightAssisstant();
+		fa.start();
+	}
+}

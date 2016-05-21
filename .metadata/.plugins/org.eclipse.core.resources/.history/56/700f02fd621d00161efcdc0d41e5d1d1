@@ -1,0 +1,4 @@
+
+public class AirportManager {
+	private Map<String,Airport> airports = new HashMap<String,Airport>();
+}

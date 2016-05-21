@@ -1,0 +1,17 @@
+
+public class FlightAssisstant {
+	
+	
+	public void start(){
+		printScreen();
+	}
+	private void printScreen() {
+		System.out.println("Bienvenido al asistente de viajes");
+		System.out.println("Apreta H para ver los comandos");
+		
+	}
+	public static void main(String[] args) {
+		FlightAssisstant fa = new FlightAssisstant();
+		fa.start();
+	}
+}

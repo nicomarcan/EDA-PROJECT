@@ -58,11 +58,11 @@ public class AirportManager {
 				origin.timeFlight.get(f.getTarget()).get(f.getDays()[i]).insert(f); 
 			}
 		}else{
-				HashMap<Day,Heap<Flight>> priceDay = new HashMap<Day,Heap<Flight>>();
-				HashMap<Day,Heap<Flight>> timeDay = new HashMap<Day,Heap<Flight>>();
+				HashMap<Day,Structure<Flight>> priceDay = new HashMap<Day,Structure<Flight>>();
+				HashMap<Day,Structure<Flight>> timeDay = new HashMap<Day,Structure<Flight>>();
 				for(int i = 0;i < Day.size;i++){
-					priceDay.put(Day.getDay(i), new Heap<Flight>());
-					timeDay.put(Day.getDay(i),new Heap<Flight>());
+					priceDay.put(Day.getDay(i), new Structure<Flight>());
+					timeDay.put(Day.getDay(i),new Structure<Flight>());
 				}
 				origin.priceFlight.put(f.getTarget(), priceDay);
 				origin.timeFlight.put(f.getTarget(),timeDay);
@@ -87,8 +87,8 @@ public class AirportManager {
 
 	private static class Node{
 		Airport airport;
-		Map<Airport,Map<Day,Heap<Flight>>> priceFlight = new HashMap<Airport,Map<Day,Heap<Flight>>>();
-		Map<Airport,Map<Day,Heap<Flight>>> timeFlight = new HashMap<Airport,Map<Day,Heap<Flight>>>();
+		Map<Airport,Map<Day,Structure<Flight>>> priceFlight = new HashMap<Airport,Map<Day,Structure<Flight>>>();
+		Map<Airport,Map<Day,Structure<Flight>>> timeFlight = new HashMap<Airport,Map<Day,Structure<Flight>>>();
 	
 		public boolean visited;
 			

@@ -27,6 +27,9 @@ public class FlightAssisstant {
 		return;
 	}
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
+		if(args.length != 0){
+			
+		}
 		FlightAssisstant fa = new FlightAssisstant();
 		fa.start();
 	}

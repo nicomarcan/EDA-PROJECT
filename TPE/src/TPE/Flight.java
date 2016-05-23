@@ -9,6 +9,8 @@ public class Flight{
 	private Airport target;
 	private int price;
 	private int flightTime;
+	
+	
 	public int getPrice() {
 		return price;
 	}

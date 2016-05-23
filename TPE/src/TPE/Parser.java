@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class Parser {
+public class Parser{
 	public boolean parse(String command,AirportManager airportM ) throws ClassNotFoundException, IOException{ 
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();

@@ -19,18 +19,17 @@ public class FileManager {
 	}
 	
 	  public  List<String> readAirports(String name) throws IOException, ClassNotFoundException {
-	        File toRead = new File(name);
+	        File toRead = new File("F:/git/eda-2016-04/TPE/src/Datos",name);
 	        Scanner sc = new Scanner(toRead);
 	        List<String> res = new LinkedList<String>();
-	        while(sc.hasNext()){
+	        while(sc.hasNextLine()){
 	        	String s = sc.nextLine();
-	        	String format = "[a-z A-Z]{3}#-?[0-9]+\\.[0-9]+#-?[0-9]+\\.[0-9]+";
-	        	if(!Pattern.matches(format, s)){
-	        		System.out.println("formato no valido");
-	        	}
-	        	res.addAll(split(s)); 
+	        	String format = "[a-z A-Z]{3}#-?[0-9]+\\.[0-9]+#-?[0-9]+\\.[0-9]+$";
+		        if(!Pattern.matches(format, s)){
+		        	System.out.println("formato no valido");
+		        }
+		        res.addAll(split(s)); 	        		        	
 	        }
-	        sc.close();
 	        return res;
 	    }
 	

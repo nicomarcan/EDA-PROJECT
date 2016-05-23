@@ -1,0 +1,29 @@
+package TPE;
+
+import java.util.ArrayList;
+
+public class Structure {
+	ArrayList<Flight> list = new ArrayList<Flight>();
+	Flight bestTime;
+	Flight bestPrice;
+	
+	public void add(Flight f){
+		if(bestTime == null){
+			bestTime = f;
+		}else{
+			if(bestTime.getFlightTime() > f.getFlightTime())
+				bestTime = f;
+		}
+		if(bestPrice == null){
+			bestPrice = f;
+		}else{
+			if(bestPrice.getPrice() > f.getPrice())
+				bestPrice = f;
+		}
+		list.add(f);	
+	}
+	public void remove(Flight f){
+		list.remove(f);
+		
+	}
+}

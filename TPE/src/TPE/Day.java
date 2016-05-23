@@ -10,6 +10,7 @@ public class Day {
 	    public static final Day FRIDAY = new Day(4);
 	    public static final Day SATURDAY = new Day(5);
 	    public static final Day SUNDAY = new Day(6);
+	    public static final int size = 7;
 	    
 	    private final int dayIndex;
 	  
@@ -18,6 +19,29 @@ public class Day {
 	    private Day (int index){
 	    	dayIndex = index;
 	    }
+	    
+	    public static Day getDay(int index){
+	    	Day day = null;
+	    	switch(index){
+	    		case 0: day = MONDAY;
+	    				break;
+	    		case 1: day = TUESDAY;
+	    				break;
+	    		case 2: day =  WEDNESDAY;
+	    				break;	
+	    		case 3: day = THURSDAY;
+	    				break;	
+	    		case 4: day = FRIDAY;
+	    				break;	
+	    		case 5: day = SATURDAY;
+	    				break;	
+	    		case 6: day = SUNDAY;
+	    				break;	
+	    	}
+	    	return day;
+	    }
+	    
+	    
 }
 
 

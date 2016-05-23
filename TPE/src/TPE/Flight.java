@@ -9,6 +9,22 @@ public class Flight{
 	private Airport target;
 	private int price;
 	private int flightTime;
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public int getFlightTime() {
+		return flightTime;
+	}
+
+	public void setFlightTime(int flightTime) {
+		this.flightTime = flightTime;
+	}
+
 	private int departureTime;
 	private Airport origin;
 	
@@ -61,6 +77,14 @@ public class Flight{
 		if (flightNumber != other.flightNumber)
 			return false;
 		return true;
+	}
+
+	public Day[] getDays() {
+		return days;
+	}
+
+	public void setDays(Day[] days) {
+		this.days = days;
 	}
 		
 	

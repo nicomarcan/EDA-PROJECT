@@ -18,6 +18,9 @@ public class Parser{
 		String delFlExp = "delete flight [a-z A-Z]{1,3} [1-9][0-9]*";
 		String addAllFlExp = "insert all flight [a-z A-Z 0-9]+\\.txt";
 		String delAllFlExp = "delete all flight";
+		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(((pr)|(tt))|(ft)) (weekdays=((((((Lu)(-Ma)?(-Mi)?(-Ju)?(-Vi)?(-Sa)?(-Do)?)|((Ma)(-Mi)?(-Ju)?(-Vi)?(-Sa)?(-Do)?))|((Mi)(-Ju)?(-Vi)?(-Sa)?(-Do)?))|((Ju)(-Vi)?(-Sa)?(-Do)?|((Vi)(-Sa)?(-Do)?))|((Sa)(-Do)?))|(Do)))?";
+		String outputFormatExp = "outputFormat ((text)|(KML))";
+		String outputExp = "output ((stdout)|(file [a-z A-Z 0-9]+\\.txt))";
 		String quitExp = "quit";
 		FileManager f = new FileManager();
 		
@@ -57,11 +60,23 @@ public class Parser{
 			//airportM.deleteAllFlights();
 			return false;
 		}
+		else if(Pattern.matches(findRouteExp, command)){
+			// TODO
+			return false;
+		}
+		else if(Pattern.matches(outputFormatExp, command)){
+			// TODO
+			return false;
+		}
+		else if(Pattern.matches(outputExp, command)){
+			// TODO
+			return false;
+		}
 		else if(Pattern.matches(quitExp, command)){
 			return true;
 		}
 		else
-			System.out.println("Ingreso un comando no válido");
+			System.out.println("Ingreso un comando no vï¿½lido");
 		return false;
 	}
 

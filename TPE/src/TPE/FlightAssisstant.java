@@ -12,11 +12,11 @@ public class FlightAssisstant {
 		Parser p = new Parser();
 		Scanner sc = new Scanner(System.in);
 		String c;
-		//while(!quit){
+		while(!quit){
 			printScreen();
 			c = sc.nextLine();
-			p.parse(c, airportM);
-	//	}
+			quit = p.parse(c, airportM);
+		}
 		sc.close();
 	}
 		

@@ -1,11 +1,12 @@
 package TPE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Flight {
 	private String airline;
 	private String flightNumber;
-	private List<Day> days;
+	private ArrayList<Day> days;
 	private Airport target;
 	private Integer price;
 	private Integer flightTime;
@@ -35,10 +36,14 @@ public class Flight {
 		this.flightTime = flightTime;
 	}
 
+	public int getDepartureTime() {
+		return departureTime;
+	}
+
 	private int departureTime;
 	private Airport origin;
 	
-	public Flight(String airline, String flightNumber, List<Day> days, Airport target, int price, int flightTime,
+	public Flight(String airline, String flightNumber, ArrayList<Day> days, Airport target, int price, int flightTime,
 			int departureTime, Airport origin) {
 		super();
 		airline = airline;

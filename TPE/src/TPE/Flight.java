@@ -2,16 +2,16 @@ package TPE;
 
 
 
-public class Flight{
+public class Flight {
 	private String airline;
-	private int flightNumber;
+	private String flightNumber;
 	private Day[] days;
 	private Airport target;
-	private int price;
-	private int flightTime;
+	private Integer price;
+	private Integer flightTime;
 	
 	
-	public int getPrice() {
+	public Integer getPrice() {
 		return price;
 	}
 
@@ -19,7 +19,15 @@ public class Flight{
 		this.price = price;
 	}
 
-	public int getFlightTime() {
+	public String getAirline() {
+		return airline;
+	}
+
+	public String getFlightNumber() {
+		return flightNumber;
+	}
+
+	public Integer getFlightTime() {
 		return flightTime;
 	}
 
@@ -30,7 +38,7 @@ public class Flight{
 	private int departureTime;
 	private Airport origin;
 	
-	public Flight(String airline, int flightNumber, Day[] days, Airport target, int price, int flightTime,
+	public Flight(String airline, String flightNumber, Day[] days, Airport target, int price, int flightTime,
 			int departureTime, Airport origin) {
 		super();
 		airline = airline;
@@ -53,12 +61,15 @@ public class Flight{
 
 
 
+	
+	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((airline == null) ? 0 : airline.hashCode());
-		result = prime * result + flightNumber;
+		result = prime * result + ((flightNumber == null) ? 0 : flightNumber.hashCode());
 		return result;
 	}
 
@@ -76,7 +87,10 @@ public class Flight{
 				return false;
 		} else if (!airline.equals(other.airline))
 			return false;
-		if (flightNumber != other.flightNumber)
+		if (flightNumber == null) {
+			if (other.flightNumber != null)
+				return false;
+		} else if (!flightNumber.equals(other.flightNumber))
 			return false;
 		return true;
 	}
@@ -88,6 +102,8 @@ public class Flight{
 	public void setDays(Day[] days) {
 		this.days = days;
 	}
+
+	
 		
 	
 }

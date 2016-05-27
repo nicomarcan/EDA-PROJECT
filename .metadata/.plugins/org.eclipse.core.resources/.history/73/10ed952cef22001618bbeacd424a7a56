@@ -1,0 +1,332 @@
+package TPE;
+
+import java.lang.StringBuilder;
+
+public class AVL<T extends Comparable<? super T>> {
+ 
+  private static class Node<T> {
+	  private T elem;
+	  private Node<T> left;
+	  private Node<T> right;
+	  private int height;
+    
+  
+    public Node (T elem){
+      this.elem = elem;
+    } 
+  }
+
+  public Node<T> root;
+  
+  public int countInsertions;
+  public int countSingleRotations;
+  public int countDoubleRotations;
+  
+ 
+  public int height (Node<T> t){
+    return t == null ? -1 : t.height;
+  }
+  
+ 
+  public int max (int a, int b){
+    return a > b ? a : b;
+  }
+  
+
+  public boolean insert(T elem){
+      root = insert(elem, root);
+      countInsertions++;
+      return true;
+  }
+  
+ 
+  private Node<T> insert (T elem, Node<T> current) {
+	    if (current == null)
+	    	current = new Node<T> (elem);
+	    else if (elem.compareTo(current.elem) < 0){
+	    	current.left = insert(elem, current.left);
+	      
+	     if (height(current.left) - height(current.right) > 1){
+	        if (elem.compareTo (current.left.elem) < 0){
+	          current = rotateWithLeftChild(current);
+	          countSingleRotations++;
+	        }
+	        else {
+	          current = doubleWithLeftChild(current);
+	          countDoubleRotations++;
+	        }
+	      }
+	    }
+	    else if (elem.compareTo(current.elem) > 0){
+		      current.right = insert(elem, current.right);   
+		      if ( height(current.right) - height(current.left) > 1)
+		        if (elem.compareTo(current.right.elem) > 0){
+		          current = rotateWithRightChild(current);
+		          countSingleRotations++;
+		        }
+		        else{
+		          current = doubleWithRightChild(current);
+		          countDoubleRotations++;
+		        }
+	    }       
+	    current.height = max (height(current.left), height(current.right)) + 1;
+	    return current;
+  }
+  
+
+  private Node<T> rotateWithLeftChild (Node<T> n){
+    Node<T> aux = n.left;
+    n.left = aux.right;
+    aux.right = n;
+    n.height = max (height (n.left), height(n.right)) + 1;
+    aux.height = max(height (aux.left), n.height) + 1;  
+    return aux;
+  }
+  
+
+  private Node<T> doubleWithLeftChild (Node<T> n){
+    n.left = rotateWithRightChild(n.left);
+    return rotateWithLeftChild (n);
+  }
+  
+  private Node<T> rotateWithRightChild (Node<T> n){
+    Node<T> aux = n.right;   
+    n.right = aux.left;
+    aux.left = n;   
+    aux.height = max (height(aux.left), height(aux.right)) + 1;
+    n.height = max (height (n.right), n.height) + 1; 
+    return aux;
+  }
+
+ 
+  private Node<T> doubleWithRightChild (Node<T> n){
+    n.right = rotateWithLeftChild (n.right);
+    return rotateWithRightChild (n);
+  }
+
+  public boolean isEmpty(){
+    return root == null;
+  }
+
+  public T findMin(){
+      if(isEmpty()) 
+    	  return null;
+       return findMin(root).element;
+   }
+
+    /**
+     * Find the largest item in the tree.
+     * @return the largest item of null if empty.
+     */
+    public T findMax( )
+    {
+        if( isEmpty( ) ) return null;
+        return findMax( root ).element;
+    }
+
+    /**
+     * Internal method to find the smallest item in a subtree.
+     * @param t the node that roots the tree.
+     * @return node containing the smallest item.
+     */
+    private AvlNode<T> findMin(AvlNode<T> t)
+    {
+        if( t == null )
+            return t;
+
+        while( t.left != null )
+            t = t.left;
+        return t;
+    }
+
+    /**
+     * Internal method to find the largest item in a subtree.
+     * @param t the node that roots the tree.
+     * @return node containing the largest item.
+     */
+    private AvlNode<T> findMax( AvlNode<T> t )
+    {
+        if( t == null )
+            return t;
+
+        while( t.right != null )
+            t = t.right;
+        return t;
+    }
+
+
+// A version of remove from http://www.dreamincode.net/forums/topic/214510-working-example-of-avl-tree-remove-method/
+// but it needs some attention and does not appear to be 100% correct
+
+  /**
+   * Remove from the tree. Nothing is done if x is not found.
+   * @param x the item to remove.
+   */
+  public void remove( T x ) {
+      root = remove(x, root);
+  }
+
+  public AvlNode<T> remove(T x, AvlNode<T> t) {
+      if (t==null)    {
+          System.out.println("Sorry but you're mistaken, " + t + " doesn't exist in this tree :)\n");
+          return null;
+      }
+      System.out.println("Remove starts... " + t.element + " and " + x);
+  
+      if (x.compareTo(t.element) < 0 ) {
+          t.left = remove(x,t.left);
+          int l = t.left != null ? t.left.height : 0;
+  
+          if((t.right != null) && (t.right.height - l >= 2)) {
+              int rightHeight = t.right.right != null ? t.right.right.height : 0;
+              int leftHeight = t.right.left != null ? t.right.left.height : 0;
+  
+              if(rightHeight >= leftHeight)
+                  t = rotateWithLeftChild(t);            
+              else
+                  t = doubleWithRightChild(t);
+          }
+      }
+      else if (x.compareTo(t.element) > 0) {
+          t.right = remove(x,t.right);
+          int r = t.right != null ? t.right.height : 0;
+          if((t.left != null) && (t.left.height - r >= 2)) {
+              int leftHeight = t.left.left != null ? t.left.left.height : 0;
+              int rightHeight = t.left.right != null ? t.left.right.height : 0;
+              if(leftHeight >= rightHeight)
+                  t = rotateWithRightChild(t);               
+              else
+                  t = doubleWithLeftChild(t);
+          }
+      }
+      /*
+         Here, we have ended up when we are node which shall be removed. 
+         Check if there is a left-hand node, if so pick out the largest element out, and move down to the root.
+       */
+      else if(t.left != null) {
+          t.element = findMax(t.left).element;
+          remove(t.element, t.left);
+       
+          if((t.right != null) && (t.right.height - t.left.height >= 2)) {
+              int rightHeight = t.right.right != null ? t.right.right.height : 0;
+              int leftHeight = t.right.left != null ? t.right.left.height : 0;
+       
+              if(rightHeight >= leftHeight)
+                  t = rotateWithLeftChild(t);            
+              else
+                  t = doubleWithRightChild(t);
+          }
+      }
+       
+      else
+          t = (t.left != null) ? t.left : t.right;
+       
+      if(t != null) {
+          int leftHeight = t.left != null ? t.left.height : 0;
+          int rightHeight = t.right!= null ? t.right.height : 0;
+          t.height = Math.max(leftHeight,rightHeight) + 1;
+      }
+      return t;
+  } //End of remove...
+
+  /**
+   * Search for an element within the tree. 
+   *
+   * @param x Element to find
+   * @param t Root of the tree
+   * @return True if the element is found, false otherwise
+   */
+  public boolean contains(T x){
+    return contains(x, root); 
+  }
+
+  /**
+   * Internal find method; search for an element starting at the given node.
+   *
+   * @param x Element to find
+   * @param t Root of the tree
+   * @return True if the element is found, false otherwise
+   */
+  protected boolean contains(T x, AvlNode<T> t) {
+    if (t == null){
+      return false; // The node was not found
+
+    } else if (x.compareTo(t.element) < 0){
+      return contains(x, t.left);
+    } else if (x.compareTo(t.element) > 0){
+      return contains(x, t.right); 
+    }
+
+    return true; // Can only reach here if node was found
+  }
+  
+  /***********************************************************************/
+  // Diagnostic functions for the tree
+  public boolean checkBalanceOfTree(AvlTree.AvlNode<Integer> current) {
+    
+    boolean balancedRight = true, balancedLeft = true;
+    int leftHeight = 0, rightHeight = 0;
+    
+    if (current.right != null) {
+      balancedRight = checkBalanceOfTree(current.right);
+      rightHeight = getDepth(current.right);
+    }
+    
+    if (current.left != null) {
+      balancedLeft = checkBalanceOfTree(current.left);
+      leftHeight = getDepth(current.left);
+    }
+    
+    return balancedLeft && balancedRight && Math.abs(leftHeight - rightHeight) < 2;
+  }
+  
+  public int getDepth(AvlTree.AvlNode<Integer> n) {
+    int leftHeight = 0, rightHeight = 0;
+    
+    if (n.right != null)
+      rightHeight = getDepth(n.right);
+    if (n.left != null)
+      leftHeight = getDepth(n.left);
+    
+    return Math.max(rightHeight, leftHeight)+1;
+  }
+  
+  public boolean checkOrderingOfTree(AvlTree.AvlNode<Integer> current) {
+    if(current.left != null) {
+      if(current.left.element.compareTo(current.element) > 0)
+        return false;
+      else
+        return checkOrderingOfTree(current.left);
+    } else  if(current.right != null) {
+      if(current.right.element.compareTo(current.element) < 0)
+        return false;
+      else
+        return checkOrderingOfTree(current.right);
+    } else if(current.left == null && current.right == null)
+      return true;
+    
+    return true;
+  }
+
+  /**
+   * Main entry point; contains test code for the tree.
+   *
+  public static void main () { //String []args){
+    AvlTree<Integer> t = new AvlTree<Integer>();
+    
+    t.insert (new Integer(2));
+    t.insert (new Integer(1));
+    t.insert (new Integer(4));
+    t.insert (new Integer(5));
+    t.insert (new Integer(9));
+    t.insert (new Integer(3));
+    t.insert (new Integer(6));
+    t.insert (new Integer(7));
+    
+    System.out.println ("Infix Traversal:");
+    System.out.println(t.serializeInfix());
+    
+    System.out.println ("Prefix Traversal:");
+    System.out.println(t.serializePrefix());
+  }*/
+}

@@ -1,0 +1,253 @@
+package TPE;
+
+
+
+public class AVL<T extends Comparable<? super T>> {
+ 
+  private static class Node<T> {
+	  private T elem;
+	  private Node<T> left;
+	  private Node<T> right;
+	  private int height;
+    
+  
+    public Node (T elem){
+      this.elem = elem;
+    } 
+  }
+
+  public Node<T> root;
+  
+  public int countInsertions;
+  public int countSingleRotations;
+  public int countDoubleRotations;
+  
+ 
+  public int height (Node<T> t){
+    return t == null ? -1 : t.height;
+  }
+  
+ 
+  public int max (int a, int b){
+    return a > b ? a : b;
+  }
+  
+
+  public boolean insert(T elem){
+      root = insert(elem, root);
+      countInsertions++;
+      return true;
+  }
+  
+ 
+  private Node<T> insert (T elem, Node<T> current) {
+	    if (current == null)
+	    	current = new Node<T> (elem);
+	    else if (elem.compareTo(current.elem) < 0){
+	    	current.left = insert(elem, current.left);
+	      
+	     if (height(current.left) - height(current.right) > 1){
+	        if (elem.compareTo (current.left.elem) < 0){
+	          current = rotateWithLeftChild(current);
+	          countSingleRotations++;
+	        }
+	        else {
+	          current = doubleWithLeftChild(current);
+	          countDoubleRotations++;
+	        }
+	      }
+	    }
+	    else if (elem.compareTo(current.elem) > 0){
+		      current.right = insert(elem, current.right);   
+		      if ( height(current.right) - height(current.left) > 1)
+		        if (elem.compareTo(current.right.elem) > 0){
+		          current = rotateWithRightChild(current);
+		          countSingleRotations++;
+		        }
+		        else{
+		          current = doubleWithRightChild(current);
+		          countDoubleRotations++;
+		        }
+	    }       
+	    current.height = max (height(current.left), height(current.right)) + 1;
+	    return current;
+  }
+  
+
+  private Node<T> rotateWithLeftChild (Node<T> n){
+    Node<T> aux = n.left;
+    n.left = aux.right;
+    aux.right = n;
+    n.height = max (height (n.left), height(n.right)) + 1;
+    aux.height = max(height (aux.left), n.height) + 1;  
+    return aux;
+  }
+  
+
+  private Node<T> doubleWithLeftChild (Node<T> n){
+    n.left = rotateWithRightChild(n.left);
+    return rotateWithLeftChild (n);
+  }
+  
+  private Node<T> rotateWithRightChild (Node<T> n){
+    Node<T> aux = n.right;   
+    n.right = aux.left;
+    aux.left = n;   
+    aux.height = max (height(aux.left), height(aux.right)) + 1;
+    n.height = max (height (n.right), n.height) + 1; 
+    return aux;
+  }
+
+ 
+  private Node<T> doubleWithRightChild (Node<T> n){
+    n.right = rotateWithLeftChild (n.right);
+    return rotateWithRightChild (n);
+  }
+
+  public boolean isEmpty(){
+    return root == null;
+  }
+
+  public T findMin(){
+      if(isEmpty()) 
+    	  return null;
+       return findMin(root).elem;
+   }
+
+ 
+    public T findMax(){
+        if(isEmpty())
+        	return null;
+        return findMax(root).elem;
+    }
+
+ 
+    private Node<T> findMin(Node<T> current){
+        if(current == null)
+            return current;
+        while( current.left != null )
+            current = current.left;
+        return current;
+    }
+
+    
+    private Node<T> findMax(Node<T> current)    {
+        if( current == null )
+            return current;
+
+        while(current.right != null)
+            current = current.right;
+        return current;
+    }
+
+
+
+  public void remove( T x ) {
+      root = remove(x, root);
+  }
+
+  private Node<T> remove(T elem, Node<T> current) {
+      if (current==null) 
+          return null;
+  
+      if (elem.compareTo(current.elem) < 0) {
+          current.left = remove(elem,current.left);
+          int l = current.left != null ? current.left.height : 0;
+  
+          if((current.right != null) && (current.right.height - l >= 2)) {
+              int rightHeight = current.right.right != null ? current.right.right.height : 0;
+              int leftHeight = current.right.left != null ? current.right.left.height : 0;
+  
+              if(rightHeight >= leftHeight)
+                  current = rotateWithLeftChild(current);            
+              else
+                  current = doubleWithRightChild(current);
+          }
+      }
+      else if (elem.compareTo(current.elem) > 0) {
+          current.right = remove(elem,current.right);
+          int r = current.right != null ? current.right.height : 0;
+          if((current.left != null) && (current.left.height - r >= 2)) {
+              int leftHeight = current.left.left != null ? current.left.left.height : 0;
+              int rightHeight = current.left.right != null ? current.left.right.height : 0;
+              if(leftHeight >= rightHeight)
+                  current = rotateWithRightChild(current);               
+              else
+                  current = doubleWithLeftChild(current);
+          }
+      }
+    
+      else if(current.left != null) {
+          current.elem = findMax(current.left).elem;
+          remove(current.elem, current.left);
+       
+          if((current.right != null) && (current.right.height - current.left.height >= 2)) {
+              int rightHeight = current.right.right != null ? current.right.right.height : 0;
+              int leftHeight = current.right.left != null ? current.right.left.height : 0;
+       
+              if(rightHeight >= leftHeight)
+                  current = rotateWithLeftChild(current);            
+              else
+                  current = doubleWithRightChild(current);
+          }
+      }
+       
+      else
+          current = current.left != null ? current.left : current.right;
+      
+      if(current != null) {
+          int leftHeight = current.left != null ? current.left.height : 0;
+          int rightHeight = current.right!= null ? current.right.height : 0;
+         current.height = Math.max(leftHeight,rightHeight) + 1;
+      }
+      return current;
+  } 
+
+
+  public boolean contains(T elem){
+    return contains(elem, root); 
+  }
+
+
+  private boolean contains(T elem, Node<T> current) {
+    if (current == null)
+    	return false; 
+    
+    else if (elem.compareTo(current.elem) < 0)
+    	 return contains(elem, current.left);
+    
+    else if (elem.compareTo(current.elem) > 0)
+    	 return contains(elem, current.right);
+    
+    return true; 
+  }
+  public void print(){
+		print(root);
+	}
+	private  void print(Node<T> current){
+		if(current.left == null && current.right == null ){
+			System.out.println(current.elem);
+			return;
+		}else if (current.left!= null && current.right != null){
+			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem+",Hijo derecho: "+current.right.elem);
+			print(current.left);
+			print(current.right);
+		}else if(current.left != null){
+			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem);
+			print(current.left);
+		}else{
+			System.out.println("Padre: "+current.elem+",Hijo derecho: "+current.right.elem);
+			print(current.right);
+		}
+		
+	}
+	public static void main(String[] args) {
+		AVL<Integer> tree = new AVL<Integer>();
+		tree.insert(2);
+		tree.insert(3)
+		tree.print();
+	}
+  
+
+ 
+}

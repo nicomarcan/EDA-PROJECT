@@ -1,20 +1,26 @@
 package TPE;
 
-
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class AirportManager {
 	private Map<String,Node> airports = new HashMap<String,Node>();
-	private List<Node> airportsL = new LinkedList<Node>(); 
+	private AVL<Node> airportsL = new AVL<Node>(new Comparator<Node>(){
+
+		@Override
+		public int compare(Node o1, Node o2) {
+			return o1.airport.getName().compareTo(o2.airport.getName());
+		}
+		
+	}); 
 	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();
 
 	public void addAirport(Airport airport){
 		if(!airports.containsKey(airport.getName())){
 			airports.put(airport.getName(),new Node(airport));
-			airportsL.add(new Node(airport));
+			airportsL.insert(new Node(airport));
 		}
 	}
 	
@@ -25,9 +31,10 @@ public class AirportManager {
 			for(Node a : airportsL){
 				if(a.priceFlight.containsKey(aux)){
 					a.priceFlight.remove(aux);
-					a.timeFlight.remove(aux);
+			
 				}
 			}
+			airportsL.remove(airports.get(name));
 		}
 	}
 	
@@ -50,33 +57,44 @@ public class AirportManager {
 		Node target = airports.get(f.getTarget());
 		if(origin == null || target == null)
 			return;
-		if(flights.containsKey(f))
+		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
 		if(origin.priceFlight.containsKey(f.getTarget())){
 			for(int i = 0;i < f.getDays().length;i++){
 				origin.priceFlight.get(f.getTarget()).get(f.getDays()[i]).insert(f); 
-				origin.timeFlight.get(f.getTarget()).get(f.getDays()[i]).insert(f); 
 			}
 		}else{
 				HashMap<Day,Structure<Flight>> priceDay = new HashMap<Day,Structure<Flight>>();
-				HashMap<Day,Structure<Flight>> timeDay = new HashMap<Day,Structure<Flight>>();
 				for(int i = 0;i < Day.size;i++){
-					priceDay.put(Day.getDay(i), new Structure<Flight>());
-					timeDay.put(Day.getDay(i),new Structure<Flight>());
+					priceDay.put(Day.getDay(i), new Structure<Flight>(new Comparator<Flight>(){
+							@Override
+							public int compare(Flight o1, Flight o2) {
+								return o1.getPrice().compareTo(o2.getPrice());
+							}
+						
+						
+					}));
+				}
+				for(int j = 0; j < f.getDays().length ; j++ ){
+					priceDay.get(f.getDays()[j]).insert(f);
 				}
 				origin.priceFlight.put(f.getTarget(), priceDay);
-				origin.timeFlight.put(f.getTarget(),timeDay);
-			}						
 		}
+	}
+									
+		
 		
 	
 	
 	public void deleteFlight(String airline,String flightNumber){
-//		Entry e = new Entry(airline, flightNumber);
-//		if(flights.containsKey(e)){
-//			Node origin = airports.get(flights.get(e).getOrigin());
-//			origin.flight.remove(flights.get(e));
-//		}
+		Entry e = new Entry(airline, flightNumber);
+		Flight f = flights.get(e);
+		if(f != null){
+			Node origin = airports.get(f.getOrigin());
+			for(int i = 0;i < f.getDays().length;i++){
+				origin.priceFlight.get(f.getTarget()).get(f.getDays()[i]).remove(f);
+			}
+		}
 		return;
 	}
 	
@@ -88,19 +106,12 @@ public class AirportManager {
 	private static class Node{
 		Airport airport;
 		Map<Airport,Map<Day,Structure<Flight>>> priceFlight = new HashMap<Airport,Map<Day,Structure<Flight>>>();
-		Map<Airport,Map<Day,Structure<Flight>>> timeFlight = new HashMap<Airport,Map<Day,Structure<Flight>>>();
 	
 		public boolean visited;
 			
 		public Node(Airport airport) {
 			this.airport = airport;
-		}
-		
-		
-			
-		
-		
-		
+		}				
 	}
 	
 	

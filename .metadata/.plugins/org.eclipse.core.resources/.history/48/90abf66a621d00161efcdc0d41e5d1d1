@@ -1,6 +1,0 @@
-
-public class Airport {
-	private final String name;
-	private final double lat;
-	private final double length;
-}

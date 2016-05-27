@@ -10,11 +10,11 @@ public class Parser{
 	public boolean parse(String command,AirportManager airportM ) throws ClassNotFoundException, IOException{ 
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
-		String addAirExp = "insert airport [a-z A-Z]{3} -?[0-9]+\\.[0-9]+ -?[0-9]+\\.[0-9]+";
-		String delAirExp = "delete airport [a-z A-Z]{3}";
+		String addAirExp = "insert airport [a-z A-Z]{1,3} -?[0-9]+\\.[0-9]+ -?[0-9]+\\.[0-9]+";
+		String delAirExp = "delete airport [a-z A-Z]{1,3}";
 		String addAllAirExp = "insert all airport [a-z A-Z 0-9]+\\.txt";
 		String delAllAirExp = "delete all airport";
-		String addFlExp = "insert flight [a-z A-Z]{1,3} [1-9][0-9]* [A-Z][a-z](-[A-Z][a-z])* [a-z A-Z]{3} [a-z A-Z]{3} [0-2]{2}:[0-2]{2}";
+		String addFlExp = "insert flight [a-z A-Z]{1,3} [0-9]{1,7} (Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))* [a-z A-Z]{1,3} [a-z A-Z]{1,3} ([0-1][0-9]|2[0-3]):[0-5][0-9] ([1-9]h|[1-9][0-9]h)?[0-5][0-9]m$";
 		String delFlExp = "delete flight [a-z A-Z]{1,3} [1-9][0-9]*";
 		String addAllFlExp = "insert all flight [a-z A-Z 0-9]+\\.txt";
 		String delAllFlExp = "delete all flight";
@@ -78,6 +78,11 @@ public class Parser{
 		else
 			System.out.println("Ingreso un comando no v�lido");
 		return false;
+	}
+
+	public void parseArguments(String[] args) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

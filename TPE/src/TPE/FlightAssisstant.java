@@ -6,17 +6,16 @@ import java.util.Scanner;
 public class FlightAssisstant {
 	
 	
-	public void start() throws ClassNotFoundException, IOException{
-		AirportManager airportM = new AirportManager();
+	public void start(AirportManager airportM) throws ClassNotFoundException, IOException{	
 		boolean quit = false;
 		Parser p = new Parser();
 		Scanner sc = new Scanner(System.in);
 		String c;
-		while(!quit){
+		//while(!quit){
 			printScreen();
 			c = sc.nextLine();
 			quit = p.parse(c, airportM);
-		}
+	//	}
 		sc.close();
 	}
 		
@@ -27,10 +26,12 @@ public class FlightAssisstant {
 		return;
 	}
 	public static void main(String[] args) throws ClassNotFoundException, IOException {
+		AirportManager airportM = new AirportManager();
 		if(args.length != 0){
-			
+			Parser p = new Parser();
+			p.parseArguments(args);
 		}
 		FlightAssisstant fa = new FlightAssisstant();
-		fa.start();
+		fa.start(airportM);
 	}
 }

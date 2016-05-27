@@ -1,11 +1,11 @@
 package TPE;
 
-
+import java.util.List;
 
 public class Flight {
 	private String airline;
 	private String flightNumber;
-	private Day[] days;
+	private List<Day> days;
 	private Airport target;
 	private Integer price;
 	private Integer flightTime;
@@ -38,7 +38,7 @@ public class Flight {
 	private int departureTime;
 	private Airport origin;
 	
-	public Flight(String airline, String flightNumber, Day[] days, Airport target, int price, int flightTime,
+	public Flight(String airline, String flightNumber, List<Day> days, Airport target, int price, int flightTime,
 			int departureTime, Airport origin) {
 		super();
 		airline = airline;
@@ -95,13 +95,11 @@ public class Flight {
 		return true;
 	}
 
-	public Day[] getDays() {
+	public List<Day> getDays() {
 		return days;
 	}
 
-	public void setDays(Day[] days) {
-		this.days = days;
-	}
+
 
 	
 		

@@ -1,0 +1,38 @@
+package TPE;
+
+import java.util.List;
+
+public class FlightCreator {
+
+	public void addFlight(String command, AirportManager airportM) {
+		String[] res = command.split(" ");
+		String[] days = res[4].split("-");
+		checkDays(days);
+	}
+	
+	private boolean checkDays(String[] days) {
+		for(int i = 0; i < days.length;i++){
+			for(int j = i+1 ; j < days.length;j++){
+				if(days[i].equals(days[j])){
+					System.out.println("repe");
+					return false;
+				}
+			}
+		}
+		return true;
+		
+	}
+
+	public void addFlights(List<String> data,AirportManager airportM){
+		
+	}
+	
+	public void deleteFlight(String command,AirportManager airportM){
+		String[] res = command.split(" ");
+		String airline = res[2];
+		String flightNumber = res[3];
+		System.out.println(airline+" "+flightNumber);
+		airportM.deleteFlight(airline, flightNumber);
+	}
+	
+}

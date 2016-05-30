@@ -1,5 +1,6 @@
 package TPE;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ public class AirportManager {
 			for(Node a : airportsL){
 				if(a.priceFlight.containsKey(aux)){
 					a.priceFlight.remove(aux);
+					a.timeFlight.remove(aux);
+					a.waitingTimes.remove(aux);
 			
 				}
 			}
@@ -53,17 +56,19 @@ public class AirportManager {
 	
 	
 	public void addFlight(Flight f){
-		Node origin = airports.get(f.getOrigin());
-		Node target = airports.get(f.getTarget());
+		Node origin = airports.get(f.getOrigin().getName());
+		Node target = airports.get(f.getTarget().getName());
 		if(origin == null || target == null)
 			return;
 		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
+		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);
 		if(origin.priceFlight.containsKey(f.getTarget())){
 			for(int i = 0;i < f.getDays().size();i++){
 				origin.priceFlight.get(f.getTarget()).get(f.getDays().get(i)).insert(f); 
 				origin.timeFlight.get(f.getTarget()).get(f.getDays().get(i)).insert(f);
-				origin.waitingTimes.get(f.getTarget()).get(f.getDays().get(i)).insert(f);
+				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
+				origin.waitingTimes.get(f.getTarget()).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).insert(f);
 			}
 		}else{
 				HashMap<Day,Structure<Flight>> priceDay = new HashMap<Day,Structure<Flight>>();
@@ -73,7 +78,7 @@ public class AirportManager {
 					priceDay.put(Day.getDay(i), new Structure<Flight>(new Comparator<Flight>(){
 							@Override
 							public int compare(Flight o1, Flight o2) {
-								return o1.getPrice().compareTo(o2.getPrice());
+								return o2.getPrice().compareTo(o1.getPrice());
 							}
 						
 						
@@ -83,7 +88,7 @@ public class AirportManager {
 
 						@Override
 						public int compare(Flight arg0, Flight arg1) {
-							return arg0.getFlightTime().compareTo(arg1.getFlightTime());
+							return arg1.getFlightTime().compareTo(arg0.getFlightTime());
 						}
 						
 					}));
@@ -92,7 +97,7 @@ public class AirportManager {
 
 						@Override
 						public int compare(Flight o1, Flight o2) {
-							return new Integer(o1.getDepartureTime()+o1.getFlightTime()).compareTo(o2.getFlightTime()+o2.getDepartureTime());
+							return new Integer(o2.getDepartureTime()+o2.getFlightTime()%(60*24)).compareTo(o1.getFlightTime()+o1.getDepartureTime()%(60*24));
 						}
 						
 					}));
@@ -102,8 +107,9 @@ public class AirportManager {
 				for(int j = 0; j < f.getDays().size(); j++ ){
 					priceDay.get(f.getDays().get(j)).insert(f);
 					timeDay.get(f.getDays().get(j)).insert(f);
-					//falta chekear en que dia insertarlo 
-					waitingTimeDay.get(f.getDays().get(j)).insert(f);
+					int k = (f.getFlightTime()+f.getDepartureTime())/(60*24); 
+					//System.out.println((Day.getIndex(f.getDays().get(j))+k)%7);
+					waitingTimeDay.get(Day.getDay((Day.getIndex(f.getDays().get(j))+k)%7)).insert(f);
 				}
 				origin.priceFlight.put(f.getTarget(), priceDay);
 				origin.timeFlight.put(f.getTarget(), timeDay);
@@ -119,11 +125,13 @@ public class AirportManager {
 		Entry e = new Entry(airline, flightNumber);
 		Flight f = flights.get(e);
 		if(f != null){
-			Node origin = airports.get(f.getOrigin());
+			flights.remove(e);
+			Node origin = airports.get(f.getOrigin().getName());
 			for(int i = 0;i < f.getDays().size();i++){
 				origin.priceFlight.get(f.getTarget()).get(f.getDays().get(i)).remove(f);
 				origin.timeFlight.get(f.getTarget()).get(f.getDays().get(i)).remove(f);
-				origin.waitingTimes.get(f.getTarget()).get(f.getDays().get(i)).remove(f);
+				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
+				origin.waitingTimes.get(f.getTarget()).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).remove(f);
 			}
 		}
 		return;
@@ -144,7 +152,11 @@ public class AirportManager {
 			
 		public Node(Airport airport) {
 			this.airport = airport;
-		}				
+		}		
+		
+		public String toString(){
+			return airport.toString();
+		}
 	}
 	
 	
@@ -157,6 +169,67 @@ public class AirportManager {
 			this.flightNumber = flightNumber;
 		}
 		
+		public String toString(){
+			return airline + " "+flightNumber;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((airline == null) ? 0 : airline.hashCode());
+			result = prime * result + ((flightNumber == null) ? 0 : flightNumber.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Entry other = (Entry) obj;
+			if (airline == null) {
+				if (other.airline != null)
+					return false;
+			} else if (!airline.equals(other.airline))
+				return false;
+			if (flightNumber == null) {
+				if (other.flightNumber != null)
+					return false;
+			} else if (!flightNumber.equals(other.flightNumber))
+				return false;
+			return true;
+		}
+		
 	}
+	public static void main(String[] args) {
+		AirportManager airportM = new AirportManager();
+		Airport a = new Airport("BUE", -80.0, 100.0);
+		Airport b = new Airport("LON", 80.0, 25.0);
+		ArrayList<Day> days = new ArrayList<Day>();
+		days.add(Day.MONDAY);
+		days.add(Day.FRIDAY);
+		airportM.addAirport(a);
+		airportM.addAirport(b);
+		Flight f1 = new Flight("AA", "1234", days, b, 750, 360, 1200, a);
+		Flight f2 = new Flight("ABA", "1234", days, b, 1000, 359, 1200, a);
+		Flight f3 = new Flight("ACA", "1234", days, b, 800, 358, 1200, a);
+		airportM.addFlight(f1);
+		airportM.addFlight(f2);
+		airportM.addFlight(f3);
+		airportM.deleteFlight("ACA", "1234");
+		airportM.deleteFlight("ABA", "1234");
+	//	System.out.println(airportM.flights);
+		System.out.println(airportM.airports.get(a.getName()).priceFlight.get(b).get(Day.MONDAY).getBestOne());
+		//airportM.airports.get(a.getName()).priceFlight.get(b).get(Day.MONDAY).getElems().print();
+		System.out.println(airportM.airports.get(a.getName()).timeFlight.get(b).get(Day.MONDAY).getBestOne());
+	
+	
+		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.TUESDAY).print();
+	}
+	
 	 
 }

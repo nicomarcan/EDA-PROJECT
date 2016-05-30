@@ -41,6 +41,28 @@ public class Day {
 	    	return day;
 	    }
 	    
+	    public static int getIndex(Day d){
+	     	if(d == Day.MONDAY)
+	     		return 0;
+	     	if(d == Day.TUESDAY)
+	     		return 1;
+	     	if( d == Day.WEDNESDAY)
+	     		return 2;
+	     	if(d == Day.THURSDAY)
+	     		return 3;
+	     	if(d == Day.FRIDAY)
+	     		return 4;
+	     	if(d == SATURDAY)
+	     		return 5;
+	     	if(d == SUNDAY)
+	     		return 6;
+	     	return 0;
+	     	
+	    }
+	    public static void main(String[] args) {
+			System.out.println(Day.getIndex(Day.TUESDAY));
+		}
+	    
 	    
 }
 

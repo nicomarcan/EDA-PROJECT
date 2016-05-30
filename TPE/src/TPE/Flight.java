@@ -46,7 +46,7 @@ public class Flight {
 	public Flight(String airline, String flightNumber, ArrayList<Day> days, Airport target, int price, int flightTime,
 			int departureTime, Airport origin) {
 		super();
-		airline = airline;
+		this.airline = airline;
 		this.flightNumber = flightNumber;
 		this.days = days;
 		this.target = target;
@@ -104,6 +104,9 @@ public class Flight {
 		return days;
 	}
 
+	public String toString(){
+		return airline+" "+flightNumber+" "+origin+" "+target;
+	}
 
 
 	

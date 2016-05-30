@@ -9,19 +9,22 @@ public class AVL<T> implements Iterable<T> {
 	  private T elem;
 	  private Node<T> left;
 	  private Node<T> right;
+	  private Node<T> parent;
 	  private int height;
     
   
     public Node (T elem){
       this.elem = elem;
     } 
+    
+    public String toString(){
+    	return this == null ? null : this.elem.toString();
+    }
   }
 
   public Node<T> root;
   private Comparator<T> cmp;
-  public int countInsertions;
-  public int countSingleRotations;
-  public int countDoubleRotations;
+
   
   public AVL(Comparator<T> cmp) {
 	  this.cmp = cmp;
@@ -37,52 +40,56 @@ public class AVL<T> implements Iterable<T> {
   
 
   public boolean insert(T elem){
-      root = insert(elem, root);
-      countInsertions++;
+	  Node<T> insert = new Node<T>(elem);
+      root = insert(insert, root);
       return true;
   }
   
  
-  private Node<T> insert (T elem, Node<T> current) {
+
+private Node<T> insert (Node<T> insert, Node<T> current) {
 	    if (current == null)
-	    	current = new Node<T> (elem);
-	    else if (cmp.compare(elem,current.elem) <= 0){
-	    	current.left = insert(elem, current.left);
+	    	return insert;
+	    else if (cmp.compare(insert.elem,current.elem) <= 0){
+	    	current.left = insert(insert, current.left);
+	    	current.left.parent = current;
 	      
 	     if (height(current.left) - height(current.right) > 1){
-	        if (cmp.compare(elem,current.left.elem) < 0){
+	        if (cmp.compare(insert.elem,current.left.elem) <= 0){
 	          current = rotateWithLeftChild(current);
-	          countSingleRotations++;
 	        }
 	        else {
 	          current = doubleWithLeftChild(current);
-	          countDoubleRotations++;
 	        }
 	      }
 	    }
-	    else if (cmp.compare(elem,current.elem) > 0){
-		      current.right = insert(elem, current.right);   
+	    else if (cmp.compare(insert.elem,current.elem) > 0){
+		      current.right = insert(insert ,current.right); 
+		      current.right.parent = current;
 		      if ( height(current.right) - height(current.left) > 1)
-		        if (cmp.compare(elem,current.right.elem) > 0){
-		          current = rotateWithRightChild(current);
-		          countSingleRotations++;
+		        if (cmp.compare(insert.elem,current.right.elem) > 0){
+		          current = rotateWithRightChild(current);		       
 		        }
 		        else{
 		          current = doubleWithRightChild(current);
-		          countDoubleRotations++;
 		        }
 	    }       
 	    current.height = max (height(current.left), height(current.right)) + 1;
+	    //System.out.println("insertando "+insert.elem +"elem "+current.elem+" "+current.height+"  "+height(current.left)+" "+height(current.right));
 	    return current;
   }
   
 
   private Node<T> rotateWithLeftChild (Node<T> n){
     Node<T> aux = n.left;
+    aux.parent = n.parent;
+    n.parent = aux;
+    if(aux.right != null)
+    	aux.right.parent = n;
     n.left = aux.right;
     aux.right = n;
     n.height = max (height (n.left), height(n.right)) + 1;
-    aux.height = max(height (aux.left), n.height) + 1;  
+    aux.height = max(height (aux.left), height(aux.right)) + 1;  
     return aux;
   }
   
@@ -93,11 +100,15 @@ public class AVL<T> implements Iterable<T> {
   }
   
   private Node<T> rotateWithRightChild (Node<T> n){
-    Node<T> aux = n.right;   
+    Node<T> aux = n.right;
+    aux.parent = n.parent;
+    n.parent = aux;
     n.right = aux.left;
+    if(aux.left != null)
+    	aux.left.parent = n;
     aux.left = n;   
+    n.height = max (height (n.right), height(n.left)) + 1; 
     aux.height = max (height(aux.left), height(aux.right)) + 1;
-    n.height = max (height (n.right), n.height) + 1; 
     return aux;
   }
 
@@ -125,24 +136,24 @@ public class AVL<T> implements Iterable<T> {
   }
 
  
-    private Box<T> findMaxAndRemoveNode(Node<T> node){
-        if(isEmpty())
-        	return null;
-        Node<T> max = new Node<T>(null);
-        node = findMaxAndRemoveNode(node,max);
-        return new Box<T>(node,max.elem);
-    }
+
  
-    private Node<T> findMaxAndRemoveNode(Node<T> current,Node<T> max)    {
-        if( current == null )
-            return current;
-       current.right = findMaxAndRemoveNode(current.right,max);
-        if(current.right == null && max.elem == null){
-        	max.elem = current.elem;
-        	return current.left;
+    private Box<T> findMaxAndRemoveNode(Node<T> node)    {   
+        Node<T> current = node;
+        if(current == null)
+        	return null;
+        while(current.right!=null){
+        	current = current.right;
         }
-        return current;
-    }
+        T max = current.elem;
+        if(current.left != null)
+        	current.left.parent = current.parent;
+        if(current != node)
+        	current.parent.right = current.left;
+        else
+        	node = current.left;
+        return new Box<T>(node,max);    
+       }
 
 
 
@@ -162,7 +173,36 @@ public class AVL<T> implements Iterable<T> {
 			current.left = remove(elem,current.left);
 			return current;
 		}
+		if(!current.elem.equals(elem)){
+			current.left = remove(elem,current.left);
+			return current;
+		}
 		if(current.right == null && current.left == null)
+			return null;
+		if(current.right != null && current.left == null){
+			current.right.parent = current.parent;
+			return current.right;
+		}
+		if(current.left != null && current.right == null){
+			current.left.parent = current.parent;
+			return current.left;
+		}
+		Box<T> b = findMaxAndRemoveNode(current.left);
+		current.left = b.node;
+		current.elem = b.max;
+		return current;
+  } 
+  
+  
+  private Node<T> re(T elem,Node<T> current){
+	  if(current == null)
+		  return null;
+	  int c = cmp.compare(elem, current.elem);
+	  if(c > 0){
+		  current.right = re(elem,current.right);
+	  }else if(c < 0){
+		  current.left = re(elem,current.left);
+	  }if(current.right == null && current.left == null)
 			return null;
 		if(current.right != null && current.left == null)
 			return current.right;
@@ -172,7 +212,7 @@ public class AVL<T> implements Iterable<T> {
 		current.left = b.node;
 		current.elem = b.max;
 		return current;
-  } 
+  }
 
 
   public boolean contains(T elem){
@@ -196,18 +236,22 @@ public class AVL<T> implements Iterable<T> {
 		print(root);
 	}
 	private  void print(Node<T> current){
+		if(current == null){
+			System.out.println("trolled");
+			return;
+		}
 		if(current.left == null && current.right == null ){
-			System.out.println(current.elem);
+			System.out.println(current.elem + " padre : "+current.parent+" altura "+ current.height);
 			return;
 		}else if (current.left!= null && current.right != null){
-			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem+",Hijo derecho: "+current.right.elem);
+			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent +" altura "+ current.height);
 			print(current.left);
 			print(current.right);
 		}else if(current.left != null){
-			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem);
+			System.out.println("Padre: "+current.elem+", Hijo izquierdo: "+current.left.elem+ " padre : "+current.parent+" altura "+ current.height);
 			print(current.left);
 		}else{
-			System.out.println("Padre: "+current.elem+",Hijo derecho: "+current.right.elem);
+			System.out.println("Padre: "+current.elem+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent+" altura "+ current.height);
 			print(current.right);
 		}
 		
@@ -218,28 +262,41 @@ public class AVL<T> implements Iterable<T> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	public T updateMax() {
-		Node<T> max = new Node<T>(null);
-		Box<T> b = updateMax(root,max);
-		root = b.node;
-		return	b.max;
-	}
-	private Box<T> updateMax(Node<T> current,Node<T> lastMax) {
-		 if(current == null)
-	            return new Box<T>(current,null);
-	     Box<T> b = updateMax(current.right,lastMax);
-	     current.right = b.node;
-	     if(current.right == null){
-	    	 	if(lastMax.elem == null){
-	    	 		lastMax.elem = current.elem;
-	        		return new Box<T>(current.left,null);
-	        	}
-	    	 	return new Box<T>(current,current.elem);
-	      }
-	        return new Box<T>(current,b.max);
+	
+	public T updateMax() {               
+		    Node<T> current = root;
+		    if(current == null)
+		        return null;
+		     while(current.right!=null){
+		        current = current.right;
+		      }
+		       T max = findMax(current.left);
+		       if(max == null){
+		    	   if(current.parent != null){
+		    		   current.parent.right = null;
+		    	   		return current.parent.elem;
+		    	   }
+		    	   return null;
+		       }		    
+		      current.left.parent = current.parent;
+		      if(current.parent != null)
+		    	  current.parent.right = current.left;
+		      else
+		    	  root = current.left;	
+		      return max;    	      
+		       
 	}
 	
 	
+	private T findMax(Node<T> node) {     
+		        Node<T> current = node;
+		        if(current == null)
+		        	return null;
+		        while(current.right!=null){
+		        	current = current.right;
+		        }
+		       return current.elem;   
+	}
 	public static void main(String[] args) {
 		AVL<Integer> tree = new AVL<Integer>(new Comparator<Integer>(){
 
@@ -253,8 +310,10 @@ public class AVL<T> implements Iterable<T> {
 		tree.insert(3);
 		tree.insert(4);
 		tree.insert(5);
-		System.out.println(tree.updateMax());
-		System.out.println(tree.updateMax());
+		tree.insert(6);
+		tree.insert(1);
+		tree.insert(0);
+		tree.remove(3);
 		
 		tree.print();
 		

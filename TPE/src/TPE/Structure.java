@@ -13,14 +13,27 @@ public class Structure<T> {
 		elems = new AVL<T>(cmp);
 	}
 	
+	public AVL<T> getElems() {
+		return elems;
+	}
+
 	public void insert(T elem) {
 		elems.insert(elem);
-		if(cmp.compare(elem, bestOne) < 0){
+		//System.out.println(elem+" contra "+bestOne);
+		if(bestOne == null ||cmp.compare(elem, bestOne) > 0){
 			bestOne = elem;
 		}
 	}
+	public T getBestOne() {
+		return bestOne;
+	}
+
+	public void setBestOne(T bestOne) {
+		this.bestOne = bestOne;
+	}
+
 	public void remove(T elem) {
-		if(cmp.compare(bestOne, elem) == 0){
+		if(bestOne.equals(elem)){
 			bestOne = elems.updateMax();
 			return;
 		}

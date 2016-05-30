@@ -20,7 +20,9 @@ public class Airport {
 		return name;
 	}
 
-
+	public String toString(){
+		return name+" "+lat+" "+length;
+	}
 
 
 

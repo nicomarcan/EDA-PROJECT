@@ -17,6 +17,16 @@ public class AirportManager {
 		
 	}); 
 	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();
+	
+	private static AirportManager instance = new AirportManager();
+	
+	private AirportManager() {
+		
+	}
+	
+	public static AirportManager getInstance() {
+		return instance;
+	}
 
 	public void addAirport(Airport airport){
 		if(!airports.containsKey(airport.getName())){

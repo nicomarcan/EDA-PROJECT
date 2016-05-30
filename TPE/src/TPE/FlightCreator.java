@@ -4,8 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FlightCreator {
+	AirportManager airportM = AirportManager.getInstance();
 
-	public void addFlight(String command, AirportManager airportM) {
+	public void addFlight(String command) {
 		String[] res = command.split(" ");
 		String[] days = res[4].split("-");
 		if(!checkDays(days)){
@@ -52,11 +53,11 @@ public class FlightCreator {
 		
 	}
 
-	public void addFlights(List<String> data,AirportManager airportM){
+	public void addFlights(List<String> data) {
 		
 	}
 	
-	public void deleteFlight(String command,AirportManager airportM){
+	public void deleteFlight(String command) {
 		String[] res = command.split(" ");
 		String airline = res[2];
 		String flightNumber = res[3];

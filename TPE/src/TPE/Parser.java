@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 
 public class Parser {
 	
-	public boolean parseCommand(String command) throws ClassNotFoundException, IOException { 
+	public static boolean parseCommand(String command) throws ClassNotFoundException, IOException { 
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
 		FileManager f = new FileManager();
 		
-		String HELP_MESSAGE = "***Help message bla bla***";
+		String HELP_MESSAGE = "***HELP MESSAGE***";
 		String helpExp = "[hH]";
 		String addAirExp = "insert airport [a-z A-Z]{1,3} -?[0-9]+\\.[0-9]+ -?[0-9]+\\.[0-9]+";
 		String delAirExp = "delete airport [a-z A-Z]{1,3}";
@@ -92,7 +92,7 @@ public class Parser {
 		return false;
 	}
 
-	public boolean parseArguments(String[] args) {
+	public static boolean parseArguments(String[] args) {
 		
 		if(args.length == 1) {
 			if(args[0].equals("--delete-airports")) {

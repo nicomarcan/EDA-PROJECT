@@ -11,6 +11,95 @@ import java.util.regex.Pattern;
 
 public class FileManager {
 
+	public boolean writeRoute(List<Flight> route, String nameFile, boolean stdout, String format){
+		String kmlFormat = "kml";
+		String txtFormat = "txt";
+		String newLine = System.getProperty("line.separator");
+		
+		double price = 0;
+		int flightTime = 0;
+		
+		for(Flight fl: route){
+			price += fl.getPrice();
+			flightTime += fl.getFlightTime();
+		}
+		
+		int hoursFlight = flightTime/60;
+		int minutesFlight = flightTime%60;
+		
+		if(Pattern.matches(txtFormat, format)) {
+			if(stdout) {
+				System.out.println("Precio#" + price);
+				System.out.println("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m");
+				for(Flight fl: route){
+					System.out.println(fl.getOrigin().getName() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget().getName());
+				}
+			} else {
+				try {
+					File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",nameFile+ "." + format);
+					FileWriter writer = new FileWriter(toWrite, true);
+					writer.write("Precio#" + price + newLine);
+					writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
+					for(Flight fl: route){
+						writer.write(fl.getOrigin().getName() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget().getName() + newLine);
+					}
+					writer.close();
+				} catch (IOException e) {
+					System.out.println("NotFound");
+					return false;
+				}
+			}
+		} else if(Pattern.matches(kmlFormat, format)){
+			if(stdout) {
+				System.out.println("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>");
+				System.out.println("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">");
+				System.out.println("<Placemark>");
+				System.out.println("<Precio> " + price + " </Precio>");
+				System.out.println("<TiempoVuelo> " + hoursFlight + "h" + minutesFlight + "m" + " </TiempoVuelo>");
+				System.out.println("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>");
+				System.out.println("<Ruta>");
+				for(Flight fl: route){
+					System.out.println("<Origen> " + fl.getOrigin().getName() + " </Origen>");
+					System.out.println("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>");
+					System.out.println("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>");
+					System.out.println("<Destino> " + fl.getTarget().getName() + " </Destino>");
+				}
+				System.out.println("</Ruta>");
+				System.out.println("</Placemark>");
+				System.out.println("</kml>");
+			} else {
+				try {
+					File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",nameFile+ "." + format);
+					FileWriter writer = new FileWriter(toWrite, true);
+					writer.write("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>" + newLine);
+					writer.write("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">" + newLine);
+					writer.write("<Placemark>" + newLine);
+					writer.write("<Precio> " + price + " </Precio>" + newLine);
+					writer.write("<TiempoVuelo> " + hoursFlight + "h" + minutesFlight + "m" + " </TiempoVuelo>"  + newLine);
+					writer.write("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>"  + newLine);
+					writer.write("<Ruta>" + newLine);
+					for(Flight fl: route){
+						writer.write("<Origen> " + fl.getOrigin().getName() + " </Origen>" + newLine);
+						writer.write("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>" + newLine);
+						writer.write("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>" + newLine);
+						writer.write("<Destino> " + fl.getTarget().getName() + " </Destino>" + newLine);
+					}
+					writer.write("</Ruta>" + newLine);
+					writer.write("</Placemark>" + newLine);
+					writer.write("</kml>" + newLine);
+					writer.close();
+				} catch (IOException e) {
+					System.out.println("NotFound");
+					return false;
+				} 
+			} 
+		} else {
+			System.out.println("NotFound");
+			return false;
+		}
+		
+		return true;	
+	}
 	
 	public List<String> readFlights(String file) throws FileNotFoundException{
 		File toRead = new File("F:/git/eda-2016-04/TPE/src/Datos",file);
@@ -30,75 +119,6 @@ public class FileManager {
 		}
 		
         return res;
-	}
-	
-	public boolean writeRouteTxt(List<Flight> route, String file){
-		File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",file);
-		String newLine = System.getProperty("line.separator");
-		double price = 0;
-		int flightTime = 0;
-		
-		for(Flight fl: route){
-			price += fl.getPrice();
-			flightTime += fl.getFlightTime();
-		}
-		int hoursFlight = flightTime/60;
-		int minutesFlight = flightTime%60;
-		
-		try {
-			FileWriter writer = new FileWriter(toWrite, true);
-			writer.write("Precio#" + price + newLine);
-			writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
-			for(Flight fl: route){
-				writer.write(fl.getOrigin().getName() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget().getName() + newLine);
-			}
-			writer.close();
-		} catch (IOException e) {
-			System.out.println("NotFound");
-			return false;
-		} 
-		return true;
-		
-	}
-	
-	public boolean writeRouteKml(List<Flight> route, String file){
-		File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",file);
-		String newLine = System.getProperty("line.separator");
-		double price = 0;
-		int flightTime = 0;
-		
-		for(Flight fl: route){
-			price += fl.getPrice();
-			flightTime += fl.getFlightTime();
-		}
-		int hoursFlight = flightTime/60;
-		int minutesFlight = flightTime%60;
-		
-		try {
-			FileWriter writer = new FileWriter(toWrite, true);
-			writer.write("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>" + newLine);
-			writer.write("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">" + newLine);
-			writer.write("<Placemark>" + newLine);
-			writer.write("<Precio> " + price + " </Precio>" + newLine);
-			writer.write("<TiempoVuelo> " + hoursFlight + "h" + minutesFlight + "m" + " </TiempoVuelo>"  + newLine);
-			writer.write("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>"  + newLine);
-			writer.write("<Ruta>" + newLine);
-			for(Flight fl: route){
-				writer.write("<Origen> " + fl.getOrigin().getName() + " </Origen>" + newLine);
-				writer.write("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>" + newLine);
-				writer.write("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>" + newLine);
-				writer.write("<Destino> " + fl.getTarget().getName() + " </Destino>" + newLine);
-			}
-			writer.write("</Ruta>" + newLine);
-			writer.write("</Placemark>" + newLine);
-			writer.write("</kml>" + newLine);
-			writer.close();
-		} catch (IOException e) {
-			System.out.println("NotFound");
-			return false;
-		} 
-		return true;
-		
 	}
 	
 	public  List<String> readAirports(String name) throws IOException, ClassNotFoundException {

@@ -3,6 +3,7 @@ package TPE;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +150,64 @@ public class AirportManager {
 	
 
 
+	public List<Flight> lowerPricePath(String from, String to , Day day) {
+		
+		Node origin = airports.get(from);
+		Node target = airports.get(to);
+		List<Flight> list = new LinkedList<Flight>();
+		if(origin == null || target == null || day == null){
+			return list;
+		}
+		
+		FibonacciHeap<Box> pq = new FibonacciHeap<>(new Comparator<Box>() {
 
+			@Override
+			public int compare(Box o1, Box o2) {
+				return o1.weight - o2.weight;
+			}
+			
+		}); 
+		
+		pq.offer(new Box(origin,null,0));
+		while(!pq.isEmpty()) {
+			Box currentBox = pq.poll();
+			Node current = currentBox.airport;
+			if(current.airport.equals(target.airport)) {
+				return list;
+			}
+			if(!current.visited) {
+				for(Airport a : current.priceFlight.keySet()) {
+					Node n = airports.get(a.getName());
+					if(!n.visited) {
+						Flight best = null;
+						for(int i = 0 ; i < Day.size ; i++) {
+							Day d = Day.getDay(i);
+							Flight f = current.priceFlight.get(a).get(d).getBestOne();
+							if(best == null || best.getPrice() > f.getPrice() ) {
+								best = current.priceFlight.get(a).get(day).getBestOne();
+							}
+						}
+						pq.offer(new Box(n,best,currentBox.weight+best.getPrice()));
+					}
+				}
+				current.visited = true;
+				list.add(currentBox.flight);
+			}
+		}
+		return list;
+	}
+
+	public static class Box {
+		int weight;
+		Node airport;
+		Flight flight;
+		
+		public Box(Node n, Flight f, int w) {
+			weight = w;
+			airport = n;
+			flight = f;
+		}
+	}
 
 
 	private static class Node{

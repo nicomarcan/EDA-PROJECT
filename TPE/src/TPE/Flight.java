@@ -105,7 +105,7 @@ public class Flight {
 	}
 
 	public String toString(){
-		return airline+" "+flightNumber+" "+origin+" "+target;
+		return airline;//+" "+flightNumber+" "+origin+" "+target;
 	}
 
 

@@ -92,7 +92,10 @@ public class Parser {
 		return false;
 	}
 
-	public static boolean parseArguments(String[] args) {
+	public static boolean parseArguments(String[] args) throws ClassNotFoundException, IOException {
+		AirportCreator airportC = new AirportCreator();
+		FlightCreator flightC = new FlightCreator();
+		FileManager f = new FileManager();
 		
 		if(args.length == 1) {
 			if(args[0].equals("--delete-airports")) {
@@ -109,6 +112,8 @@ public class Parser {
 			if(args[0].equals("--airport-file")) {
 				if(args[2].equals("--append-airports")) {
 					System.out.println("APPEND AIRPORTS FROM FILE " + args[1]);
+					List<String> data = f.readAirports(args[1]);
+					airportC.addAirports(data);
 				}
 				else if(args[2].equals("--replace-airports")) {
 					System.out.println("REPLACE AIRPORTS FROM FILE " + args[1]);

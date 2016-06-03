@@ -11,6 +11,7 @@ public class AVL<T> implements Iterable<T> {
 	  private Node<T> right;
 	  private Node<T> parent;
 	  private int height;
+
     
   
     public Node (T elem){
@@ -24,6 +25,7 @@ public class AVL<T> implements Iterable<T> {
 
   public Node<T> root;
   private Comparator<T> cmp;
+
 
   
   public AVL(Comparator<T> cmp) {
@@ -42,6 +44,7 @@ public class AVL<T> implements Iterable<T> {
   public boolean insert(T elem){
 	  Node<T> insert = new Node<T>(elem);
       root = insert(insert, root);
+     
       return true;
   }
   
@@ -55,6 +58,7 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
 	    	current.left.parent = current;
 	      
 	     if (height(current.left) - height(current.right) > 1){
+
 	        if (cmp.compare(insert.elem,current.left.elem) <= 0){
 	          current = rotateWithLeftChild(current);
 	        }
@@ -66,13 +70,14 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
 	    else if (cmp.compare(insert.elem,current.elem) > 0){
 		      current.right = insert(insert ,current.right); 
 		      current.right.parent = current;
-		      if ( height(current.right) - height(current.left) > 1)
+		      if ( height(current.right) - height(current.left) > 1){
 		        if (cmp.compare(insert.elem,current.right.elem) > 0){
 		          current = rotateWithRightChild(current);		       
 		        }
 		        else{
 		          current = doubleWithRightChild(current);
 		        }
+		      }
 	    }       
 	    current.height = max (height(current.left), height(current.right)) + 1;
 	    //System.out.println("insertando "+insert.elem +"elem "+current.elem+" "+current.height+"  "+height(current.left)+" "+height(current.right));
@@ -80,7 +85,7 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
   }
   
 
-  private Node<T> rotateWithLeftChild (Node<T> n){
+private Node<T> rotateWithLeftChild (Node<T> n){
     Node<T> aux = n.left;
     aux.parent = n.parent;
     n.parent = aux;
@@ -100,17 +105,17 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
   }
   
   private Node<T> rotateWithRightChild (Node<T> n){
-    Node<T> aux = n.right;
-    aux.parent = n.parent;
-    n.parent = aux;
-    n.right = aux.left;
-    if(aux.left != null)
-    	aux.left.parent = n;
-    aux.left = n;   
-    n.height = max (height (n.right), height(n.left)) + 1; 
-    aux.height = max (height(aux.left), height(aux.right)) + 1;
-    return aux;
-  }
+	    Node<T> aux = n.right;
+	    aux.parent = n.parent;
+	    n.parent = aux;
+	    n.right = aux.left;
+	    if(aux.left != null)
+	    	aux.left.parent = n;
+	    aux.left = n;   
+	    n.height = max (height (n.right), height(n.left)) + 1; 
+	    aux.height = max (height(aux.left), height(aux.right)) + 1;
+	    return aux;
+	  }
 
  
   private Node<T> doubleWithRightChild (Node<T> n){
@@ -138,7 +143,7 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
  
 
  
-    private Box<T> findMaxAndRemoveNode(Node<T> node)    {   
+    private Box<T> findMaxAndRemoveNode(Node<T> node) {
         Node<T> current = node;
         if(current == null)
         	return null;
@@ -148,10 +153,18 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
         T max = current.elem;
         if(current.left != null)
         	current.left.parent = current.parent;
-        if(current != node)
+        if(current != node){
         	current.parent.right = current.left;
-        else
+        	current = current.parent;
+        	while(current != node){
+        		current.height = Math.max(height(current.left), height(current.right))+1;
+        		current = current.parent;
+        	}
+        }
+        else{
         	node = current.left;
+        }
+       
         return new Box<T>(node,max);    
        }
 
@@ -168,9 +181,17 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
 		int c = cmp.compare(elem,current.elem);
 		if(c > 0){
 			current.right = remove(elem,current.right);
+			if ( height(current.left) - height(current.right) > 1){
+		       current = doubleWithLeftChild(current);
+		      }
+			current.height = max (height(current.left), height(current.right)) + 1;
 			return current;
 		}else if(c < 0){
 			current.left = remove(elem,current.left);
+			if (height(current.right) - height(current.left) > 1){
+		        current = rotateWithRightChild(current);
+		      }
+			 current.height = max (height(current.left), height(current.right)) + 1;			
 			return current;
 		}
 		if(!current.elem.equals(elem)){
@@ -190,32 +211,18 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
 		Box<T> b = findMaxAndRemoveNode(current.left);
 		current.left = b.node;
 		current.elem = b.max;
+		if (height(current.right) - height(current.left) > 1){
+	        current = rotateWithRightChild(current);
+	      }
+	 current.height = max (height(current.left), height(current.right)) + 1;	
 		return current;
   } 
   
-  
-  private Node<T> re(T elem,Node<T> current){
-	  if(current == null)
-		  return null;
-	  int c = cmp.compare(elem, current.elem);
-	  if(c > 0){
-		  current.right = re(elem,current.right);
-	  }else if(c < 0){
-		  current.left = re(elem,current.left);
-	  }if(current.right == null && current.left == null)
-			return null;
-		if(current.right != null && current.left == null)
-			return current.right;
-		if(current.left != null && current.right == null)
-			return current.left;
-		Box<T> b = findMaxAndRemoveNode(current.left);
-		current.left = b.node;
-		current.elem = b.max;
-		return current;
-  }
 
 
-  public boolean contains(T elem){
+
+ 
+public boolean contains(T elem){
     return contains(elem, root); 
   }
 
@@ -313,13 +320,17 @@ private Node<T> insert (Node<T> insert, Node<T> current) {
 		tree.insert(6);
 		tree.insert(1);
 		tree.insert(0);
+		tree.insert(7);
+		tree.remove(5);
 		tree.remove(3);
-		
+		tree.remove(1);
+		tree.remove(0);
 		tree.print();
 		
 
 	}
-  
+	
+
 
  
 }

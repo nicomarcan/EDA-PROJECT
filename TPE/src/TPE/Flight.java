@@ -6,19 +6,17 @@ import java.util.List;
 public class Flight {
 	private String airline;
 	private String flightNumber;
-	private ArrayList<Day> days;
-	private Airport target;
-	private Integer price;
+	private List<Day> days;
+	private String target;
+	private Double price;
 	private Integer flightTime;
 	
 	
-	public Integer getPrice() {
+	public Double getPrice() {
 		return price;
 	}
 
-	public void setPrice(int price) {
-		this.price = price;
-	}
+	
 
 	public String getAirline() {
 		return airline;
@@ -41,10 +39,10 @@ public class Flight {
 	}
 
 	private int departureTime;
-	private Airport origin;
+	private String origin;
 	
-	public Flight(String airline, String flightNumber, ArrayList<Day> days, Airport target, int price, int flightTime,
-			int departureTime, Airport origin) {
+	public Flight(String airline, String flightNumber, List<Day> days, String target, String origin,
+			int departureTime, int flightTime, double price) {
 		super();
 		this.airline = airline;
 		this.flightNumber = flightNumber;
@@ -56,11 +54,11 @@ public class Flight {
 		this.origin = origin;
 	}
 
-	public Airport getTarget() {
+	public String getTarget() {
 		return target;
 	}
 
-	public Airport getOrigin() {
+	public String getOrigin() {
 		return origin;
 	}
 

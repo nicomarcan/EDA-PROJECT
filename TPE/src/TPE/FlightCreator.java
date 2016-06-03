@@ -15,7 +15,23 @@ public class FlightCreator {
 		List<Day> newDays = getDays(days); 
 		String[] hoursAndMin = res[7].split(":");
 		Integer departureTime = new Integer(hoursAndMin[0])*60+ new Integer(hoursAndMin[1]);
+		String[] hours = res[8].split("h");
+		Integer flightTime;
+		if(hours.length == 1){
+			String[] mins = hours[0].split("m");
+			 flightTime = new Integer(mins[0]);
+		}else{
+			String[]mins = hours[1].split("m");
+			flightTime = new Integer(hours[0])*60+ new Integer(mins[0]);
+		}
+		Double price = new Double(res[9]);
+		System.out.println(flightTime);
+		System.out.println(price);
+		
 		System.out.println(departureTime);
+		Flight f = new Flight(res[2], res[3], newDays, res[5], res[6], departureTime, flightTime, price);
+		airportM.addFlight(f);
+		System.out.println(airportM.getFlights());
 	} 
 	
 	private List<Day> getDays(String[] days) {

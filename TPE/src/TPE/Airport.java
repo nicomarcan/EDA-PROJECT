@@ -35,6 +35,7 @@ public class Airport {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
+	
 
 	@Override
 	public boolean equals(Object obj) {
@@ -52,4 +53,5 @@ public class Airport {
 			return false;
 		return true;
 	}
+	
 }

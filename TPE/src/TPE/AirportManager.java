@@ -3,20 +3,16 @@ package TPE;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AirportManager {
 	private Map<String,Node> airports = new HashMap<String,Node>();
-	private AVL<Node> airportsL = new AVL<Node>(new Comparator<Node>(){
-
-		@Override
-		public int compare(Node o1, Node o2) {
-			return o1.airport.getName().compareTo(o2.airport.getName());
-		}
-		
-	}); 
+	private Set<Node> airportsL = new HashSet<Node>(); 
 	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();
 	
 	private static AirportManager instance = new AirportManager();
@@ -29,17 +25,22 @@ public class AirportManager {
 		return instance;
 	}
 
+	public Map<String, Node> getAirports() {
+		return airports;
+	}
+
 	public void addAirport(Airport airport){
 		if(!airports.containsKey(airport.getName())){
 			airports.put(airport.getName(),new Node(airport));
-			airportsL.insert(new Node(airport));
+			airportsL.add(new Node(airport));
 		}
 	}
 	
 	public void deleteAirport(String name){
 		if(airports.containsKey(name)){
 			Airport aux = airports.get(name).airport;
-			airports.remove(name);
+		
+			
 			for(Node a : airportsL){
 				if(a.priceFlight.containsKey(aux)){
 					a.priceFlight.remove(aux);
@@ -47,8 +48,10 @@ public class AirportManager {
 					a.waitingTimes.remove(aux);
 			
 				}
-			}
+			};
 			airportsL.remove(airports.get(name));
+			airports.remove(name);
+			System.out.println(airportsL);
 		}
 	}
 	
@@ -67,19 +70,19 @@ public class AirportManager {
 	
 	
 	public void addFlight(Flight f){
-		Node origin = airports.get(f.getOrigin().getName());
-		Node target = airports.get(f.getTarget().getName());
+		Node origin = airports.get(f.getOrigin());
+		Node target = airports.get(f.getTarget());
 		if(origin == null || target == null)
 			return;
 		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
 		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);
-		if(origin.priceFlight.containsKey(f.getTarget())){
+		if(origin.priceFlight.containsKey(airports.get(f.getTarget()).airport)){
 			for(int i = 0;i < f.getDays().size();i++){
-				origin.priceFlight.get(f.getTarget()).get(f.getDays().get(i)).insert(f); 
-				origin.timeFlight.get(f.getTarget()).get(f.getDays().get(i)).insert(f);
+				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).insert(f); 
+				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).insert(f);
 				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
-				origin.waitingTimes.get(f.getTarget()).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).insert(f);
+				origin.waitingTimes.get(airports.get(f.getTarget()).airport).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).insert(f);
 			}
 		}else{
 				HashMap<Day,Structure<Flight>> priceDay = new HashMap<Day,Structure<Flight>>();
@@ -122,9 +125,9 @@ public class AirportManager {
 					//System.out.println((Day.getIndex(f.getDays().get(j))+k)%7);
 					waitingTimeDay.get(Day.getDay((Day.getIndex(f.getDays().get(j))+k)%7)).insert(f);
 				}
-				origin.priceFlight.put(f.getTarget(), priceDay);
-				origin.timeFlight.put(f.getTarget(), timeDay);
-				origin.waitingTimes.put(f.getTarget(), waitingTimeDay);
+				origin.priceFlight.put(airports.get(f.getTarget()).airport, priceDay);
+				origin.timeFlight.put(airports.get(f.getTarget()).airport, timeDay);
+				origin.waitingTimes.put(airports.get(f.getTarget()).airport, waitingTimeDay);
 		}
 	}
 									
@@ -137,7 +140,7 @@ public class AirportManager {
 		Flight f = flights.get(e);
 		if(f != null){
 			flights.remove(e);
-			Node origin = airports.get(f.getOrigin().getName());
+			Node origin = airports.get(f.getOrigin());
 			for(int i = 0;i < f.getDays().size();i++){
 				origin.priceFlight.get(f.getTarget()).get(f.getDays().get(i)).remove(f);
 				origin.timeFlight.get(f.getTarget()).get(f.getDays().get(i)).remove(f);
@@ -145,6 +148,7 @@ public class AirportManager {
 				origin.waitingTimes.get(f.getTarget()).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).remove(f);
 			}
 		}
+		System.out.println(flights);
 		return;
 	}
 	
@@ -163,7 +167,7 @@ public class AirportManager {
 
 			@Override
 			public int compare(Box o1, Box o2) {
-				return o1.weight - o2.weight;
+				return (int)(o1.weight - o2.weight);
 			}
 			
 		}); 
@@ -197,12 +201,16 @@ public class AirportManager {
 		return list;
 	}
 
+	public Map<Entry, Flight> getFlights() {
+		return flights;
+	}
+
 	public static class Box {
-		int weight;
+		double weight;
 		Node airport;
 		Flight flight;
 		
-		public Box(Node n, Flight f, int w) {
+		public Box(Node n, Flight f, double w) {
 			weight = w;
 			airport = n;
 			flight = f;
@@ -225,6 +233,33 @@ public class AirportManager {
 		public String toString(){
 			return airport.toString();
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((airport == null) ? 0 : airport.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Node other = (Node) obj;
+			if (airport == null) {
+				if (other.airport != null)
+					return false;
+			} else if (!airport.equals(other.airport))
+				return false;
+			return true;
+		}
+		
+		
 	}
 	
 	
@@ -282,21 +317,19 @@ public class AirportManager {
 		days.add(Day.FRIDAY);
 		airportM.addAirport(a);
 		airportM.addAirport(b);
-		Flight f1 = new Flight("AA", "1234", days, b, 750, 360, 1200, a);
-		Flight f2 = new Flight("ABA", "1234", days, b, 1000, 359, 1200, a);
-		Flight f3 = new Flight("ACA", "1234", days, b, 800, 358, 1200, a);
+		Flight f1 = new Flight("AA", "1234", days, a.getName(), b.getName(), 1200, 200, 12.8);
+		Flight f2 = new Flight("ACA", "1234", days, a.getName(), b.getName(), 1200, 210, 11.8);
+		Flight f3 = new Flight("AVA", "1234", days, a.getName(), b.getName(), 1200, 250, 10.8);
 		airportM.addFlight(f1);
 		airportM.addFlight(f2);
 		airportM.addFlight(f3);
-		airportM.deleteFlight("ACA", "1234");
-		airportM.deleteFlight("ABA", "1234");
 	//	System.out.println(airportM.flights);
-		System.out.println(airportM.airports.get(a.getName()).priceFlight.get(b).get(Day.MONDAY).getBestOne());
-		//airportM.airports.get(a.getName()).priceFlight.get(b).get(Day.MONDAY).getElems().print();
-		System.out.println(airportM.airports.get(a.getName()).timeFlight.get(b).get(Day.MONDAY).getBestOne());
+		System.out.println(airportM.airports.get(b.getName()).priceFlight.get(a).get(Day.MONDAY).getBestOne());
+		//airportM.airports.get(b.getName()).priceFlight.get(a).get(Day.MONDAY).getElems().print();
+		System.out.println(airportM.airports.get(b.getName()).timeFlight.get(a).get(Day.MONDAY).getBestOne());
 	
 	
-		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.TUESDAY).print();
+		//airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.TUESDAY).print();
 	}
 	
 	 

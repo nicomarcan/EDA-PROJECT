@@ -17,11 +17,11 @@ public class Parser {
 		String delAirExp = "delete airport [a-z A-Z]{1,3}";
 		String addAllAirExp = "insert all airport [a-z A-Z 0-9]+\\.txt";
 		String delAllAirExp = "delete all airport";
-		String addFlExp = "insert flight [a-z A-Z]{1,3} [0-9]{1,7} (Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))* [a-z A-Z]{1,3} [a-z A-Z]{1,3} ([0-1][0-9]|2[0-3]):[0-5][0-9] ([1-9]h|[1-9][0-9]h)?[0-5][0-9]m$";
+		String addFlExp = "insert flight [a-z A-Z]{1,3} [0-9]{1,7} (Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))* [a-z A-Z]{1,3} [a-z A-Z]{1,3} ([0-1][0-9]|2[0-3]):[0-5][0-9] ([1-9]h|[1-9][0-9]h)?[0-5][0-9]m [0-9]+\\.[0-9]+$";
 		String delFlExp = "delete flight [a-z A-Z]{1,3} [1-9][0-9]*";
 		String addAllFlExp = "insert all flight [a-z A-Z 0-9]+\\.txt";
 		String delAllFlExp = "delete all flight";
-		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(((pr)|(tt))|(ft)) (weekdays=((((((Lu)(-Ma)?(-Mi)?(-Ju)?(-Vi)?(-Sa)?(-Do)?)|((Ma)(-Mi)?(-Ju)?(-Vi)?(-Sa)?(-Do)?))|((Mi)(-Ju)?(-Vi)?(-Sa)?(-Do)?))|((Ju)(-Vi)?(-Sa)?(-Do)?|((Vi)(-Sa)?(-Do)?))|((Sa)(-Do)?))|(Do)))?";
+		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(((pr)|(tt))|(ft)) (weekdays=(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*)";
 		String outputFormatExp = "outputFormat ((text)|(KML))";
 		String outputExp = "output ((stdout)|(file [a-z A-Z 0-9]+\\.txt))";
 		String exitAndSaveExp = "exitAndSave";

@@ -14,6 +14,7 @@ public class AirportCreator {
 		if(checkLat(lat) && checkLength(length)){
 			airportM.addAirport(new Airport(name, lat, length));
 		}
+		System.out.println(airportM.getAirports());
 	}
 	
 	public void addAirports(List<String> data){
@@ -22,19 +23,21 @@ public class AirportCreator {
 			Double lat = new Double(data.get(i+1));
 			Double length = new Double(data.get(i+2));
 			if(checkLat(lat) && checkLength(length)){
-				System.out.println("bien");
+				
 				airportM.addAirport(new Airport(name,lat,length));
 			}
 			else{
 				System.out.println("mal");
 			}
 		}
+		System.out.println(airportM.getAirports());
 	}
 	
 	public void deleteAirport(String command){
 		String[] res = command.split(" ");
 		String name = res [2];
 		airportM.deleteAirport(name);
+		System.out.println(airportM.getAirports());
 	}
 	
 	private boolean checkLength(Double length) {

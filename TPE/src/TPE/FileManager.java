@@ -32,7 +32,7 @@ public class FileManager {
 				System.out.println("Precio#" + price);
 				System.out.println("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m");
 				for(Flight fl: route){
-					System.out.println(fl.getOrigin().getName() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget().getName());
+					System.out.println(fl.getOrigin() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget());
 				}
 			} else {
 				try {
@@ -41,7 +41,7 @@ public class FileManager {
 					writer.write("Precio#" + price + newLine);
 					writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
 					for(Flight fl: route){
-						writer.write(fl.getOrigin().getName() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget().getName() + newLine);
+						writer.write(fl.getOrigin() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget() + newLine);
 					}
 					writer.close();
 				} catch (IOException e) {
@@ -59,10 +59,10 @@ public class FileManager {
 				System.out.println("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>");
 				System.out.println("<Ruta>");
 				for(Flight fl: route){
-					System.out.println("<Origen> " + fl.getOrigin().getName() + " </Origen>");
+					System.out.println("<Origen> " + fl.getOrigin() + " </Origen>");
 					System.out.println("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>");
 					System.out.println("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>");
-					System.out.println("<Destino> " + fl.getTarget().getName() + " </Destino>");
+					System.out.println("<Destino> " + fl.getTarget() + " </Destino>");
 				}
 				System.out.println("</Ruta>");
 				System.out.println("</Placemark>");
@@ -79,10 +79,10 @@ public class FileManager {
 					writer.write("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>"  + newLine);
 					writer.write("<Ruta>" + newLine);
 					for(Flight fl: route){
-						writer.write("<Origen> " + fl.getOrigin().getName() + " </Origen>" + newLine);
+						writer.write("<Origen> " + fl.getOrigin() + " </Origen>" + newLine);
 						writer.write("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>" + newLine);
 						writer.write("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>" + newLine);
-						writer.write("<Destino> " + fl.getTarget().getName() + " </Destino>" + newLine);
+						writer.write("<Destino> " + fl.getTarget() + " </Destino>" + newLine);
 					}
 					writer.write("</Ruta>" + newLine);
 					writer.write("</Placemark>" + newLine);
@@ -122,7 +122,7 @@ public class FileManager {
 	}
 	
 	public  List<String> readAirports(String name) throws IOException, ClassNotFoundException {
-	        File toRead = new File("F:/git/eda-2016-04/TPE/src/Datos",name);
+	        File toRead = new File("C:/Users/nmarcantonio/Documents/eda-2016-04/TPE/src/Datos",name);
 	        List<String> res = new LinkedList<String>();
 	        try {
 	        	Scanner sc = new Scanner(toRead);

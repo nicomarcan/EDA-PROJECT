@@ -57,6 +57,6 @@ public class AirportCreator {
 	}
 
 	public void deleteAirports() {
-		//airportM.deleteAllAirports();
+		airportM.deleteAirports();
 	}
 }

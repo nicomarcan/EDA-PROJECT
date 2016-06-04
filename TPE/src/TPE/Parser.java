@@ -31,40 +31,49 @@ public class Parser {
 			System.out.println(HELP_MESSAGE);
 			return false;
 		}
+		
+		/**listo**/
 		if(Pattern.matches(addAirExp,command)){
 			airportC.addAirport(command);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(addAllAirExp,command)){
 			String[] res = command.split(" ");
 			List<String> data = f.readAirports(res[3]);
 			airportC.addAirports(data);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(delAirExp,command)){
 			airportC.deleteAirport(command);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(delAllAirExp, command)){
 			airportC.deleteAirports();
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(addFlExp, command)){
 			flightC.addFlight(command);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(delFlExp, command)){
 			flightC.deleteFlight(command);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(addAllFlExp, command)){
 			String[] res = command.split(" ");
 			List<String> data = f.readFlights(res[3]);
 			flightC.addFlights(data);
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(delAllFlExp, command)){
-			//airportM.deleteAllFlights();
+			flightC.deleteFlights();
 			return false;
 		}
 		else if(Pattern.matches(findRouteExp, command)){
@@ -83,7 +92,9 @@ public class Parser {
 			System.out.println("*matches exit and save command*");
 			return false;
 		}
+		/**listo**/
 		else if(Pattern.matches(quitExp, command)){
+			System.out.println("Saliendo....");
 			return true;
 		}
 		else
@@ -99,10 +110,10 @@ public class Parser {
 		
 		if(args.length == 1) {
 			if(args[0].equals("--delete-airports")) {
-				//airportC.deleteAirports(airportM);
+				airportC.deleteAirports();
 			}
 			else if(args[0].equals("--delete-flights")) {
-				//airportM.deleteAllFlights();
+				flightC.deleteFlights();
 			}
 			else {
 				return false;

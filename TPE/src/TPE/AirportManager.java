@@ -57,25 +57,31 @@ public class AirportManager {
 		}
 	}
 	
-	public void addAirports(List<Airport> airports){
-		for(Airport a : airports){
-			addAirport(a);
+	public void deleteFlights(){
+		flights.clear();
+		for(Node n : airportsL){
+			n.priceFlight.clear();
+			n.timeFlight.clear();
+			n.waitingTimes.clear();
 		}
+		System.out.println(airports);
 	}
 
-	public void deleteAirports(List<String> airports){
-		for(String s : airports){
-			deleteAirport(s);
-		}
+	public void deleteAirports(){
+		airportsL.clear();
+		airports.clear();
+		flights.clear();
 	}
 	
-	
+	/** personalizar el error**/
 	
 	public void addFlight(Flight f){
 		Node origin = airports.get(f.getOrigin());
 		Node target = airports.get(f.getTarget());
-		if(origin == null || target == null)
+		if(origin == null || target == null){
+			System.out.println("alguno de los aeropuertos es invalido: "+f.getOrigin()+ " o "+f.getTarget());
 			return;
+		}
 		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
 		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);

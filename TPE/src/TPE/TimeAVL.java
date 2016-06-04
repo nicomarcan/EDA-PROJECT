@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-
+/** modifique las rotaciones les agregue la resta de los dias**/
 
 /** Implementación particular de un AVL de vuelos, en la que se ordena por tiempo de llegada, 
  * pero cada nodo tiene referencia al maximo tiempo de salida de sus hijos, 
@@ -70,7 +70,7 @@ public class TimeAVL implements Iterable<Flight>{
 				    		  current.maxDepTime = current.left.maxDepTime;
 				      }
 				      
-		    	   if(lastMax == null){			    
+		    	   if(lastMax == null){			    	
 			    		current.maxDepTime = current.left.elem.getDepartureTime()-((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24) > current.maxDepTime ? current.left.elem.getDepartureTime()-((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;			    	
 			    	}	
 		    	
@@ -205,13 +205,14 @@ public class TimeAVL implements Iterable<Flight>{
 
 
 
+	
 	  private void updateMaxDep(Node current) {
-		  current.maxDepTime = -1;
+		  current.maxDepTime = Integer.MIN_VALUE;
 		if(current.left != null ){
-			current.maxDepTime = current.left.elem.getDepartureTime() ;
+			current.maxDepTime = current.left.elem.getDepartureTime() -((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24);
 			current.maxDepTime = current.left.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
 		}if(current.right != null){
-			current.maxDepTime = current.right.elem.getDepartureTime()> current.maxDepTime ? current.right.elem.getDepartureTime() : current.maxDepTime;
+			current.maxDepTime = current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24)> current.maxDepTime ? current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;
 			current.maxDepTime = current.right.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
 		}	
 	}
@@ -374,11 +375,13 @@ public class TimeAVL implements Iterable<Flight>{
 			Flight f1 = new Flight("AA", "1234", days, b.getName(), a.getName(), 1200, 360,7.8 );
 			Flight f2 = new Flight("ABA", "1234", d, b.getName(), a.getName(), 1200, 1680,7.8);
 			Flight f3 = new Flight("ACA", "1234", days, b.getName(), a.getName(), 1300, 261,7.8);
+			Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 1299, 331,7.8);
+			Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 1300, 350,7.8);
 			f1.setCurrentDayIndex(0);
 			f2.setCurrentDayIndex(6);
 			f3.setCurrentDayIndex(0);
-		//	Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 362, 1300,7.8);
-		//	Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 3645, 1500,7.8);
+			f4.setCurrentDayIndex(0);
+			f5.setCurrentDayIndex(0);
 			TimeAVL avl = new TimeAVL(new Comparator<Flight>(){
 
 				@Override
@@ -390,10 +393,10 @@ public class TimeAVL implements Iterable<Flight>{
 			avl.insert(f1);
 			avl.insert(f2);
 			avl.insert(f3);
-			//avl.insert(f4);
-			//avl.insert(f5);
-			//avl.remove(f3);
-			//avl.remove(f5);
+			avl.insert(f4);
+			avl.insert(f5);
+			avl.remove(f3);
+			avl.remove(f5);
 			avl.print();
 		}
 	

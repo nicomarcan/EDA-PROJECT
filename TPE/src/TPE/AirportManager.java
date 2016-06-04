@@ -15,6 +15,7 @@ public class AirportManager {
 	private Map<String,Node> airports = new HashMap<String,Node>();
 	private Set<Node> airportsL = new HashSet<Node>(); 
 	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();
+	private final int dayMins = 60*24;
 	
 	private static AirportManager instance = new AirportManager();
 	
@@ -123,15 +124,14 @@ public class AirportManager {
 						}
 						
 					}));
-					
 					waitingTimeDay.put(Day.getDay(i), new TimeAVL(new Comparator<Flight>(){
 
 						@Override
-						public int compare(Flight o1, Flight o2) {
-							return new Integer(o2.getDepartureTime()+o2.getFlightTime()%(60*24)).compareTo(o1.getFlightTime()+o1.getDepartureTime()%(60*24));
+						public int compare(Flight o1, Flight o2) {		
+							return new Integer((o2.getDepartureTime()+o2.getFlightTime())%(dayMins)).compareTo((o1.getFlightTime()+o1.getDepartureTime())%(dayMins));
 						}
 						
-					}));
+					},i));
 					
 					
 				}

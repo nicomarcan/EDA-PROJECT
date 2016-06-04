@@ -11,7 +11,26 @@ public class Flight {
 	private Double price;
 	private Integer flightTime;
 	
+	/** Dia en el que se esta usando el vuelo**/
+	private int currentDayIndex;
 	
+	
+
+
+
+
+	public int getCurrentDayIndex() {
+		return currentDayIndex;
+	}
+
+
+
+	public void setCurrentDayIndex(int currentDayIndex) {
+		this.currentDayIndex = currentDayIndex;
+	}
+
+
+
 	public Double getPrice() {
 		return price;
 	}

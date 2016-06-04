@@ -122,7 +122,7 @@ public class FileManager {
 	}
 	
 	public  List<String> readAirports(String name) throws IOException, ClassNotFoundException {
-	        File toRead = new File("C:/Users/nmarcantonio/Documents/eda-2016-04/TPE/src/Datos",name);
+	        File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",name);
 	        List<String> res = new LinkedList<String>();
 	        try {
 	        	Scanner sc = new Scanner(toRead);

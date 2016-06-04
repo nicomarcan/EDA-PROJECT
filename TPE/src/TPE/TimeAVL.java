@@ -15,8 +15,7 @@ public class TimeAVL implements Iterable<Flight>{
 		  private Node left;
 		  private Node right;
 		  private Node parent;
-		  private int maxLeftDepTime = -1;
-		  private int maxRightDepTime = -1;
+		  private int maxDepTime = -1;
 		  private int height;
 	    
 	  
@@ -58,25 +57,20 @@ public class TimeAVL implements Iterable<Flight>{
 		    if (current == null)
 		    	return insert;
 		    else if (cmp.compare(insert.elem,current.elem) <= 0){
-		    	Integer lastMaxLeft = null;
-		    	Integer lastMaxRight = null;
+		    	Integer lastMax = null;
 		    	if(current.left != null){
-		    		 lastMaxLeft = current.left.maxLeftDepTime;
-		    		 lastMaxRight = current.right.maxRightDepTime;
+		    		 lastMax = current.left.maxDepTime;
 		    	}
 		    	current.left = insert(insert, current.left);
 		    	current.left.parent = current;
-		    	   if(lastMaxLeft != null && lastMaxLeft != current.left.maxLeftDepTime){
-				    	  if(current.left.maxLeftDepTime > current.maxLeftDepTime)
-				    		  current.maxLeftDepTime = current.left.maxLeftDepTime;
+		    	   if(lastMax != null && lastMax != current.left.maxDepTime){
+				    	  if(current.left.maxDepTime > current.maxDepTime)
+				    		  current.maxDepTime = current.left.maxDepTime;
 				      }
-				      if(lastMaxRight != null && lastMaxRight != current.left.maxRightDepTime){
-				    	  if(current.left.maxRightDepTime > current.maxRightDepTime)
-				    		  current.maxRightDepTime = current.left.maxRightDepTime;
-				      }
-		    	if(current.maxLeftDepTime == -1){
-		    		current.maxLeftDepTime = current.left.elem.getDepartureTime();
-		    	}
+				      
+		    	   if(lastMax == null){			    
+			    		current.maxDepTime = current.left.elem.getDepartureTime() > current.maxDepTime ? current.left.elem.getDepartureTime() : current.maxDepTime;			    	
+			    	}	
 		    	
 		      
 		     if (height(current.left) - height(current.right) > 1){
@@ -89,24 +83,19 @@ public class TimeAVL implements Iterable<Flight>{
 		      }
 		    }
 		    else if (cmp.compare(insert.elem,current.elem) > 0){
-		    	Integer lastMaxLeft = null;
-		    	Integer lastMaxRight = null;
+		    	Integer lastMax = null;
 		    	if(current.right != null){
-		    		 lastMaxLeft = current.left.maxLeftDepTime;
-		    		 lastMaxRight = current.right.maxRightDepTime;
+		    		 lastMax = current.right.maxDepTime;
 		    	}
 			      current.right = insert(insert ,current.right); 
 			      current.right.parent = current;
-			      if(lastMaxLeft != null && lastMaxLeft != current.right.maxLeftDepTime){
-			    	  if(current.right.maxLeftDepTime > current.maxLeftDepTime)
-			    		  current.maxLeftDepTime = current.right.maxLeftDepTime;
+			      if(lastMax != null && lastMax != current.right.maxDepTime){
+			    	  if(current.right.maxDepTime > current.maxDepTime)
+			    		  current.maxDepTime = current.right.maxDepTime;
 			      }
-			      if(lastMaxRight != null && lastMaxRight != current.right.maxRightDepTime){
-			    	  if(current.right.maxRightDepTime > current.maxRightDepTime)
-			    		  current.maxRightDepTime = current.right.maxRightDepTime;
-			      }
-			      if(current.maxRightDepTime == -1){
-			    		current.maxRightDepTime = current.right.elem.getDepartureTime();
+			 
+			      if(lastMax == null){			    
+			    		current.maxDepTime = current.right.elem.getDepartureTime() > current.maxDepTime ? current.right.elem.getDepartureTime() : current.maxDepTime;			    	
 			    	}			     
 			      if ( height(current.right) - height(current.left) > 1)
 			        if (cmp.compare(insert.elem,current.right.elem) > 0){
@@ -132,6 +121,8 @@ public class TimeAVL implements Iterable<Flight>{
 	    aux.right = n;
 	    n.height = max (height (n.left), height(n.right)) + 1;
 	    aux.height = max(height (aux.left), height(aux.right)) + 1;  
+	    updateMaxDep(n);
+	    updateMaxDep(aux);
 	    return aux;
 	  }
 	  
@@ -151,10 +142,9 @@ public class TimeAVL implements Iterable<Flight>{
 	    aux.left = n;   
 	    n.height = max (height (n.right), height(n.left)) + 1; 
 	    aux.height = max (height(aux.left), height(aux.right)) + 1;
-	    n.maxRightDepTime = aux.maxLeftDepTime;
-	   // aux.maxLeftDepTime = // SEGUIR
-	   // return aux;
-	    		return null;
+	    updateMaxDep(n);
+	    updateMaxDep(aux);
+	    return aux;
 	  }
 
 	 
@@ -195,9 +185,12 @@ public class TimeAVL implements Iterable<Flight>{
 	        	current.left.parent = current.parent;
 	        if(current != node){
 	        	current.parent.right = current.left;
+	        	if(current.parent.right != null)
+	        		current.parent.maxDepTime = current.parent.right.maxDepTime;
 	        	current = current.parent;
 	        	while(current != node){
 	        		current.height = Math.max(height(current.left), height(current.right))+1;
+	        		updateMaxDep(current);
 	        		current = current.parent;
 	        	}
 	        }
@@ -210,7 +203,17 @@ public class TimeAVL implements Iterable<Flight>{
 
 
 
-	  public void remove( Flight x ) {
+	  private void updateMaxDep(Node current) {
+		  current.maxDepTime = -1;
+		if(current.left != null ){
+			current.maxDepTime = current.left.elem.getDepartureTime() ;
+			current.maxDepTime = current.left.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
+		}if(current.right != null){
+			current.maxDepTime = current.right.elem.getDepartureTime()> current.maxDepTime ? current.right.elem.getDepartureTime() : current.maxDepTime;
+			current.maxDepTime = current.right.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
+		}	
+	}
+	public void remove( Flight x ) {
 	      root = remove(x, root);
 	  }
 
@@ -221,16 +224,28 @@ public class TimeAVL implements Iterable<Flight>{
 			int c = cmp.compare(elem,current.elem);
 			if(c > 0){
 				current.right = remove(elem,current.right);
-				if ( height(current.left) - height(current.right) > 1){
-			       current = doubleWithLeftChild(current);
-			      }
+				updateMaxDep(current);			
+				if (height(current.left) - height(current.right) > 1){
+			        if (height(current.left.left) > height(current.left.right)){
+			          current = rotateWithLeftChild(current);
+			        }
+			        else {
+			          current = doubleWithLeftChild(current);
+			        }
+			      }																												
 				current.height = max (height(current.left), height(current.right)) + 1;
 				return current;
 			}else if(c < 0){
 				current.left = remove(elem,current.left);
-				if (height(current.right) - height(current.left) > 1){
-			        current = rotateWithRightChild(current);
-			      }
+				updateMaxDep(current);			
+				 if ( height(current.right) - height(current.left) > 1){
+				        if (height(current.right.right) > height(current.right.left)){
+				          current = rotateWithRightChild(current);		       
+				        }
+				        else{
+				          current = doubleWithRightChild(current);
+				        }
+				 }
 				 current.height = max (height(current.left), height(current.right)) + 1;			
 				return current;
 			}
@@ -259,25 +274,7 @@ public class TimeAVL implements Iterable<Flight>{
 	  } 
 	  
 	  
-	  private Node re(Flight elem,Node current){
-		  if(current == null)
-			  return null;
-		  int c = cmp.compare(elem, current.elem);
-		  if(c > 0){
-			  current.right = re(elem,current.right);
-		  }else if(c < 0){
-			  current.left = re(elem,current.left);
-		  }if(current.right == null && current.left == null)
-				return null;
-			if(current.right != null && current.left == null)
-				return current.right;
-			if(current.left != null && current.right == null)
-				return current.left;
-			Box b = findMaxAndRemoveNode(current.left);
-			current.left = b.node;
-			current.elem = b.max;
-			return current;
-	  }
+	 
 
 
 	  public boolean contains(Flight elem){
@@ -309,14 +306,14 @@ public class TimeAVL implements Iterable<Flight>{
 				System.out.println(current.elem + " padre : "+current.parent+" altura "+ current.height);
 				return;
 			}else if (current.left!= null && current.right != null){
-				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxLeftDepTime+" maxR: "+current.maxRightDepTime+ ", Hijo izquierdo: "+current.left.elem+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent +" altura "+ current.height);
+				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxDepTime+", Hijo izquierdo: "+current.left.elem+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent +" altura "+ current.height);
 				print(current.left);
 				print(current.right);
 			}else if(current.left != null){
-				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxLeftDepTime+" maxR: "+current.maxRightDepTime+", Hijo izquierdo: "+current.left.elem+ " padre : "+current.parent+" altura "+ current.height);
+				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxDepTime+", Hijo izquierdo: "+current.left.elem+ " padre : "+current.parent+" altura "+ current.height);
 				print(current.left);
 			}else{
-				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxLeftDepTime+" maxR: "+current.maxRightDepTime+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent+" altura "+ current.height);
+				System.out.println("Padre: "+current.elem+" maxDep: "+current.maxDepTime+",Hijo derecho: "+current.right.elem+ " padre : "+current.parent+" altura "+ current.height);
 				print(current.right);
 			}
 			
@@ -370,10 +367,11 @@ public class TimeAVL implements Iterable<Flight>{
 			Airport b = new Airport("LON", 80.0, 25.0);
 			days.add(Day.MONDAY);
 			days.add(Day.FRIDAY);
-			Flight f1 = new Flight("AA", "1234", days, b, 750, 360, 1200, a);
-			Flight f2 = new Flight("ABA", "1234", days, b, 1000, 359, 1200, a);
-			Flight f3 = new Flight("ACA", "1234", days, b, 800, 361, 120, a);
-			Flight f4 = new Flight("AZA", "1235", days, b, 800, 362, 1300, a);
+			Flight f1 = new Flight("AA", "1234", days, b.getName(), a.getName(), 360, 1200,7.8 );
+			Flight f2 = new Flight("ABA", "1234", days, b.getName(), a.getName(), 359, 1200,7.8);
+			Flight f3 = new Flight("ACA", "1234", days, b.getName(), a.getName(), 36100, 120,7.8);
+			Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 362, 1300,7.8);
+			Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 3645, 1500,7.8);
 			TimeAVL avl = new TimeAVL(new Comparator<Flight>(){
 
 				@Override
@@ -386,6 +384,9 @@ public class TimeAVL implements Iterable<Flight>{
 			avl.insert(f2);
 			avl.insert(f3);
 			avl.insert(f4);
+			avl.insert(f5);
+			avl.remove(f3);
+			avl.remove(f5);
 			avl.print();
 		}
 	

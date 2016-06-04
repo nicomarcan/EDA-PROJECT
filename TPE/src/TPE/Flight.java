@@ -41,7 +41,7 @@ public class Flight {
 	private int departureTime;
 	private String origin;
 	
-	public Flight(String airline, String flightNumber, List<Day> days, String target, String origin,
+	public Flight(String airline, String flightNumber, List<Day> days, String origin, String target,
 			int departureTime, int flightTime, double price) {
 		super();
 		this.airline = airline;

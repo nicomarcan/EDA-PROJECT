@@ -12,9 +12,7 @@ public class Airport {
 		this.name = name;
 		this.lat = lat;
 		this.length = length;
-	}
-	
-	
+	}	
 	
 	public String getName() {
 		return name;
@@ -24,10 +22,6 @@ public class Airport {
 		return name+" "+lat+" "+length;
 	}
 
-
-
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -36,7 +30,6 @@ public class Airport {
 		return result;
 	}
 	
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

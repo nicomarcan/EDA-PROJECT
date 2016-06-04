@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class AirportManager {
@@ -88,7 +88,7 @@ public class AirportManager {
 		}else{
 				HashMap<Day,TreeSet<Flight>> priceDay = new HashMap<Day,TreeSet<Flight>>();
 				HashMap<Day,TreeSet<Flight>> timeDay = new HashMap<Day,TreeSet<Flight>>();
-				HashMap<Day,AVL<Flight>> waitingTimeDay = new HashMap<Day,AVL<Flight>>();
+				HashMap<Day,TimeAVL> waitingTimeDay = new HashMap<Day,TimeAVL>();
 				for(int i = 0;i < Day.size;i++){
 					priceDay.put(Day.getDay(i), new TreeSet<Flight>(new Comparator<Flight>(){
 							@Override
@@ -124,7 +124,7 @@ public class AirportManager {
 						
 					}));
 					
-					waitingTimeDay.put(Day.getDay(i), new AVL<Flight>(new Comparator<Flight>(){
+					waitingTimeDay.put(Day.getDay(i), new TimeAVL(new Comparator<Flight>(){
 
 						@Override
 						public int compare(Flight o1, Flight o2) {
@@ -180,7 +180,7 @@ public class AirportManager {
 			return list;
 		}
 		
-		FibonacciHeap<Box> pq = new FibonacciHeap<>(new Comparator<Box>() {
+		PriorityQueue<Box> pq = new PriorityQueue<>(new Comparator<Box>() {
 
 			@Override
 			public int compare(Box o1, Box o2) {
@@ -239,7 +239,7 @@ public class AirportManager {
 		Airport airport;
 		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
 		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
-		Map<Airport,Map<Day,AVL<Flight>>> waitingTimes = new HashMap<Airport,Map<Day,AVL<Flight>>>();
+		Map<Airport,Map<Day,TimeAVL>> waitingTimes = new HashMap<Airport,Map<Day,TimeAVL>>();
 		
 		public boolean visited;
 			

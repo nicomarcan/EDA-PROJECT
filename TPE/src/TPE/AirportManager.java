@@ -241,6 +241,16 @@ public class AirportManager {
 		}
 	}
 
+	public void findRoute(String source,String target,RoutePriority priority,List<Day> days){
+		Node source = airports.get(source);
+		Node target = airports.get(target);
+		if(source == null || target == null){
+			syso("Alguno de los aeropuertos es invalido");
+		}
+		Dijkstra d = new Dijkstra(source.airport,target.airport,priority,days);
+		syso(d.findRoute());
+		return ;
+	}
 
 	protected static class Node{
 		Airport airport;

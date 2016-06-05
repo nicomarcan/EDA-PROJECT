@@ -1,6 +1,7 @@
 package TPE;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -241,7 +242,7 @@ public class AirportManager {
 	}
 
 
-	private static class Node{
+	protected static class Node{
 		Airport airport;
 		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
 		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
@@ -331,36 +332,31 @@ public class AirportManager {
 		}
 		
 	}
-	public static void main(String[] args) {
-		AirportManager airportM = new AirportManager();
-		Airport a = new Airport("BUE", -80.0, 100.0);
-		Airport b = new Airport("LON", 80.0, 25.0);
-		ArrayList<Day> days = new ArrayList<Day>();
-		days.add(Day.MONDAY);
-		days.add(Day.FRIDAY);
-		airportM.addAirport(a);
-		airportM.addAirport(b);
-		Flight f1 = new Flight("AA", "1234", days, a.getName(), b.getName(), 1200, 240, 12.8);
-		Flight f2 = new Flight("ACA", "1234", days, a.getName(), b.getName(), 1200, 240, 11.8);
-		Flight f3 = new Flight("AVA", "1234", days, a.getName(), b.getName(), 1200, 250, 11.8);
-		ArrayList<Day> day2 = new ArrayList<>();
-		day2.add(Day.THURSDAY);
-		Flight f4 = new Flight("AZA", "1234", day2, a.getName(), b.getName(), 1200, 239, 10.8);
-		airportM.addFlight(f1);
-		airportM.addFlight(f2);
-		airportM.addFlight(f3);
-		airportM.addFlight(f4);
-	//	System.out.println(airportM.flights);
-		System.out.println(airportM.airports.get(a.getName()).priceFlight.get(b).get(Day.MONDAY));
-		System.out.println(airportM.airports.get(a.getName()).timeFlight.get(b).get(Day.MONDAY));
-//		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.SATURDAY).print();
-//		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.FRIDAY).print();
-//		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.THURSDAY).print();
-//	
-		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.TUESDAY).print();
-	}
 	
 	// Dummies para el Dijkstra 
-		public Set<Flight> getFlightsDijkstra() { return null; }		
-		public Set<Airport> getAirportsDijkstra() { return null; }
+			public Set<Flight> getFlightsDijkstra() { return null; }		
+			public Collection<Node> getAirportsDijkstra() { return airports.values();}
+			
+	public static void main(String[] args) {
+		AirportManager airportM = AirportManager.getInstance();
+		Airport a = new Airport("BUE", -80.0, 100.0);
+		Airport b = new Airport("LON", 80.0, 25.0);
+		Airport c = new Airport("ARG", 80.0, 25.0);
+		ArrayList<Day> days = new ArrayList<Day>();
+		days.add(Day.MONDAY);
+		airportM.addAirport(a);
+		airportM.addAirport(b);
+		airportM.addAirport(c);
+		Flight f = new Flight("AA","1234", days, a.getName(), b.getName(), 720,20, 12.58);
+		Flight f2 = new Flight("AAB","1234", days, b.getName(), c.getName(), 720,200, 1222.0);
+		Flight f3 = new Flight("AAC","1234", days, a.getName(), c.getName(), 720,100, 2000.0);
+		airportM.addFlight(f);
+		airportM.addFlight(f2);
+		airportM.addFlight(f3);
+		//System.out.println(airportM.airports.get(a.getName()).priceFlight);
+		Dijkstra d = new Dijkstra(a, c, RoutePriority.TIME, Day.getAllDays());
+		System.out.println(d.findRoute());
+	}
+	
+	
 }

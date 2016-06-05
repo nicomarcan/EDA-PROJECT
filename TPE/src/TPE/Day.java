@@ -1,6 +1,7 @@
 package TPE;
 
-
+import java.util.LinkedList;
+import java.util.List;
 
 public class Day {
 	 	public static final Day MONDAY = new Day(0);
@@ -65,6 +66,14 @@ public class Day {
 	    public String toString(){
 	    	String a = "";
 	    	return a+this.dayIndex;
+	    }
+	    
+	    public static List<Day> getAllDays(){
+	    	List<Day> days = new LinkedList<Day>();
+	    	for(int i = 0 ; i< Day.size;i++){
+	    		days.add(getDay(i));
+	    	}
+	    	return days;
 	    }
 	    
 	    

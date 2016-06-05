@@ -1,5 +1,6 @@
 package TPE;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -8,9 +9,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
+
+import TPE.AirportManager.Node;
 
 
-/*
+/**
  * Algoritmo de Dijsktra con min-priority queue. Use el PriorityQueue de java por ahora, se puede cambiar. El
  * priorityqueue es para guardar los vertices que aun no fueron visitados y tener listo el mas cercano para visitar 
  * proximo.
@@ -28,90 +32,93 @@ import java.util.Set;
  * 
  * Falta agregar que para el primer vertex solo considere vuelos en los dias especificados por comando, si les parece
  * q esta bien este dijsktra mas tarde lo agrego.
- */
+ **/
 public class Dijkstra {
 	
 	private RoutePriority priority;
 	private Vertex startingVertex;
 	private Vertex finalVertex;
 	private Set<Flight> flights = new HashSet<Flight>();
-	private Set<Airport> airports = new HashSet<Airport>();
+	private Collection<Node> airports ;
 	private Queue<Vertex> unvisitedVertexes = new PriorityQueue<Vertex>();
 	private Map<Airport, Vertex> airportToVertex = new HashMap<Airport, Vertex>();
 
 	AirportManager airportManager = AirportManager.getInstance();
 
 	/* arma un vertex para cada airport, luego a cada vertex le agrega los flights q le salen */
-	public Dijkstra(Airport sourceAirport, Airport destinationAirport, RoutePriority priority) {
+	public Dijkstra(Airport sourceAirport, Airport destinationAirport, RoutePriority priority,List<Day> departureDays) {
 		this.priority = priority;
-		//this.departureDays = departureDays;
-		this.flights = airportManager.getFlightsDijkstra(); // metodo dummy, seria un getFlights
+		this.flights = new HashSet<Flight>();
 		this.airports = airportManager.getAirportsDijkstra(); // metodo dummy, seria un getAirports
-		
-		for(Airport airport : airports) {
-			Vertex vertex = new Vertex(airport);
-			unvisitedVertexes.add(vertex);
-			airportToVertex.put(airport, vertex);
+		for(Node n : airports) {
+			Vertex vertex = new Vertex(n.airport);
+			if(n.airport.equals(sourceAirport)){
+				List<Flight> f = bestFlights(n, departureDays, priority);/** si es el origen podria tener dias fijados**/
+				vertex.addFlights(f);		
+				flights.addAll(f);
+			}
+			else{
+				List<Flight> f = bestFlights(n, Day.getAllDays(), priority);
+				vertex.addFlights(f);		
+				flights.addAll(f);	
+			}
+			airportToVertex.put(n.airport, vertex);
 		}
-		
-		for(Flight flight : flights) {
-			Airport origin = flight.getOriginAirport();
-			airportToVertex.get(origin).addFlight(flight);
-		}
-		
 		this.startingVertex = airportToVertex.get(sourceAirport);
 		this.finalVertex = airportToVertex.get(destinationAirport);
 	}
 	
-	public List<Flight> findRoute() {
-		Vertex currentVertex = null;
-		Vertex destinationVertex = null;
-		Double alternateDistance;	// puede ser time o price, por eso double
+	
 
+	public List<Flight> findRoute() {
+		clearMarks();
 		updateDistance(startingVertex, (double) 0);
+		unvisitedVertexes.offer(startingVertex);
+		Vertex currentVertex = null;
 		
 		while(!unvisitedVertexes.isEmpty()) {
 			currentVertex = unvisitedVertexes.poll();	// agarra el primero del priority queue (menor distancia)
-			
-			if(currentVertex != finalVertex) {
-				unvisitedVertexes.remove(currentVertex);
-				
+			if(currentVertex.equals(finalVertex)) 
+				return constructRouteToDestination(finalVertex);
+			if(!currentVertex.visited){
+				currentVertex.visited = true;
 				for(Flight flight : currentVertex.getFlights()) {
-					
-					if(priority.equals(RoutePriority.PRICE)) {
-						alternateDistance = currentVertex.getTotalDistance() + flight.getPrice();
-					} 
-					else if(priority.equals(RoutePriority.TIME)) {
-						alternateDistance = (double) (currentVertex.getTotalDistance() + flight.getFlightTime());
-					}
-					else {   /* RoutePriority.TOTALTIME */
-						alternateDistance = (double) (currentVertex.getTotalDistance() + flight.getFlightTime()
-								+ currentVertex.getWaitTimeTillFlight(flight));
-					}
-					
-					destinationVertex = getDestinationVertex(flight);
-					
-					if(alternateDistance < destinationVertex.getTotalDistance()) {
-						updateDistance(destinationVertex, alternateDistance);
-						destinationVertex.setSourceFlight(flight);
-						
-						if(priority.equals(RoutePriority.TOTALTIME)) {
-							destinationVertex.setSourceFlightDepartureDay(currentVertex.getFlightDepartureDay(flight));
-							// esto solo hace falta para calcular el tiempo de espera en totaltime
-						}				
-						
-					}
+					Vertex target = getDestinationVertex(flight);
+					if(!target.visited){
+						if(priority.equals(RoutePriority.PRICE)) {
+							if(target.totalDistance > currentVertex.getTotalDistance()+flight.getPrice()){	
+								target.sourceFlight = flight;
+								updateDistance(target, currentVertex.getTotalDistance()+flight.getPrice());
+							}
+						} 
+						else  {
+							if(target.totalDistance > currentVertex.getTotalDistance()+flight.getFlightTime()){	
+								target.sourceFlight = flight;
+								updateDistance(target, currentVertex.getTotalDistance()+flight.getFlightTime());
+							}
+						}
+					}									
 				}
 			}
+			
+			
+			
 		}
-		
 		if(finalVertex.getSourceFlight() == null) {
 			return null; // no hay ruta
-		}
-		
-		return constructRouteToDestination(finalVertex);
+		}	
+		return null;
 	}
 	
+	private void clearMarks() {
+		for(Vertex v : airportToVertex.values()){
+			v.visited = false;
+		}
+		
+	}
+
+
+
 	/* construye el camino agarrando sourceflights desde el vertex final hacia atras */
 	public List<Flight> constructRouteToDestination(Vertex destination) {
 		List<Flight> route = new LinkedList<Flight>();
@@ -119,23 +126,84 @@ public class Dijkstra {
 		
 		while(current.getSourceFlight() != null) {
 			route.add(0, current.getSourceFlight()); // agrega al comienzo de la lista
-			current = airportToVertex.get(current.getSourceFlight().getOriginAirport()); // retrocede un nodo
+			current = getOriginVertex(current.getSourceFlight()); // retrocede un nodo
 		}
 		
 		return route;
 	}
 	
+	
+
+
+
+	private Vertex getOriginVertex(Flight sourceFlight) {
+		return airportToVertex.get(airportManager.getAirports().get(sourceFlight.getOrigin()).airport);
+	}
+
+
+
 	/* updatea el priority queue cuando se le cambia la distancia a un vertex. nose si hay una mejor manera de hacerlo
 	 * con el priorityqueue de java */
 	public void updateDistance(Vertex vertex, Double distance) {
-		vertex.setTotalDistance(distance);
 		unvisitedVertexes.remove(vertex);
-		unvisitedVertexes.add(vertex);
+		vertex.setTotalDistance(distance);
+		unvisitedVertexes.offer(vertex);
 	}
 	
 	/* devuelve el vertex destino de algun flight */
 	public Vertex getDestinationVertex(Flight flight) {
-		return airportToVertex.get(flight.getDestinationAirport());
+		return airportToVertex.get(airportManager.getAirports().get(flight.getTarget()).airport);
 	}
+	
+	private Flight compareByTime(Flight bestOne, Flight current) {
+		if(current == null)
+			return bestOne;
+		if(bestOne == null || current.getFlightTime() > bestOne.getFlightTime()){
+			return current;
+		}
+		return bestOne;
+	}
+
+	private Flight compareByPrice(Flight bestOne, Flight current) {
+		if(current == null)
+			return bestOne;
+		if(bestOne == null || current.getPrice() > bestOne.getPrice()){
+			return current;
+		}
+		return bestOne;
+	}
+	
+	/** devuelve los mejores vuelos a los distintos aeropuertos**/
+	private List<Flight> bestFlights(Node airport,List<Day> days,RoutePriority priority){
+		List<Flight> bestOnes = new LinkedList<Flight>();
+		if(priority == RoutePriority.PRICE){
+			for(Map<Day,TreeSet<Flight>> flights :airport.priceFlight.values()){
+				Flight bestOne = null;
+				for(int i = 0 ; i<days.size();i++){
+					TreeSet<Flight> dayFlights = flights.get(days.get(i));
+					if(dayFlights.size() != 0){/** podrian no haber vuelos ese dia**/
+						Flight current = dayFlights.last();
+						bestOne = compareByPrice(bestOne,current);
+					}
+				}
+				bestOnes.add(bestOne);
+			}
+		}else{
+				for(Map<Day,TreeSet<Flight>> flights :airport.timeFlight.values()){
+					Flight bestOne = null;
+					for(int i = 0 ; i<days.size();i++){
+						TreeSet<Flight> dayFlights = flights.get(days.get(i));
+						if(dayFlights.size() != 0){/** podrian no haber vuelos ese dia**/
+							Flight current = dayFlights.last();
+							bestOne = compareByTime(bestOne,current);
+						}
+					}
+					bestOnes.add(bestOne);
+			}
+		}
+		return bestOnes;
+	}
+	
+	
 	
 }

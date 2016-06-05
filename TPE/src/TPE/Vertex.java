@@ -13,6 +13,7 @@ public class Vertex implements Comparable<Vertex> {
 	Flight sourceFlight; // el mejor flight segun dijkstra para llegar a este vertex
 	Day sourceFlightDepartureDay; // para calcular el tiempo de espera para Priority.TOTALTIME
 	List<Flight> flights = new LinkedList<Flight>(); // los vuelos que parten desde este vertex
+	boolean visited;
 	
 	public Vertex(Airport airport) {
 		this.airport = airport;
@@ -78,6 +79,38 @@ public class Vertex implements Comparable<Vertex> {
 		} else {
 			return 0;
 		}
+	}
+
+	public void addFlights(List<Flight> f) {
+		flights.addAll(f);	
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((airport == null) ? 0 : airport.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vertex other = (Vertex) obj;
+		if (airport == null) {
+			if (other.airport != null)
+				return false;
+		} else if (!airport.equals(other.airport))
+			return false;
+		return true;
+	}
+	public String toString(){
+		return airport.toString()+" "+totalDistance.toString();
 	}
 
 }

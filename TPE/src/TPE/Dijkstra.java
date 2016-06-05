@@ -11,7 +11,9 @@ import java.util.Set;
 
 
 /*
- * Algoritmo de Dijsktra con min-priority queue. Use el PriorityQueue de java por ahora, se puede cambiar.
+ * Algoritmo de Dijsktra con min-priority queue. Use el PriorityQueue de java por ahora, se puede cambiar. El
+ * priorityqueue es para guardar los vertices que aun no fueron visitados y tener listo el mas cercano para visitar 
+ * proximo.
  * 
  * El algoritmo crea una instancia de Vertex para cada aeropuerto y luego le agrega a cada vertex su lista de vuelos 
  * salientes, asi cuando el algoritmo se para en cada vertex solo visita los vertex que tiene de destino.
@@ -43,8 +45,8 @@ public class Dijkstra {
 	public Dijkstra(Airport sourceAirport, Airport destinationAirport, RoutePriority priority) {
 		this.priority = priority;
 		//this.departureDays = departureDays;
-		this.flights = airportManager.getFlightsDijkstra(); // no implementado
-		this.airports = airportManager.getAirportsDijkstra(); // no implementado
+		this.flights = airportManager.getFlightsDijkstra(); // metodo dummy, seria un getFlights
+		this.airports = airportManager.getAirportsDijkstra(); // metodo dummy, seria un getAirports
 		
 		for(Airport airport : airports) {
 			Vertex vertex = new Vertex(airport);
@@ -64,7 +66,7 @@ public class Dijkstra {
 	public List<Flight> findRoute() {
 		Vertex currentVertex = null;
 		Vertex destinationVertex = null;
-		Double alternateDistance;	// distance puede ser time o price
+		Double alternateDistance;	// puede ser time o price, por eso double
 
 		updateDistance(startingVertex, (double) 0);
 		

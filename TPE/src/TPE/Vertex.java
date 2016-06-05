@@ -5,8 +5,7 @@ import java.util.List;
 
 /*
  * Cada vertex corresponde a un aeropuerto y tiene una lista de los vuelos que salen de el.
- * El algoritmo de Dijkstra le guarda al vertex el vuelo que se utilizo para llegar en el camino optimo (sourceFlight)
- * 
+ * El algoritmo de Dijkstra le guarda al vertex el vuelo que se utilizo para llegar en el camino optimo (sourceFlight).
  */
 public class Vertex implements Comparable<Vertex> {
 	Airport airport;

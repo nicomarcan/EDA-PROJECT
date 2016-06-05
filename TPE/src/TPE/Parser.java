@@ -76,8 +76,31 @@ public class Parser {
 			flightC.deleteFlights();
 			return false;
 		}
+		/**poner los metodos en Day**/
 		else if(Pattern.matches(findRouteExp, command)){
 			System.out.println("*matches find route command*");
+			String[] res = command.split(" ");
+			String source = res[1].split("=")[1];
+			String target = res[2].split("=")[1];
+			String p = res[3].split("=")[1];
+			
+			RoutePriority priority;
+			
+			if(p.equals(ft))
+				priority = RoutePriority.TIME;
+			else if (p.equals(pr))
+				priority = RoutePriority.PRICE;
+			else
+				priority = RoutePriority.TOTALTIME;
+				
+			if(res.length == 5){
+				String[] days = res[4].split("-");
+				if(!checkDays(days))
+				System.out.println("Ingreso dias repetidos");
+				List<Day> newDays = getDays(days); 
+				airportManager.getInstance().findRoute(source,target,priority,newDays);
+			}else
+				airportManager.getInstance.findRoute(source,target,priority,Day.getAllDays);
 			return false;
 		}
 		else if(Pattern.matches(outputFormatExp, command)){
@@ -101,6 +124,40 @@ public class Parser {
 			System.out.println("Ingreso un comando no valido");
 
 		return false;
+	}
+	private List<Day> getDays(String[] days) {
+		List<Day> ans = new LinkedList<Day>();
+		for(int i = 0; i <days.length;i++){
+			switch(days[i]){
+			case "Lu": ans.add(Day.MONDAY);
+						break;
+			case "Ma": ans.add(Day.TUESDAY);
+						break;
+			case "Mi": ans.add(Day.WEDNESDAY);
+						break;
+			case "Ju": ans.add(Day.THURSDAY);
+						break;
+			case "Vi": ans.add(Day.FRIDAY);
+						break;
+			case "Sa": ans.add(Day.SATURDAY);
+						break;
+			case "Do": ans.add(Day.SUNDAY);
+						break;		
+			}
+		}
+		return ans;
+	}
+
+	private boolean checkDays(String[] days) {
+		for(int i = 0; i < days.length;i++){
+			for(int j = i+1 ; j < days.length;j++){
+				if(days[i].equals(days[j])){
+					return false;
+				}
+			}
+		}
+		return true;
+		
 	}
 
 	public static boolean parseArguments(String[] args) throws ClassNotFoundException, IOException {

@@ -126,7 +126,12 @@ public class Flight {
 	}
 
 
-	
+	// Dummies para el Dijkstra
+		public Airport getOriginAirport() { return null; }
+		public Airport getDestinationAirport() { return null; }
+		public Day getArrivalDay() { return null; }
+		public Integer getArrivalTime() { return null; }
+		
 		
 	
 }

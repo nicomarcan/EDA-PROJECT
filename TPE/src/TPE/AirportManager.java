@@ -360,5 +360,7 @@ public class AirportManager {
 		airportM.airports.get(a.getName()).waitingTimes.get(b).get(Day.TUESDAY).print();
 	}
 	
-	 
+	// Dummies para el Dijkstra 
+		public Set<Flight> getFlightsDijkstra() { return null; }		
+		public Set<Airport> getAirportsDijkstra() { return null; }
 }

@@ -35,19 +35,19 @@ public class Parser {
 		
 		/**listo**/
 		if(Pattern.matches(addAirExp,command)){
-			airportC.addAirport(command);
+			String[] res = command.split(" ");
+			airportC.addAirport(res[2],new Double(res[3]),new Double(res[4]));
 			return false;
 		}
 		/**listo**/
 		else if(Pattern.matches(addAllAirExp,command)){
 			long initialT = System.currentTimeMillis();
 			String[] res = command.split(" ");
-			List<String> data = f.readAirports(res[3]);
-			airportC.addAirports(data);
+			f.readAirports(res[3]);
 			long finalT = System.currentTimeMillis();
 			System.out.println(finalT-initialT +" milisegundos ");
 		//	System.out.println("Has tardado : 9123.56 segundos");
-			System.out.println(AirportManager.i+" repetidos "+AirportManager.getInstance().getAirports().size()+" no repetidos");
+		//	System.out.println(AirportManager.i+" repetidos "+AirportManager.getInstance().getAirports().size()+" no repetidos");
 			return false;
 		}
 		/**listo**/
@@ -62,7 +62,9 @@ public class Parser {
 		}
 		/**listo**/
 		else if(Pattern.matches(addFlExp, command)){
-			flightC.addFlight(command);
+			String[] res = command.split(" ");
+			flightC.addFlight(res[2], res[3], res[4],res[5], res[6],res[7], res[8], new Double(res[9]));
+			System.out.println(AirportManager.getInstance().getFlights());
 			return false;
 		}
 		/**listo**/
@@ -73,8 +75,11 @@ public class Parser {
 		/**listo**/
 		else if(Pattern.matches(addAllFlExp, command)){
 			String[] res = command.split(" ");
-			List<String> data = f.readFlights(res[3]);
-			flightC.addFlights(data);
+			long initialT = System.currentTimeMillis();
+			f.readFlights(res[3]);
+			long finalT = System.currentTimeMillis();
+			System.out.println(finalT-initialT +" milisegundos ");
+		//	System.out.println(AirportManager.getInstance().getFlights());
 			return false;
 		}
 		/**listo**/
@@ -160,13 +165,11 @@ public class Parser {
 				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
 					return false;
 				if(args[2].equals("--append-airports")) {
-					List<String> data = f.readAirports(args[1]);
-					airportC.addAirports(data);
+					f.readAirports(args[1]);
 				}
 				else if(args[2].equals("--replace-airports")) {
-					List<String> data = f.readAirports(args[1]);
 					airportC.deleteAirports();
-					airportC.addAirports(data);
+					f.readAirports(args[1]);
 				}
 				else {
 					return false;
@@ -176,13 +179,11 @@ public class Parser {
 				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
 					return false;
 				if(args[2].equals("--append-flights")) {
-					List<String> data = f.readFlights(args[1]);
-					flightC.addFlights(data);
+					f.readFlights(args[1]);
 				}
 				else if(args[2].equals("--replace-flights")) {
-					List<String> data = f.readFlights(args[1]);
 					flightC.deleteFlights();
-					flightC.addFlights(data);
+					f.readFlights(args[1]);
 				}
 				else {
 					return false;

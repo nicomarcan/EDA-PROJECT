@@ -6,22 +6,9 @@ public class AirportCreator {
 	private FileManager f = new FileManager();
 	AirportManager airportM = AirportManager.getInstance();
 	
-	public void addAirport(String command){
-		String[] res = command.split(" ");	
-		String name = res[2];
-		Double lat = new Double(res[3]);
-		Double length = new Double(res[4]);
-		if(checkLat(lat) && checkLength(length)){
-			airportM.addAirport(new Airport(name, lat, length));
-		}
-		System.out.println(airportM.getAirports());
-	}
+
 	
-	public void addAirports(List<String> data){
-		for(int i = 0;i<data.size();i+=3){
-			String name = data.get(i);
-			Double lat = new Double(data.get(i+1));
-			Double length = new Double(data.get(i+2));
+	public void addAirport(String name,Double lat,Double length){
 			if(checkLat(lat) && checkLength(length)){
 				
 				airportM.addAirport(new Airport(name,lat,length));
@@ -29,8 +16,6 @@ public class AirportCreator {
 			else{
 				System.out.println("mal");
 			}
-		}
-		System.out.println(airportM.getAirports());
 	}
 	
 	public void deleteAirport(String command){

@@ -15,6 +15,50 @@ import java.util.TreeSet;
 
 public class AirportManager {
 	public static int  i = 0;
+	
+	private Comparator<Flight> p = new Comparator<Flight>(){
+		@Override
+		public int compare(Flight o1, Flight o2) {
+			int c = o2.getPrice().compareTo(o1.getPrice());
+			if( c == 0){
+				if(o1.equals(o2)){
+					return c;
+				}else{
+					return o1.hashCode() - o2.hashCode();
+				}
+			}
+			return c;
+		}
+	
+	
+};
+
+	private Comparator<Flight> t = new Comparator<Flight>(){
+
+		@Override
+		public int compare(Flight o1, Flight o2) {
+			int c = o2.getFlightTime().compareTo(o1.getFlightTime());
+			if( c == 0){
+				if(o1.equals(o2)){
+					return c;
+				}else{
+					return o1.hashCode() - o2.hashCode();
+				}
+			}
+			return c;
+		}
+		
+	};
+	
+	private Comparator<Flight> w = new Comparator<Flight>(){
+
+		@Override
+		public int compare(Flight o1, Flight o2) {		
+			return new Integer((o2.getDepartureTime()+o2.getFlightTime())%(dayMins)).compareTo((o1.getFlightTime()+o1.getDepartureTime())%(dayMins));
+		}
+		
+	};
+	
 	private Map<String,Node> airports = new HashMap<String,Node>();
 	
 	private Set<Node> airportsL = new HashSet<Node>(); 
@@ -111,47 +155,10 @@ public class AirportManager {
 				HashMap<Day,TreeSet<Flight>> timeDay = new HashMap<Day,TreeSet<Flight>>();
 				HashMap<Day,TimeAVL> waitingTimeDay = new HashMap<Day,TimeAVL>();
 				for(int i = 0;i < Day.size;i++){
-					priceDay.put(Day.getDay(i), new TreeSet<Flight>(new Comparator<Flight>(){
-							@Override
-							public int compare(Flight o1, Flight o2) {
-								int c = o2.getPrice().compareTo(o1.getPrice());
-								if( c == 0){
-									if(o1.equals(o2)){
-										return c;
-									}else{
-										return o1.hashCode() - o2.hashCode();
-									}
-								}
-								return c;
-							}
-						
-						
-					}));
+					priceDay.put(Day.getDay(i), new TreeSet<Flight>(p));
 					
-					timeDay.put(Day.getDay(i), new TreeSet<Flight>(new Comparator<Flight>(){
-
-						@Override
-						public int compare(Flight o1, Flight o2) {
-							int c = o2.getFlightTime().compareTo(o1.getFlightTime());
-							if( c == 0){
-								if(o1.equals(o2)){
-									return c;
-								}else{
-									return o1.hashCode() - o2.hashCode();
-								}
-							}
-							return c;
-						}
-						
-					}));
-					waitingTimeDay.put(Day.getDay(i), new TimeAVL(new Comparator<Flight>(){
-
-						@Override
-						public int compare(Flight o1, Flight o2) {		
-							return new Integer((o2.getDepartureTime()+o2.getFlightTime())%(dayMins)).compareTo((o1.getFlightTime()+o1.getDepartureTime())%(dayMins));
-						}
-						
-					},i));
+					timeDay.put(Day.getDay(i), new TreeSet<Flight>(t));
+					waitingTimeDay.put(Day.getDay(i), new TimeAVL(w,i));
 					
 					
 				}

@@ -71,6 +71,10 @@ public class Dijkstra {
 	
 
 	public List<Flight> findRoute() {
+		if(startingVertex.getFlights().size() == 0){
+			System.out.println("Not Found");
+			return null;
+		}
 		clearMarks();
 		updateDistance(startingVertex, (double) 0);
 		unvisitedVertexes.offer(startingVertex);
@@ -86,14 +90,14 @@ public class Dijkstra {
 					Vertex target = getDestinationVertex(flight);
 					if(!target.visited){
 						if(priority.equals(RoutePriority.PRICE)) {
-							if(target.totalDistance > currentVertex.getTotalDistance()+flight.getPrice()){	
-								target.sourceFlight = flight;
+							if(target.getTotalDistance() > currentVertex.getTotalDistance()+flight.getPrice()){	
+								target.setSourceFlight(flight);
 								updateDistance(target, currentVertex.getTotalDistance()+flight.getPrice());
 							}
 						} 
 						else  {
-							if(target.totalDistance > currentVertex.getTotalDistance()+flight.getFlightTime()){	
-								target.sourceFlight = flight;
+							if(target.getTotalDistance() > currentVertex.getTotalDistance()+flight.getFlightTime()){	
+								target.setSourceFlight(flight);
 								updateDistance(target, currentVertex.getTotalDistance()+flight.getFlightTime());
 							}
 						}
@@ -155,10 +159,15 @@ public class Dijkstra {
 		return airportToVertex.get(airportManager.getAirports().get(flight.getTarget()).airport);
 	}
 	
+	
+
+	
+	
+	
 	private Flight compareByTime(Flight bestOne, Flight current) {
 		if(current == null)
 			return bestOne;
-		if(bestOne == null || current.getFlightTime() > bestOne.getFlightTime()){
+		if(bestOne == null || current.getFlightTime() < bestOne.getFlightTime()){
 			return current;
 		}
 		return bestOne;
@@ -167,7 +176,7 @@ public class Dijkstra {
 	private Flight compareByPrice(Flight bestOne, Flight current) {
 		if(current == null)
 			return bestOne;
-		if(bestOne == null || current.getPrice() > bestOne.getPrice()){
+		if(bestOne == null || current.getPrice() < bestOne.getPrice()){
 			return current;
 		}
 		return bestOne;
@@ -178,6 +187,7 @@ public class Dijkstra {
 		List<Flight> bestOnes = new LinkedList<Flight>();
 		if(priority == RoutePriority.PRICE){
 			for(Map<Day,TreeSet<Flight>> flights :airport.priceFlight.values()){
+			//System.out.println(flights+ " vuelos");
 				Flight bestOne = null;
 				for(int i = 0 ; i<days.size();i++){
 					TreeSet<Flight> dayFlights = flights.get(days.get(i));
@@ -186,7 +196,8 @@ public class Dijkstra {
 						bestOne = compareByPrice(bestOne,current);
 					}
 				}
-				bestOnes.add(bestOne);
+				if(bestOne != null)
+					bestOnes.add(bestOne);
 			}
 		}else{
 				for(Map<Day,TreeSet<Flight>> flights :airport.timeFlight.values()){
@@ -198,7 +209,8 @@ public class Dijkstra {
 							bestOne = compareByTime(bestOne,current);
 						}
 					}
-					bestOnes.add(bestOne);
+					if(bestOne != null)
+						bestOnes.add(bestOne);
 			}
 		}
 		return bestOnes;

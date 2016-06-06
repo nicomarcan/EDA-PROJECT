@@ -76,6 +76,41 @@ public class Day {
 	    	return days;
 	    }
 	    
+	    public static List<Day> getDays(String[] days) {
+			List<Day> ans = new LinkedList<Day>();
+			for(int i = 0; i <days.length;i++){
+				switch(days[i]){
+				case "Lu": ans.add(Day.MONDAY);
+							break;
+				case "Ma": ans.add(Day.TUESDAY);
+							break;
+				case "Mi": ans.add(Day.WEDNESDAY);
+							break;
+				case "Ju": ans.add(Day.THURSDAY);
+							break;
+				case "Vi": ans.add(Day.FRIDAY);
+							break;
+				case "Sa": ans.add(Day.SATURDAY);
+							break;
+				case "Do": ans.add(Day.SUNDAY);
+							break;		
+				}
+			}
+			return ans;
+		}
+	    
+		public static boolean checkDays(String[] days) {
+			for(int i = 0; i < days.length;i++){
+				for(int j = i+1 ; j < days.length;j++){
+					if(days[i].equals(days[j])){
+						return false;
+					}
+				}
+			}
+			return true;
+			
+		}
+	    
 	    
 }
 

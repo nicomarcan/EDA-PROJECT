@@ -12,10 +12,15 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
 
+
 public class AirportManager {
+	public static int  i = 0;
 	private Map<String,Node> airports = new HashMap<String,Node>();
+	
 	private Set<Node> airportsL = new HashSet<Node>(); 
+	
 	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();
+	
 	private final int dayMins = 60*24;
 	
 	private static AirportManager instance = new AirportManager();
@@ -36,9 +41,16 @@ public class AirportManager {
 		if(!airports.containsKey(airport.getName())){
 			airports.put(airport.getName(),new Node(airport));
 			airportsL.add(new Node(airport));
+		}else{
+			//System.out.println("quisiste agregar repetido "+airport.getName());
+			i++;
 		}
 	}
-	
+	/**
+	 * Borra el aeropuerto name, y recorre todos los demás aeropuertos ,
+	 * borrando los vuelos cuyo destino fueran el aeropuerto name 
+	 * @param name
+	 */
 	public void deleteAirport(String name){
 		if(airports.containsKey(name)){
 			Airport aux = airports.get(name).airport;
@@ -86,6 +98,7 @@ public class AirportManager {
 		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
 		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);
+		/** si ya habian vuelos hacia ese destino,sólo lo agrega a las estructuras de tiempo, precio y tiempo total**/
 		if(origin.priceFlight.containsKey(airports.get(f.getTarget()).airport)){
 			for(int i = 0;i < f.getDays().size();i++){
 				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).add(f); 
@@ -93,7 +106,7 @@ public class AirportManager {
 				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
 				origin.waitingTimes.get(airports.get(f.getTarget()).airport).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).insert(f);
 			}
-		}else{
+		}else{/**Sino agrega en el nodo origen las 3 estructuras para el aeropuerto destino**/
 				HashMap<Day,TreeSet<Flight>> priceDay = new HashMap<Day,TreeSet<Flight>>();
 				HashMap<Day,TreeSet<Flight>> timeDay = new HashMap<Day,TreeSet<Flight>>();
 				HashMap<Day,TimeAVL> waitingTimeDay = new HashMap<Day,TimeAVL>();
@@ -154,6 +167,8 @@ public class AirportManager {
 				origin.waitingTimes.put(airports.get(f.getTarget()).airport, waitingTimeDay);
 		}
 	}
+	
+	
 									
 		
 		
@@ -168,7 +183,7 @@ public class AirportManager {
 			for(int i = 0;i < f.getDays().size();i++){
 				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
 				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
-				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
+				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);/** esto le dice cuantos días despues llega, abajo hace %7 por si se pasa**/
 				origin.waitingTimes.get(airports.get(f.getTarget()).airport).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).remove(f);
 			}
 		}
@@ -242,21 +257,24 @@ public class AirportManager {
 	}
 
 	public void findRoute(String source,String target,RoutePriority priority,List<Day> days){
-		Node source = airports.get(source);
-		Node target = airports.get(target);
-		if(source == null || target == null){
-			syso("Alguno de los aeropuertos es invalido");
+		Node sourceN = airports.get(source);
+		Node targetN = airports.get(target);
+		if(sourceN == null || targetN == null){
+			System.out.println("Alguno de los aeropuertos es invalido");
 		}
-		Dijkstra d = new Dijkstra(source.airport,target.airport,priority,days);
-		syso(d.findRoute());
+		Dijkstra d = new Dijkstra(sourceN.airport,targetN.airport,priority,days);
+		System.out.println(d.findRoute());
 		return ;
 	}
 
 	protected static class Node{
 		Airport airport;
-		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
-		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();
-		Map<Airport,Map<Day,TimeAVL>> waitingTimes = new HashMap<Airport,Map<Day,TimeAVL>>();
+		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por precio**/
+		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por tiempo de vuelo**/
+		Map<Airport,Map<Day,TimeAVL>> waitingTimes = new HashMap<Airport,Map<Day,TimeAVL>>();/** vuelos ordenados por horario de llegada, es decir 
+																								que un vuelo que está en el día x no necesariamente salió
+																								ese día**/
+																							
 		
 		public boolean visited;
 			

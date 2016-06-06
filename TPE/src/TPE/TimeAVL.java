@@ -213,7 +213,7 @@ public class TimeAVL implements Iterable<Flight>{
 			current.maxDepTime = current.left.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
 		}if(current.right != null){
 			current.maxDepTime = current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24)> current.maxDepTime ? current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;
-			current.maxDepTime = current.right.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
+			current.maxDepTime = current.right.maxDepTime > current.maxDepTime ? current.right.maxDepTime : current.maxDepTime;
 		}	
 	}
 	public void remove( Flight x ) {

@@ -8,12 +8,27 @@ import java.util.List;
  * El algoritmo de Dijkstra le guarda al vertex el vuelo que se utilizo para llegar en el camino optimo (sourceFlight).
  */
 public class Vertex implements Comparable<Vertex> {
-	Airport airport;
-	Double totalDistance;  // la distancia total al primer vertice de dijkstra
-	Flight sourceFlight; // el mejor flight segun dijkstra para llegar a este vertex
-	Day sourceFlightDepartureDay; // para calcular el tiempo de espera para Priority.TOTALTIME
-	List<Flight> flights = new LinkedList<Flight>(); // los vuelos que parten desde este vertex
-	boolean visited;
+	private Airport airport;
+	public boolean isVisited() {
+		return visited;
+	}
+
+	public void setVisited(boolean visited) {
+		this.visited = visited;
+	}
+
+	public void setAirport(Airport airport) {
+		this.airport = airport;
+	}
+
+	public void setFlights(List<Flight> flights) {
+		this.flights = flights;
+	}
+	private Double totalDistance;  // la distancia total al primer vertice de dijkstra
+	private Flight sourceFlight; // el mejor flight segun dijkstra para llegar a este vertex
+	private Day sourceFlightDepartureDay; // para calcular el tiempo de espera para Priority.TOTALTIME
+	private List<Flight> flights = new LinkedList<Flight>(); // los vuelos que parten desde este vertex
+	public boolean visited;
 	
 	public Vertex(Airport airport) {
 		this.airport = airport;

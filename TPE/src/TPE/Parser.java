@@ -1,6 +1,7 @@
 package TPE;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -21,7 +22,7 @@ public class Parser {
 		String delFlExp = "delete flight [a-z A-Z]{1,3} [1-9][0-9]*";
 		String addAllFlExp = "insert all flight [a-z A-Z 0-9]+\\.txt";
 		String delAllFlExp = "delete all flight";
-		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(((pr)|(tt))|(ft)) (weekdays=(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*)";
+		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(pr|tt|ft)( weekdays=(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*)?$";
 		String outputFormatExp = "outputFormat ((text)|(KML))";
 		String outputExp = "output ((stdout)|(file [a-z A-Z 0-9]+\\.txt))";
 		String exitAndSaveExp = "exitAndSave";
@@ -39,9 +40,14 @@ public class Parser {
 		}
 		/**listo**/
 		else if(Pattern.matches(addAllAirExp,command)){
+			long initialT = System.currentTimeMillis();
 			String[] res = command.split(" ");
 			List<String> data = f.readAirports(res[3]);
 			airportC.addAirports(data);
+			long finalT = System.currentTimeMillis();
+			System.out.println(finalT-initialT +" milisegundos ");
+		//	System.out.println("Has tardado : 9123.56 segundos");
+			System.out.println(AirportManager.i+" repetidos "+AirportManager.getInstance().getAirports().size()+" no repetidos");
 			return false;
 		}
 		/**listo**/
@@ -77,6 +83,7 @@ public class Parser {
 			return false;
 		}
 		/**poner los metodos en Day**/
+		/**listo**/
 		else if(Pattern.matches(findRouteExp, command)){
 			System.out.println("*matches find route command*");
 			String[] res = command.split(" ");
@@ -86,23 +93,25 @@ public class Parser {
 			
 			RoutePriority priority;
 			
-			if(p.equals(ft))
+			if(p.equals("ft"))
 				priority = RoutePriority.TIME;
-			else if (p.equals(pr))
+			else if (p.equals("pr"))
 				priority = RoutePriority.PRICE;
 			else
 				priority = RoutePriority.TOTALTIME;
 				
 			if(res.length == 5){
-				String[] days = res[4].split("-");
-				if(!checkDays(days))
-				System.out.println("Ingreso dias repetidos");
-				List<Day> newDays = getDays(days); 
-				airportManager.getInstance().findRoute(source,target,priority,newDays);
+				String[] days = res[4].split("=");
+				days = days[1].split("-");
+				if(!Day.checkDays(days))
+					System.out.println("Ingreso dias repetidos");
+				List<Day> newDays = Day.getDays(days); 
+				AirportManager.getInstance().findRoute(source,target,priority,newDays);
 			}else
-				airportManager.getInstance.findRoute(source,target,priority,Day.getAllDays);
+				AirportManager.getInstance().findRoute(source,target,priority,Day.getAllDays());
 			return false;
 		}
+		
 		else if(Pattern.matches(outputFormatExp, command)){
 			System.out.println("*matches output format command*");
 			return false;
@@ -111,6 +120,7 @@ public class Parser {
 			System.out.println("*matches output command*");
 			return false;
 		}
+		
 		else if(Pattern.matches(exitAndSaveExp, command)){
 			System.out.println("*matches exit and save command*");
 			return false;
@@ -125,41 +135,10 @@ public class Parser {
 
 		return false;
 	}
-	private List<Day> getDays(String[] days) {
-		List<Day> ans = new LinkedList<Day>();
-		for(int i = 0; i <days.length;i++){
-			switch(days[i]){
-			case "Lu": ans.add(Day.MONDAY);
-						break;
-			case "Ma": ans.add(Day.TUESDAY);
-						break;
-			case "Mi": ans.add(Day.WEDNESDAY);
-						break;
-			case "Ju": ans.add(Day.THURSDAY);
-						break;
-			case "Vi": ans.add(Day.FRIDAY);
-						break;
-			case "Sa": ans.add(Day.SATURDAY);
-						break;
-			case "Do": ans.add(Day.SUNDAY);
-						break;		
-			}
-		}
-		return ans;
-	}
+	
 
-	private boolean checkDays(String[] days) {
-		for(int i = 0; i < days.length;i++){
-			for(int j = i+1 ; j < days.length;j++){
-				if(days[i].equals(days[j])){
-					return false;
-				}
-			}
-		}
-		return true;
-		
-	}
 
+	/**listo**/
 	public static boolean parseArguments(String[] args) throws ClassNotFoundException, IOException {
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
@@ -178,24 +157,32 @@ public class Parser {
 		}
 		else if(args.length == 3) {
 			if(args[0].equals("--airport-file")) {
+				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
+					return false;
 				if(args[2].equals("--append-airports")) {
-					System.out.println("APPEND AIRPORTS FROM FILE " + args[1]);
 					List<String> data = f.readAirports(args[1]);
 					airportC.addAirports(data);
 				}
 				else if(args[2].equals("--replace-airports")) {
-					System.out.println("REPLACE AIRPORTS FROM FILE " + args[1]);
+					List<String> data = f.readAirports(args[1]);
+					airportC.deleteAirports();
+					airportC.addAirports(data);
 				}
 				else {
 					return false;
 				}
 			}
 			else if(args[0].equals("--flight-file")) {
+				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
+					return false;
 				if(args[2].equals("--append-flights")) {
-					System.out.println("APPEND FLIGHTS FROM FILE " + args[1]);
+					List<String> data = f.readFlights(args[1]);
+					flightC.addFlights(data);
 				}
 				else if(args[2].equals("--replace-flights")) {
-					System.out.println("REPLACE FLIGHTS FROM FILE " + args[1]);
+					List<String> data = f.readFlights(args[1]);
+					flightC.deleteFlights();
+					flightC.addFlights(data);
 				}
 				else {
 					return false;

@@ -105,14 +105,16 @@ public class FileManager {
 		File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",file);
 		List<String> res = new LinkedList<String>();
 		try {
+			int i = 1;
 			Scanner sc = new Scanner(toRead);
 	        while(sc.hasNextLine()){
 	        	String s = sc.nextLine();
 	        	String format = "[a-z A-Z]{1,3}#[0-9]{1,7}#(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*#[a-z A-Z]{1,3}#[a-z A-Z]{1,3}#([0-1][0-9]|2[0-3]):[0-5][0-9]#([1-9]h|[1-9][0-9]h)?[0-5][0-9]m#[0-9]+\\.[0-9]+$";
 		        if(!Pattern.matches(format, s)){
-		        	System.out.println("formato no valido");
+		        	System.out.println("formato no valido, tiene un error en la linea "+i);
 		        	System.out.println(s);
 		        }
+		        i++;
 		        res.addAll(split(s)); 	        		        	
 	        }
 		} catch (Exception e) {
@@ -131,7 +133,8 @@ public class FileManager {
 		        	String s = sc.nextLine();
 		        	String format = "[a-z A-Z]{3}#-?[0-9]+\\.[0-9]+#-?[0-9]+\\.[0-9]+$";
 			        if(!Pattern.matches(format, s)){
-			        	System.out.println("formato no valido");		     
+			        	System.out.println("formato no valido");
+			        	System.out.println(s);
 			        }
 			        res.addAll(split(s)); 	        		        	
 		        }

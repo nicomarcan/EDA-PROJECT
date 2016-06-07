@@ -1,0 +1,12 @@
+package TPE;
+
+import java.util.Map;
+
+import TPE.AirportManager.Node;
+
+public class ArriveFunction {
+	private Node source;
+	private Node dst;
+	private Map<Integer,Integer> departToArrival;
+	
+}

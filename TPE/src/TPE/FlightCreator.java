@@ -30,7 +30,7 @@ public class FlightCreator {
 //		System.out.println(departureTime);
 		Flight f = new Flight(airline, flightNumber, newDays, origin, target, departureTime, flightTime, price);
 		airportM.addFlight(f);
-		//System.out.println(airportM.getFlights());
+		//System.out.println(f);
 	} 
 	
 	

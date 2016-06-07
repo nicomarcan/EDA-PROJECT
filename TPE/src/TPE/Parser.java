@@ -37,6 +37,7 @@ public class Parser {
 		if(Pattern.matches(addAirExp,command)){
 			String[] res = command.split(" ");
 			airportC.addAirport(res[2],new Double(res[3]),new Double(res[4]));
+			System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
 		/**listo**/
@@ -65,6 +66,7 @@ public class Parser {
 			String[] res = command.split(" ");
 			flightC.addFlight(res[2], res[3], res[4],res[5], res[6],res[7], res[8], new Double(res[9]));
 			System.out.println(AirportManager.getInstance().getFlights());
+			System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
 		/**listo**/

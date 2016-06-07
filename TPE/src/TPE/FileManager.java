@@ -104,7 +104,8 @@ public class FileManager {
 	
 	public  void readFlights(String file) throws FileNotFoundException{
 		FlightCreator flightC = new FlightCreator();
-		File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",file);
+		//System.out.println(file);
+		File toRead = new File("/home/nmarcantonio/eda-2016-04/TPE/src/Datos",file);
 		try {
 			int i = 1;
 			Scanner sc = new Scanner(toRead);
@@ -121,7 +122,7 @@ public class FileManager {
 		        
 		    	        		        	
 	        }
-		} catch (Exception e) {
+		} catch (FileNotFoundException e) {
 			System.out.println("NotFound");
 		}
 		
@@ -130,7 +131,7 @@ public class FileManager {
 	
 	public  void readAirports(String name) throws IOException, ClassNotFoundException {
 			AirportCreator airportC = new AirportCreator();
-	        File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",name);
+	        File toRead = new File("/home/nmarcantonio/eda-2016-04/TPE/src/Datos",name);
 	        try {
 	        	Scanner sc = new Scanner(toRead);
 	        	while(sc.hasNextLine()){

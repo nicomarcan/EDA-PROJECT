@@ -54,7 +54,7 @@ public class AirportManager {
 
 		@Override
 		public int compare(Flight o1, Flight o2) {		
-			return new Integer((o2.getCurrentDayIndex()*(60*24)+o2.getDepartureTime()+o2.getFlightTime())%(7*60*24)).compareTo((o1.getCurrentDayIndex()*(60*24)+o1.getFlightTime()+o1.getDepartureTime())%(7*60*24));
+			return new Integer((o1.getCurrentDayIndex()*(60*24)+o1.getDepartureTime()+o1.getFlightTime())%(7*60*24)).compareTo((o2.getCurrentDayIndex()*(60*24)+o2.getFlightTime()+o2.getDepartureTime())%(7*60*24));
 		}
 		
 	};
@@ -91,7 +91,7 @@ public class AirportManager {
 		}
 	}
 	/**
-	 * Borra el aeropuerto name, y recorre todos los demás aeropuertos ,
+	 * Borra el aeropuerto name, y recorre todos los demï¿½s aeropuertos ,
 	 * borrando los vuelos cuyo destino fueran el aeropuerto name 
 	 * @param name
 	 */
@@ -142,7 +142,7 @@ public class AirportManager {
 		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
 			return;
 		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);
-		/** si ya habian vuelos hacia ese destino,sólo lo agrega a las estructuras de tiempo, precio y tiempo total**/
+		/** si ya habian vuelos hacia ese destino,sï¿½lo lo agrega a las estructuras de tiempo, precio y tiempo total**/
 		if(origin.priceFlight.containsKey(airports.get(f.getTarget()).airport)){
 			for(int i = 0;i < f.getDays().size();i++){
 				f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
@@ -162,7 +162,7 @@ public class AirportManager {
 					
 				}
 				for(int j = 0; j < f.getDays().size(); j++ ){
-					f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
+					f.setCurrentDayIndex(Day.getIndex(f.getDays().get(j)));
 					priceDay.get(f.getDays().get(j)).add(f);
 					timeDay.get(f.getDays().get(j)).add(f);
 					//System.out.println((Day.getIndex(f.getDays().get(j))+k)%7);
@@ -172,6 +172,7 @@ public class AirportManager {
 				origin.timeFlight.put(airports.get(f.getTarget()).airport, timeDay);
 				origin.waitingTimes.put(airports.get(f.getTarget()).airport, timeAVL);
 		}
+		target.incidentAirports.add(origin);
 	}
 	
 	
@@ -186,12 +187,17 @@ public class AirportManager {
 		if(f != null){
 			flights.remove(e);
 			Node origin = airports.get(f.getOrigin());
+			Airport target = airports.get(f.getTarget()).airport;
 			for(int i = 0;i < f.getDays().size();i++){
 				f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
-				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
-				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
-				origin.waitingTimes.get(airports.get(f.getTarget()).airport).remove(f);
+				origin.priceFlight.get(target).get(f.getDays().get(i)).remove(f);
+				origin.timeFlight.get(target).get(f.getDays().get(i)).remove(f);	
 			}
+			origin.waitingTimes.get(target).remove(f);
+			if(origin.waitingTimes.get(target).size() == 0){
+				airports.get(f.getTarget()).incidentAirports.remove(origin);
+			}
+		
 		}
 		System.out.println(flights);
 		return;
@@ -279,10 +285,10 @@ public class AirportManager {
 		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por precio**/
 		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por tiempo de vuelo**/
 		Map<Airport,TimeAVL> waitingTimes = new HashMap<Airport,TimeAVL>();/** vuelos ordenados por horario de llegada, es decir 
-																								que un vuelo que está en el día x no necesariamente salió
-																								ese día**/
+																								que un vuelo que estï¿½ en el dï¿½a x no necesariamente saliï¿½
+																								ese dï¿½a**/
 																							
-		
+		Set<Node> incidentAirports = new HashSet<Node>();
 		public boolean visited;
 			
 		public Node(Airport airport) {
@@ -290,7 +296,7 @@ public class AirportManager {
 		}		
 		
 		public String toString(){
-			return airport.toString();
+			return airport.toString()+incidentAirports;
 		}
 
 		@Override

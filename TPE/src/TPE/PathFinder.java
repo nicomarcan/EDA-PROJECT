@@ -1,0 +1,193 @@
+package TPE;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+import TPE.AirportManager.Node;
+
+public class PathFinder {
+	public static List<Flight> findPath(Set<Node> airports,Node source,Node dest,List<Day> departDays){
+		ArrayList<Integer> interval = new ArrayList<Integer>();
+		Set<Node> posibleAirports = new HashSet<Node>();
+		List<Node> nodes = new LinkedList<Node>();
+		Flight last = null;
+ 		for(int i = 0;i<departDays.size();i++){
+			for(Node a : airports){
+				if(!a.equals(source)){
+					for(Flight f : source.priceFlight.get(a.airport).get(departDays.get(i))){
+						Flight min =source.waitingTimes.get(a.airport).earliestArrivalTime(f.getDepartureTime());
+						if(min.getDepartureTime() == f.getDepartureTime()){
+							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
+							nodes.add(a);
+							last = null;
+						}else{
+							last = f;
+						}
+					}
+					if(last != null){
+						interval.add(last.getDepartureTime()+last.getCurrentDayIndex()*60*24);
+						nodes.add(AirportManager.getInstance().getAirports().get(last.getTarget()));
+					}
+				}
+			}
+		}
+		 Map<Node,ArriveFunction> af = timeRefinement(airports,source,dest,interval);
+		 int min = Integer.MAX_VALUE;
+		 for(Integer i : interval){
+			Integer g = af.get(dest).getDepartToArrival().get(i);
+			if(g != Integer.MAX_VALUE){
+				if(min > g-i){
+					min = g - i ;
+				}
+			}
+		 }
+		 if(min != Integer.MAX_VALUE){
+			 List<Flight> f = pathSelection(airports,af,source,dest,min);
+		 }
+	}
+
+	private static List<Flight> pathSelection(Set<Node> airports, Map<Node, ArriveFunction> af, Node source, Node dest,
+			int min) {
+		Node current = dest;
+		List<Flight> f = new LinkedList<Flight>();
+		while(!current.equals(source)){
+			for(Node n : airports){
+				for(Flight fl : n.waitingTimes.get(current.airport)){
+					if(af.get(n).getDepartToArrival().get(min)+n.waitingTimes.get(current.airport).earliestArrivalTime(min).getFlightTime() == af.get(source).getDepartToArrival().get(min)){
+						current = n;
+						f.add(0,fl);
+						break;
+					}
+				}
+				
+			}
+		}
+		return f;
+	}
+
+	private static Map<Node,ArriveFunction> timeRefinement(Set<Node> airports, Node source, Node dest,
+			ArrayList<Integer> interval) {
+		
+		Map<Node,ArriveFunction> res = new HashMap<Node,ArriveFunction>();
+		ArrayList<Integer> subInterval = new ArrayList<Integer>();
+		int j = 0;
+		subInterval.add(interval.get(j++));
+		FibonacciHeap<Entry> fb = new FibonacciHeap<Entry>(new Comparator<Entry>(){
+
+			@Override
+			public int compare(Entry arg0, Entry arg1) {
+				return arg0.compareTo(arg1);
+			}
+			
+		});
+		
+		for(Node airport : airports){
+			if(!airport.equals(source)){
+				ArriveFunction a = new ArriveFunction(source,airport);
+				for(Integer i : interval){
+					a.getDepartToArrival().put(i, Integer.MAX_VALUE);
+				}
+				fb.offer(new Entry(subInterval.get(0),a));
+				res.put(airport,a);
+			}else{
+				ArriveFunction a = new ArriveFunction(source,source);
+				for(Integer i : interval){
+					a.getDepartToArrival().put(i, i);
+				}
+				fb.offer(new Entry(subInterval.get(0),a));
+				res.put(source,a);
+			}
+		}
+			
+			while(fb.size() >= 2){
+				Entry i = fb.poll();
+				Entry head = fb.peek();
+				Integer minEdgeW = getMinEdgeW(airports,head.af.getDepartToArrival().get(head.time),i.af.getDst());
+				Integer maxT = getMaxT(j,interval,minEdgeW+head.af.getDepartToArrival().get(head.time), i);
+				
+				for(Node n : airports){
+					for(Flight f : i.af.getDst().waitingTimes.get(n.airport)){
+						for(int k = j;k<=maxT;k++){
+							Integer gI = i.af.getDepartToArrival().get(k);
+							Integer aux = gI + i .af.getDst().waitingTimes.get(n.airport).earliestArrivalTime(gI).getFlightTime();
+							if(res.get(n).getDepartToArrival().get(k) > aux){
+								res.get(n).getDepartToArrival().put(k, aux);
+							}
+						}
+						fb.update();
+						
+						
+					}
+				}
+				j = maxT;
+				if(maxT == interval.get(interval.size()-1)){
+					return res;
+				}else{
+					fb.offer(new Entry (j,i.af));				
+				}
+				
+					
+				}
+				
+				
+				
+				return res;
+			}
+		
+		
+		
+	
+
+	
+	
+
+	
+
+	private static Integer getMaxT(int j, ArrayList<Integer> interval, Integer time, Entry i) {
+		while(i.af.getDepartToArrival().get(interval.get(j)) <= time){
+			j++;
+		}
+		return j;
+	}
+
+	private static Integer getMinEdgeW(Set<Node> airports ,Integer time, Node dest) {
+		Integer min = Integer.MAX_VALUE;
+		for(Node n: dest.incidentAirports){
+			Integer aux = n.waitingTimes.get(dest.airport).earliestArrivalTime(time).getFlightTime();
+			if(aux < min){
+				min = aux;
+			}
+		}
+		return min;
+		
+	}
+
+	private static class Entry implements Comparable<Entry>{
+		private Integer time;
+		private ArriveFunction af;
+		
+		public Entry(Integer time, ArriveFunction af) {
+			super();
+			this.time = time;
+			this.af = af;
+		}
+
+		@Override
+		public int compareTo(Entry o) {
+			return this.af.getDepartToArrival().get(time)   -o.af.getDepartToArrival().get(time);
+		}
+		
+		
+	}
+	
+
+
+}
+

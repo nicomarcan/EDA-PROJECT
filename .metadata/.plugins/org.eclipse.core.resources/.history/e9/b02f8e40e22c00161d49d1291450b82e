@@ -1,0 +1,103 @@
+package TPE;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
+
+import TPE.AirportManager.Node;
+
+public class PathFinder {
+	public static List<Flight> findPath(Set<Node> airports,Node source,Node dest,List<Day> departDays){
+		Set<Integer> interval = new TreeSet<Integer>();
+		Set<Node> posibleAirports = new HashSet<Node>();
+ 		for(int i = 0;i<departDays.size();i++){
+			for(Node a : airports){
+				if(!a.equals(source)){
+					for(Flight f : source.priceFlight.get(a.airport).get(departDays.get(i))){
+						interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
+					}
+				}
+			}
+		}
+		 Map<Node,ArriveFunction> af = timeRefinement(airports,source,dest,interval);
+	}
+
+	private static Map<Node,ArriveFunction> timeRefinement(Set<Node> airports, Node source, Node dest,
+			ArrayList<Integer> interval) {
+		
+		Set<ArriveFunction> res = new HashSet<ArriveFunction>();
+		ArrayList<Integer> subInterval = new ArrayList<Integer>();
+		int j = 0;
+		subInterval.add(interval.get(j++));
+		
+		for(Node airport : airports){
+			if(!airport.equals(source)){
+				ArriveFunction a = new ArriveFunction(source,airport);
+				for(Integer i : subInterval){
+					a.getDepartToArrival().put(i, Integer.MAX_VALUE);
+				}
+				res.add(a);
+			}else{
+				ArriveFunction a = new ArriveFunction(source,source);
+				for(Integer i : subInterval){
+					a.getDepartToArrival().put(i, i);
+				}
+				res.add(a);
+			}
+			PriorityQueue<Entry> pq = new PriorityQueue<Entry>();
+			for(ArriveFunction a : res){
+				pq.offer(new Entry(subInterval.get(j),a));
+			}
+			while(pq.size() > 2){
+				Entry i = pq.poll();
+				Entry head = pq.peek();
+				Integer minEdgeW = getMinEdgeW(airports,head.af.getDepartToArrival().get(head.time),i);
+				
+				
+				
+				
+			}
+		}
+		
+		
+	}
+	
+	private static Integer getMinEdgeW(Set<Node> airports ,Integer time, Entry i) {
+		for(Node n : airports){
+			
+		}
+	}
+
+	private static class Entry implements Comparable<Entry>{
+		private Integer time;
+		private ArriveFunction af;
+		
+		public Entry(Integer time, ArriveFunction af) {
+			super();
+			this.time = time;
+			this.af = af;
+		}
+
+		@Override
+		public int compareTo(Entry o) {
+			return this.af.getDepartToArrival().get(time)   -o.af.getDepartToArrival().get(time);
+		}
+		
+		
+	}
+	
+
+
+}
+
+	public ArriveFunction getAf() {
+		return af;
+	}
+
+	public void setAf(ArriveFunction af) {
+		this.af = af;
+	}

@@ -1,0 +1,7 @@
+package TPE;
+
+import TPE.AirportManager.Node;
+
+public interface ArriveFunction {	
+	public int earliestArrivalTime(Node source,Node dest,int t);
+}

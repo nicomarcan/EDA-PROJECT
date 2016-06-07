@@ -6,11 +6,11 @@ import java.util.Iterator;
 
 /** modifique las rotaciones les agregue la resta de los dias**/
 
-/** Implementación particular de un AVL de vuelos, en la que se ordena por tiempo de llegada, 
+/** Implementaciï¿½n particular de un AVL de vuelos, en la que se ordena por tiempo de llegada, 
  * pero cada nodo tiene referencia al maximo tiempo de salida de sus hijos, 
- * para facilitar la elección del vuelo que menor tiempo tarda pero que puedo tomar**/
+ * para facilitar la elecciï¿½n del vuelo que menor tiempo tarda pero que puedo tomar**/
 public class TimeAVL implements Iterable<Flight>{
-
+	private int size = 0;
 	 private static class Node {
 		  private Flight elem;
 		  private Node left;
@@ -50,6 +50,7 @@ public class TimeAVL implements Iterable<Flight>{
 	  public boolean insert(Flight elem){
 		  Node insert = new Node(elem);
 	      root = insert(insert, root);
+	      size += elem.getDays().size();
 	      return true;
 	  }
 	  
@@ -218,6 +219,7 @@ public class TimeAVL implements Iterable<Flight>{
 	}
 	public void remove( Flight x ) {
 	      root = remove(x, root);
+	      size-= x.getDays().size();
 	  }
 
 	  private Node remove(Flight elem, Node current) {
@@ -278,7 +280,9 @@ public class TimeAVL implements Iterable<Flight>{
 	  
 	  
 	 
-
+	  public int size(){
+		  return size;
+	  }
 
 	  public boolean contains(Flight elem){
 	    return contains(elem, root); 
@@ -364,6 +368,26 @@ public class TimeAVL implements Iterable<Flight>{
 			return null;
 		}
 		
+		public Flight earliestArrivalTime(int departureTime){
+			return earliestArrivalTime(departureTime,root);
+		}
+		
+		private Flight earliestArrivalTime(int departureTime, Node current) {
+			if(current == null)
+				return null;
+			
+			if(current.left != null){
+				if(current.left.maxDepTime >= departureTime || current.left.elem.getDepartureTime() >= departureTime) {
+					return earliestArrivalTime(departureTime,current.left);
+				}
+			}
+				if(current.elem.getDepartureTime() >= departureTime){
+					return current.elem;
+				}
+				
+			return earliestArrivalTime(departureTime, current.right);
+			
+		}
 		public static void main(String[] args) {
 			ArrayList<Day> days = new ArrayList<Day>();
 			Airport a = new Airport("BUE", -80.0, 100.0);
@@ -374,9 +398,9 @@ public class TimeAVL implements Iterable<Flight>{
 			d.add(Day.SUNDAY);
 			Flight f1 = new Flight("AA", "1234", days, b.getName(), a.getName(), 1200, 360,7.8 );
 			Flight f2 = new Flight("ABA", "1234", days, b.getName(), a.getName(), 1200, 242,7.8);
-			Flight f3 = new Flight("ACA", "1234", days, b.getName(), a.getName(), 1300, 261,7.8);
-			Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 1299, 331,7.8);
-			Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 1300, 350,7.8);
+			Flight f3 = new Flight("ACA", "1234", days, b.getName(), a.getName(), 1200, 261,7.8);
+			Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 1200, 331,7.8);
+			Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 1200, 350,7.8);
 			f1.setCurrentDayIndex(0);
 			f2.setCurrentDayIndex(0);
 			f3.setCurrentDayIndex(0);
@@ -386,7 +410,15 @@ public class TimeAVL implements Iterable<Flight>{
 
 				@Override
 				public int compare(Flight o1, Flight o2) {		
-					return new Integer((o2.getCurrentDayIndex()*(60*24)+o2.getDepartureTime()+o2.getFlightTime())%(7*60*24)).compareTo((o1.getCurrentDayIndex()*(60*24)+o1.getFlightTime()+o1.getDepartureTime())%(7*60*24));
+					Integer c =  new Integer((o1.getCurrentDayIndex()*(60*24)+o1.getDepartureTime()+o1.getFlightTime())%(7*60*24)).compareTo((o2.getCurrentDayIndex()*(60*24)+o2.getFlightTime()+o2.getDepartureTime())%(7*60*24));
+					if(c == 0){
+						if(o1.equals(o2)){
+							return c;
+						}
+						return o1.hashCode() -o2.hashCode();
+					}
+					return c;
+				
 				}
 				
 			});
@@ -395,9 +427,9 @@ public class TimeAVL implements Iterable<Flight>{
 			avl.insert(f3);
 			avl.insert(f4);
 			avl.insert(f5);
-			avl.remove(f3);
-			avl.remove(f5);
+			
 			avl.print();
+			System.out.println(avl.earliestArrivalTime(1200));
 		}
 	
 }

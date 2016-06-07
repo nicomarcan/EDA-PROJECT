@@ -1,0 +1,5 @@
+package TPE;
+
+public interface ArriveFunction {
+	public int earliestArrivalTime(int t);
+}

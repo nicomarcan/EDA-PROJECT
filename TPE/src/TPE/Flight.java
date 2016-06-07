@@ -127,7 +127,7 @@ public class Flight implements Serializable {
 	}
 
 	public String toString(){
-		return airline;//+" "+flightNumber+" "+origin+" "+target;
+		return airline+" "+flightNumber+" "+origin+" "+target;
 	}
 
 

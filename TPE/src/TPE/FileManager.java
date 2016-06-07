@@ -18,6 +18,7 @@ public class FileManager {
 		
 		double price = 0;
 		int flightTime = 0;
+		int totalTime = 0;/** falta hacer esto**/
 		
 		for(Flight fl: route){
 			price += fl.getPrice();
@@ -32,7 +33,7 @@ public class FileManager {
 				System.out.println("Precio#" + price);
 				System.out.println("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m");
 				for(Flight fl: route){
-					System.out.println(fl.getOrigin() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget());
+					System.out.println(fl.getOrigin() + "#" + fl.getAirline() + "#" + fl.getFlightNumber()+ "#" + fl.getTarget()+"#"+fl.getDays());
 				}
 			} else {
 				try {

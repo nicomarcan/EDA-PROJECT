@@ -10,7 +10,7 @@ import java.util.Iterator;
  * pero cada nodo tiene referencia al maximo tiempo de salida de sus hijos, 
  * para facilitar la elección del vuelo que menor tiempo tarda pero que puedo tomar**/
 public class TimeAVL implements Iterable<Flight>{
-	private int dayIndex;
+
 	 private static class Node {
 		  private Flight elem;
 		  private Node left;
@@ -33,9 +33,9 @@ public class TimeAVL implements Iterable<Flight>{
 	  private Comparator<Flight> cmp;
 
 	  
-	  public TimeAVL(Comparator<Flight> cmp,int day) {
+	  public TimeAVL(Comparator<Flight> cmp) {
 		  this.cmp = cmp;
-		  this.dayIndex = day;
+	
 	  }
 	  public int height (Node t){
 	    return t == null ? -1 : t.height;
@@ -71,7 +71,7 @@ public class TimeAVL implements Iterable<Flight>{
 				      }
 				      
 		    	   if(lastMax == null){			    	
-			    		current.maxDepTime = current.left.elem.getDepartureTime()-((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24) > current.maxDepTime ? current.left.elem.getDepartureTime()-((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;			    	
+			    		current.maxDepTime = (current.left.elem.getDepartureTime()+current.left.elem.getCurrentDayIndex()*(60*24))%(7*60*24) > current.maxDepTime ?  (current.left.elem.getDepartureTime()+current.left.elem.getCurrentDayIndex()*(60*24))%(7*60*24)  : current.maxDepTime;			    	
 			    	}	
 		    	
 		      
@@ -97,7 +97,7 @@ public class TimeAVL implements Iterable<Flight>{
 			      }
 			 
 			      if(lastMax == null){					    			
-			    		current.maxDepTime = current.right.elem.getDepartureTime()-((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24)> current.maxDepTime ? current.right.elem.getDepartureTime()-((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;			    	
+			    	  current.maxDepTime = (current.right.elem.getDepartureTime()+current.right.elem.getCurrentDayIndex()*(60*24))%(7*60*24) > current.maxDepTime ?  (current.right.elem.getDepartureTime()+current.right.elem.getCurrentDayIndex()*(60*24))%(7*60*24)  : current.maxDepTime;					    	
 			    	}			     
 			      if ( height(current.right) - height(current.left) > 1)
 			        if (cmp.compare(insert.elem,current.right.elem) > 0){
@@ -209,10 +209,10 @@ public class TimeAVL implements Iterable<Flight>{
 	  private void updateMaxDep(Node current) {
 		  current.maxDepTime = Integer.MIN_VALUE;
 		if(current.left != null ){
-			current.maxDepTime = current.left.elem.getDepartureTime() -((dayIndex-current.left.elem.getCurrentDayIndex()+7)%7)*(60*24);
+			current.maxDepTime = (current.left.elem.getDepartureTime()+current.left.elem.getCurrentDayIndex()*(60*24))%(7*60*24);
 			current.maxDepTime = current.left.maxDepTime > current.maxDepTime ? current.left.maxDepTime : current.maxDepTime;
 		}if(current.right != null){
-			current.maxDepTime = current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24)> current.maxDepTime ? current.right.elem.getDepartureTime() -((dayIndex-current.right.elem.getCurrentDayIndex()+7)%7)*(60*24) : current.maxDepTime;
+			current.maxDepTime = (current.right.elem.getDepartureTime()+current.right.elem.getCurrentDayIndex()*(60*24))%(7*60*24)> current.maxDepTime ? (current.right.elem.getDepartureTime()+current.right.elem.getCurrentDayIndex()*(60*24))%(7*60*24): current.maxDepTime;
 			current.maxDepTime = current.right.maxDepTime > current.maxDepTime ? current.right.maxDepTime : current.maxDepTime;
 		}	
 	}
@@ -373,12 +373,12 @@ public class TimeAVL implements Iterable<Flight>{
 			ArrayList<Day> d = new ArrayList<Day>();
 			d.add(Day.SUNDAY);
 			Flight f1 = new Flight("AA", "1234", days, b.getName(), a.getName(), 1200, 360,7.8 );
-			Flight f2 = new Flight("ABA", "1234", d, b.getName(), a.getName(), 1200, 1680,7.8);
+			Flight f2 = new Flight("ABA", "1234", days, b.getName(), a.getName(), 1200, 242,7.8);
 			Flight f3 = new Flight("ACA", "1234", days, b.getName(), a.getName(), 1300, 261,7.8);
 			Flight f4 = new Flight("AZA", "1235", days, b.getName(), a.getName(), 1299, 331,7.8);
 			Flight f5 = new Flight("AxA", "1235", days, b.getName(), a.getName(), 1300, 350,7.8);
 			f1.setCurrentDayIndex(0);
-			f2.setCurrentDayIndex(6);
+			f2.setCurrentDayIndex(0);
 			f3.setCurrentDayIndex(0);
 			f4.setCurrentDayIndex(0);
 			f5.setCurrentDayIndex(0);
@@ -386,10 +386,10 @@ public class TimeAVL implements Iterable<Flight>{
 
 				@Override
 				public int compare(Flight o1, Flight o2) {		
-					return new Integer((o2.getDepartureTime()+o2.getFlightTime())%(60*24)).compareTo((o1.getFlightTime()+o1.getDepartureTime())%(60*24));
+					return new Integer((o2.getCurrentDayIndex()*(60*24)+o2.getDepartureTime()+o2.getFlightTime())%(7*60*24)).compareTo((o1.getCurrentDayIndex()*(60*24)+o1.getFlightTime()+o1.getDepartureTime())%(7*60*24));
 				}
 				
-			},1);
+			});
 			avl.insert(f1);
 			avl.insert(f2);
 			avl.insert(f3);

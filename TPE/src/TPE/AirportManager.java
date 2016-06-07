@@ -54,7 +54,7 @@ public class AirportManager {
 
 		@Override
 		public int compare(Flight o1, Flight o2) {		
-			return new Integer((o2.getDepartureTime()+o2.getFlightTime())%(dayMins)).compareTo((o1.getFlightTime()+o1.getDepartureTime())%(dayMins));
+			return new Integer((o2.getCurrentDayIndex()*(60*24)+o2.getDepartureTime()+o2.getFlightTime())%(7*60*24)).compareTo((o1.getCurrentDayIndex()*(60*24)+o1.getFlightTime()+o1.getDepartureTime())%(7*60*24));
 		}
 		
 	};
@@ -145,33 +145,32 @@ public class AirportManager {
 		/** si ya habian vuelos hacia ese destino,sólo lo agrega a las estructuras de tiempo, precio y tiempo total**/
 		if(origin.priceFlight.containsKey(airports.get(f.getTarget()).airport)){
 			for(int i = 0;i < f.getDays().size();i++){
+				f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
 				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).add(f); 
 				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).add(f);
-				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);
-				origin.waitingTimes.get(airports.get(f.getTarget()).airport).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).insert(f);
+				origin.waitingTimes.get(airports.get(f.getTarget()).airport).insert(f);
 			}
 		}else{/**Sino agrega en el nodo origen las 3 estructuras para el aeropuerto destino**/
 				HashMap<Day,TreeSet<Flight>> priceDay = new HashMap<Day,TreeSet<Flight>>();
 				HashMap<Day,TreeSet<Flight>> timeDay = new HashMap<Day,TreeSet<Flight>>();
-				HashMap<Day,TimeAVL> waitingTimeDay = new HashMap<Day,TimeAVL>();
+				TimeAVL timeAVL = new TimeAVL(w);
 				for(int i = 0;i < Day.size;i++){
 					priceDay.put(Day.getDay(i), new TreeSet<Flight>(p));
 					
 					timeDay.put(Day.getDay(i), new TreeSet<Flight>(t));
-					waitingTimeDay.put(Day.getDay(i), new TimeAVL(w,i));
 					
 					
 				}
 				for(int j = 0; j < f.getDays().size(); j++ ){
+					f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
 					priceDay.get(f.getDays().get(j)).add(f);
 					timeDay.get(f.getDays().get(j)).add(f);
-					int k = (f.getFlightTime()+f.getDepartureTime())/(60*24); 
 					//System.out.println((Day.getIndex(f.getDays().get(j))+k)%7);
-					waitingTimeDay.get(Day.getDay((Day.getIndex(f.getDays().get(j))+k)%7)).insert(f);
+					timeAVL.insert(f);
 				}
 				origin.priceFlight.put(airports.get(f.getTarget()).airport, priceDay);
 				origin.timeFlight.put(airports.get(f.getTarget()).airport, timeDay);
-				origin.waitingTimes.put(airports.get(f.getTarget()).airport, waitingTimeDay);
+				origin.waitingTimes.put(airports.get(f.getTarget()).airport, timeAVL);
 		}
 	}
 	
@@ -188,10 +187,10 @@ public class AirportManager {
 			flights.remove(e);
 			Node origin = airports.get(f.getOrigin());
 			for(int i = 0;i < f.getDays().size();i++){
+				f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
 				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
 				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).remove(f);
-				int k = (f.getFlightTime()+f.getDepartureTime())/(60*24);/** esto le dice cuantos días despues llega, abajo hace %7 por si se pasa**/
-				origin.waitingTimes.get(airports.get(f.getTarget()).airport).get(Day.getDay((Day.getIndex(f.getDays().get(i))+k)%7)).remove(f);
+				origin.waitingTimes.get(airports.get(f.getTarget()).airport).remove(f);
 			}
 		}
 		System.out.println(flights);
@@ -270,7 +269,8 @@ public class AirportManager {
 			System.out.println("Alguno de los aeropuertos es invalido");
 		}
 		Dijkstra d = new Dijkstra(sourceN.airport,targetN.airport,priority,days);
-		System.out.println(d.findRoute());
+		FileManager fm = new FileManager();
+		fm.writeRoute(d.findRoute(), "asd", true, "txt");
 		return ;
 	}
 
@@ -278,7 +278,7 @@ public class AirportManager {
 		Airport airport;
 		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por precio**/
 		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por tiempo de vuelo**/
-		Map<Airport,Map<Day,TimeAVL>> waitingTimes = new HashMap<Airport,Map<Day,TimeAVL>>();/** vuelos ordenados por horario de llegada, es decir 
+		Map<Airport,TimeAVL> waitingTimes = new HashMap<Airport,TimeAVL>();/** vuelos ordenados por horario de llegada, es decir 
 																								que un vuelo que está en el día x no necesariamente salió
 																								ese día**/
 																							
@@ -379,18 +379,22 @@ public class AirportManager {
 		Airport c = new Airport("ARG", 80.0, 25.0);
 		ArrayList<Day> days = new ArrayList<Day>();
 		days.add(Day.MONDAY);
+		ArrayList<Day> da = new ArrayList<Day>();
+		da.add(Day.SUNDAY);
 		airportM.addAirport(a);
 		airportM.addAirport(b);
 		airportM.addAirport(c);
 		Flight f = new Flight("AA","1234", days, a.getName(), b.getName(), 720,20, 12.58);
 		Flight f2 = new Flight("AAB","1234", days, b.getName(), c.getName(), 720,200, 1222.0);
-		Flight f3 = new Flight("AAC","1234", days, a.getName(), c.getName(), 720,100, 2000.0);
+		Flight f3 = new Flight("AAC","1234", da, a.getName(), b.getName(), 720,100, 2000.0);
+		Flight f4 = new Flight("AAC","124", days, a.getName(), b.getName(), 720,19, 12.58);
 		airportM.addFlight(f);
 		airportM.addFlight(f2);
 		airportM.addFlight(f3);
+		airportM.addFlight(f4);
 		//System.out.println(airportM.airports.get(a.getName()).priceFlight);
-		Dijkstra d = new Dijkstra(a, c, RoutePriority.TIME, Day.getAllDays());
-		System.out.println(d.findRoute());
+		airportM.getAirports().get("BUE").waitingTimes.get(b).print();
+		
 	}
 	
 	

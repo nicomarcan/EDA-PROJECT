@@ -37,7 +37,6 @@ public class ArriveFunction {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((dst == null) ? 0 : dst.hashCode());
-		result = prime * result + ((source == null) ? 0 : source.hashCode());
 		return result;
 	}
 	@Override
@@ -54,13 +53,10 @@ public class ArriveFunction {
 				return false;
 		} else if (!dst.equals(other.dst))
 			return false;
-		if (source == null) {
-			if (other.source != null)
-				return false;
-		} else if (!source.equals(other.source))
-			return false;
 		return true;
 	}
+	
+	
 	
 	
 }

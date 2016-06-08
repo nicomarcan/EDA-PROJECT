@@ -170,7 +170,7 @@ public class AirportManager {
 					g.setCurrentDayIndex(Day.getIndex(f.getDays().get(j)));	
 					priceDay.get(f.getDays().get(j)).add(g);
 					timeDay.get(f.getDays().get(j)).add(g);
-					target.flightsByDep.add(g);
+					origin.flightsByDep.add(g);
 					//System.out.println((Day.getIndex(f.getDays().get(j))+k)%7);
 					timeAVL.insert(g);
 				}
@@ -368,7 +368,7 @@ public class AirportManager {
 //		ArrayList<Day> days = new ArrayList<Day>();
 //		days.add(Day.TUESDAY);
 		ArrayList<Day> da = new ArrayList<Day>();
-		da.add(Day.WEDNESDAY);
+		da.add(Day.TUESDAY);
 //		airportM.addAirport(a);
 //		airportM.addAirport(b);
 //		airportM.addAirport(c);
@@ -383,10 +383,10 @@ public class AirportManager {
 		//System.out.println(airportM.airports.get(a.getName()).priceFlight);
 		//airportM.getAirports().get("BUE").waitingTimes.get(b).print();
 		AirportManager airportM = AirportManager.getInstance();
-		Parser.parseCommand("insert all airport prueba.txt");
-		Parser.parseCommand("insert all flight flights.txt");
-		//Parser.parseCommand("findRoute src=COW dst=KKD priority=ft weekdays=Lu");
-		PathFinder.findPath(airportM.getAirports().values(), airportM.getAirports().get("ARG"),airportM.getAirports().get("ALE"), da);
+		Parser.parseCommand("insert all airport airports2.txt");
+		Parser.parseCommand("insert all flight flights3.txt");
+		Parser.parseCommand("findRoute src=COW dst=KNW priority=ft weekdays=Lu");
+		PathFinder.findPath(airportM.getAirports().values(), airportM.getAirports().get("COW"),airportM.getAirports().get("KNW"),da);
 		//System.out.println(airportM.getAirports().get(a.getName()).waitingTimes.get(b).earliestArrivalTime(719));
 	}
 	

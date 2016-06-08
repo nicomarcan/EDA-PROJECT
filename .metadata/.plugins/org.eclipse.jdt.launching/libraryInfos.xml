@@ -57,7 +57,7 @@
 <entry path="C:\Program Files (x86)\Java\jdk1.8.0_91\jre\lib\endorsed"/>
 </endorsedDirs>
 </libraryInfo>
-<libraryInfo home="/usr/lib/jvm/java-8-openjdk/jre" version="1.8.0_74">
+<libraryInfo home="/usr/lib/jvm/java-8-openjdk/jre" version="1.8.0_92">
 <bootpath>
 <entry path="/usr/lib/jvm/java-8-openjdk/jre/lib/resources.jar"/>
 <entry path="/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar"/>

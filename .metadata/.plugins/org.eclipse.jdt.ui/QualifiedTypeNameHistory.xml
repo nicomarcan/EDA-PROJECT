@@ -21,7 +21,6 @@
 <fullyQualifiedTypeName name="java.util.List"/>
 <fullyQualifiedTypeName name="java.util.HashSet"/>
 <fullyQualifiedTypeName name="java.util.LinkedList"/>
-<fullyQualifiedTypeName name="TPE.FibonacciHeap"/>
 <fullyQualifiedTypeName name="java.util.Comparator"/>
 <fullyQualifiedTypeName name="java.nio.file.Path"/>
 <fullyQualifiedTypeName name="TPE.PathFinder"/>
@@ -34,4 +33,5 @@
 <fullyQualifiedTypeName name="TPE.PathFinder.Entry"/>
 <fullyQualifiedTypeName name="TPE.Day"/>
 <fullyQualifiedTypeName name="TPE.Flight"/>
+<fullyQualifiedTypeName name="TPE.FibonacciHeap"/>
 </qualifiedTypeNameHistroy>

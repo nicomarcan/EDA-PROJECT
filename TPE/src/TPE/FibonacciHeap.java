@@ -258,6 +258,7 @@ public class FibonacciHeap<T> {
 	}
 		    
 	public void decreaseKey(T value, T newValue) {
+		//System.out.println(nodes);
 		Node node = nodes.get(value);
 		if(node == null) {
 			throw new NullPointerException("do not exist node with this value");
@@ -301,5 +302,27 @@ public class FibonacciHeap<T> {
 	public void delete(T value) {
 		decreaseKey(value, null);
 		poll();
+	}
+	public int size(){
+		return size;
+	}
+	public static void main(String[] args) {
+		FibonacciHeap<Integer> f = new FibonacciHeap<>(new Comparator<Integer>(){
+
+			@Override
+			public int compare(Integer arg0, Integer arg1) {
+				return arg0.compareTo(arg1);
+			}
+			
+		});
+		for(int i = 0 ; i <25;i++ ){
+			f.offer(i);
+		}
+		for(int i = 0; i < 11;i++){
+			f.poll();
+		}
+		f.decreaseKey(24,0);
+		System.out.println(f.peek());
+		System.out.println(f.size);
 	}
 }

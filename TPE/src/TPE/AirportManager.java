@@ -368,7 +368,7 @@ public class AirportManager {
 //		ArrayList<Day> days = new ArrayList<Day>();
 //		days.add(Day.TUESDAY);
 		ArrayList<Day> da = new ArrayList<Day>();
-		da.add(Day.TUESDAY);
+		da.add(Day.WEDNESDAY);
 //		airportM.addAirport(a);
 //		airportM.addAirport(b);
 //		airportM.addAirport(c);
@@ -383,9 +383,10 @@ public class AirportManager {
 		//System.out.println(airportM.airports.get(a.getName()).priceFlight);
 		//airportM.getAirports().get("BUE").waitingTimes.get(b).print();
 		AirportManager airportM = AirportManager.getInstance();
-		Parser.parseCommand("insert all airport airports2.txt");
-		Parser.parseCommand("insert all flight flights3.txt");
-		PathFinder.findPath(airportM.getAirports().values(), airportM.getAirports().get("KQI"),airportM.getAirports().get("COW"), da);
+		Parser.parseCommand("insert all airport prueba.txt");
+		Parser.parseCommand("insert all flight flights.txt");
+		//Parser.parseCommand("findRoute src=COW dst=KKD priority=ft weekdays=Lu");
+		PathFinder.findPath(airportM.getAirports().values(), airportM.getAirports().get("ARG"),airportM.getAirports().get("ALE"), da);
 		//System.out.println(airportM.getAirports().get(a.getName()).waitingTimes.get(b).earliestArrivalTime(719));
 	}
 	

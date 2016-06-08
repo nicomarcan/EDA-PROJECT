@@ -2,7 +2,9 @@ package TPE;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /** modifique las rotaciones les agregue la resta de los dias**/
 
@@ -363,10 +365,36 @@ public class TimeAVL implements Iterable<Flight>{
 			       return current.elem;   
 		}
 		@Override
-		public Iterator<Flight> iterator() {
-			// TODO Auto-generated method stub
-			return null;
+		public Iterator<Flight> iterator(){
+			return new PostOrderIterator(this.root);
 		}
+			private static class PostOrderIterator implements Iterator<Flight>{
+
+				private Deque<Flight> a = new LinkedList<Flight>();
+				
+				public PostOrderIterator(Node tree){
+					getPostOrderDeq(a,tree);
+				}
+				private void getPostOrderDeq(Deque<Flight> a, Node tree) {
+					if(tree == null)
+						return;
+					getPostOrderDeq(a,tree.left);
+					getPostOrderDeq(a, tree.right);
+					a.offer(tree.elem);
+				}
+				@Override
+				public boolean hasNext() {
+					return !a.isEmpty();
+				}
+
+				@Override
+				public Flight next() {
+					if(!hasNext())
+						return null;
+					return a.poll();
+				}
+				
+			}
 		
 		public Flight earliestArrivalTime(int departureTime){
 			return earliestArrivalTime(departureTime,root);
@@ -377,11 +405,11 @@ public class TimeAVL implements Iterable<Flight>{
 				return null;
 			
 			if(current.left != null){
-				if(current.left.maxDepTime >= departureTime || current.left.elem.getDepartureTime() >= departureTime) {
+				if(current.left.maxDepTime >= departureTime || current.left.elem.getDepartureTime()+current.left.elem.getCurrentDayIndex()*60*24 >= departureTime) {
 					return earliestArrivalTime(departureTime,current.left);
 				}
 			}
-				if(current.elem.getDepartureTime() >= departureTime){
+				if(current.elem.getDepartureTime()+current.elem.getCurrentDayIndex()*60*24 >= departureTime){
 					return current.elem;
 				}
 				
@@ -412,10 +440,10 @@ public class TimeAVL implements Iterable<Flight>{
 				public int compare(Flight o1, Flight o2) {		
 					Integer c =  new Integer((o1.getCurrentDayIndex()*(60*24)+o1.getDepartureTime()+o1.getFlightTime())%(7*60*24)).compareTo((o2.getCurrentDayIndex()*(60*24)+o2.getFlightTime()+o2.getDepartureTime())%(7*60*24));
 					if(c == 0){
-						if(o1.equals(o2)){
+						if(o1.equals(o2) && o1.getCurrentDayIndex() == o2.getCurrentDayIndex()){
 							return c;
 						}
-						return o1.hashCode() -o2.hashCode();
+						return o1.hashCode() -o2.hashCode()+o1.getCurrentDayIndex()-o2.getCurrentDayIndex();
 					}
 					return c;
 				

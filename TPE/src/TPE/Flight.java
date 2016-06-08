@@ -85,6 +85,10 @@ public class Flight implements Serializable {
 	public String getOrigin() {
 		return origin;
 	}
+	public Flight clone(){
+		Flight ans = new Flight(airline, flightNumber, days, origin, target, departureTime, flightTime, price);
+		return ans;
+	}
 
 
 
@@ -127,7 +131,7 @@ public class Flight implements Serializable {
 	}
 
 	public String toString(){
-		return airline+" "+flightNumber+" "+origin+" "+target;
+		return airline+" "+flightNumber+" "+origin+" "+target+" "+currentDayIndex;
 	}
 
 

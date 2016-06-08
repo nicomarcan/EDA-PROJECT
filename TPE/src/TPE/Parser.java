@@ -82,6 +82,8 @@ public class Parser {
 			long finalT = System.currentTimeMillis();
 			System.out.println(finalT-initialT +" milisegundos ");
 		//	System.out.println(AirportManager.getInstance().getFlights());
+			//System.out.println(AirportManager.getInstance().getFlights());
+			//System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
 		/**listo**/

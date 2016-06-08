@@ -13,8 +13,6 @@
 <fullyQualifiedTypeName name="java.util.regex.Pattern"/>
 <fullyQualifiedTypeName name="TPE.Heap"/>
 <fullyQualifiedTypeName name="TPE.Airport"/>
-<fullyQualifiedTypeName name="TPE.Flight"/>
-<fullyQualifiedTypeName name="TPE.Day"/>
 <fullyQualifiedTypeName name="TPE.AVL.Node"/>
 <fullyQualifiedTypeName name="TPE.TimeAVL"/>
 <fullyQualifiedTypeName name="java.util.HashMap"/>
@@ -22,11 +20,18 @@
 <fullyQualifiedTypeName name="java.lang.Integer"/>
 <fullyQualifiedTypeName name="java.util.List"/>
 <fullyQualifiedTypeName name="java.util.HashSet"/>
-<fullyQualifiedTypeName name="java.util.PriorityQueue"/>
-<fullyQualifiedTypeName name="TPE.ArriveFunction"/>
 <fullyQualifiedTypeName name="java.util.LinkedList"/>
-<fullyQualifiedTypeName name="TPE.AirportManager.Node"/>
 <fullyQualifiedTypeName name="TPE.FibonacciHeap"/>
 <fullyQualifiedTypeName name="java.util.Comparator"/>
+<fullyQualifiedTypeName name="java.nio.file.Path"/>
+<fullyQualifiedTypeName name="TPE.PathFinder"/>
+<fullyQualifiedTypeName name="java.util.TreeSet"/>
+<fullyQualifiedTypeName name="java.util.NavigableSet"/>
 <fullyQualifiedTypeName name="TPE.AirportManager"/>
+<fullyQualifiedTypeName name="java.util.PriorityQueue"/>
+<fullyQualifiedTypeName name="TPE.ArriveFunction"/>
+<fullyQualifiedTypeName name="TPE.AirportManager.Node"/>
+<fullyQualifiedTypeName name="TPE.PathFinder.Entry"/>
+<fullyQualifiedTypeName name="TPE.Day"/>
+<fullyQualifiedTypeName name="TPE.Flight"/>
 </qualifiedTypeNameHistroy>

@@ -21,6 +21,46 @@ public class ArriveFunction {
 		return dst;
 	}
 	
+	public String toString(){
+		return dst.toString()+" "+departToArrival;
+	}
+	
+	public ArriveFunction clone(){
+		ArriveFunction ans = new ArriveFunction(source, dst);
+		for(Integer key : departToArrival.keySet()){
+			ans.departToArrival.put(key, departToArrival.get(key));
+		}
+		return ans;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dst == null) ? 0 : dst.hashCode());
+		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ArriveFunction other = (ArriveFunction) obj;
+		if (dst == null) {
+			if (other.dst != null)
+				return false;
+		} else if (!dst.equals(other.dst))
+			return false;
+		if (source == null) {
+			if (other.source != null)
+				return false;
+		} else if (!source.equals(other.source))
+			return false;
+		return true;
+	}
 	
 	
 }

@@ -9,8 +9,8 @@ public class Airport implements Serializable{
 	 */
 	private static final long serialVersionUID = 5662306771878072876L;
 	private String name;
-	private double lat;
-	private double length;
+	private Double lat;
+	private Double length;
 	
 	
 	public Airport(String name, double lat, double length) {
@@ -26,6 +26,14 @@ public class Airport implements Serializable{
 
 	public String toString(){
 		return name+" "+lat+" "+length;
+	}
+	
+	public Double getLatitude() {
+		return lat;
+	}
+	
+	public Double getLongitude() {
+		return length;
 	}
 
 	@Override

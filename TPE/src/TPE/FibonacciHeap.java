@@ -3,12 +3,12 @@ package TPE;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public class FibonacciHeap<T> {
-	
+
 	private static class Node<T> {
 		Node<T> left;
 		Node<T> right;
@@ -21,43 +21,100 @@ public class FibonacciHeap<T> {
 		public Node(T v) {
 			value = v;
 		}
+		
+		public Node<T> getLeft() {
+			return left;
+		}
+		
+		public void setLeft(Node<T> left) {
+					this.left = left;
+		}
+		
+		public Node<T> getRight() {
+			return right;
+		}
+		
+		public void setRight(Node<T> right) {
+			this.right = right;
+		}
+		
+		public Node<T> getParent() {
+			return parent;
+		}
+		
+		public void setParent(Node<T> parent) {
+			this.parent = parent;
+		}
+		
+		public Node<T> getChild() {
+			return child;
+		}
+		
+		public void setChild(Node<T> child) {
+			this.child = child;
+		}
+
+		public T getValue() {
+			return value;
+		}
+
+		public void setValue(T value) {
+			this.value = value;
+		}
+
+		public boolean isMarked() {
+			return marked;
+		}
+
+		public void setMarked(boolean marked) {
+			this.marked = marked;
+		}
+
+		public int getDegree() {
+			return degree;
+		}
+
+		public void increaseDegree() {
+			degree++;
+		}
+				
+		public void decreaseDegree() {
+			degree--;
+		}
 	}
-	
+			
 	private static final double LOG_PHI = Math.log( ( 1 + Math.sqrt( 5 ) ) / 2 );
 	private Node<T> minNode;
 	private int size;
 	private Comparator<T> cmp;
-	
+	private Map<T,Node<T>> nodes = new HashMap<T,Node<T>>();
+		
 	public FibonacciHeap(Comparator<T> cmp) {
 		this.cmp = cmp;
 	}
-	
+		
 	public boolean isEmpty() {
 		return minNode == null;
 	}
-	
+			
 	public void clear() {
 		minNode = null;
 		size = 0;
-
 	}
-	
+			
 	private void moveToRoot(Node<T> node) {
 		if(isEmpty()) {
 			minNode = node;
-			node.left = node;
-			node.right = node;
+			node.setLeft(node);
+			node.setRight(node);
 		} else {
-			node.right = minNode;
-			node.left = minNode.left;
-			minNode.left = node;
-			minNode.left.right = node;
-			if(cmp.compare(minNode.value, node.value) > 0) {
-				minNode = node;
-			}
+			node.setRight(minNode);
+			node.setLeft(minNode.getLeft());
+			minNode.getLeft().setRight(node);
+			minNode.setLeft(node);		
 		}
 	}
-	
+			
 	public void offer(T elem) {
 		if(elem == null) {
 			return;
@@ -65,46 +122,54 @@ public class FibonacciHeap<T> {
 		
 		Node<T> node = new Node<T>(elem);
 		moveToRoot(node);
+		if(compare(minNode, node) > 0) {
+		minNode = node;
+		}
+		
 		size ++;
+		nodes.put(elem, node);
 	}
-	
+			
+	public int compare(Node<T> n1, Node<T> n2) {
+		return cmp.compare(n1.value,n2.value);
+	}
+			
 	public T peek() {
 		return minNode.value;
 	}
-		
+				
 	public T poll() {
 		 if(isEmpty()) {
 			 return null;
 		 }
 
 		 Node<T> minN = minNode;
-		 int numOfKids = minN.degree;
-
-		 Node<T> child = minN.child;
+		 int numOfKids = minN.getDegree();
+		 Node<T> child = minN.getChild();
 		 Node<T> tempRight;
-
+		 
 		 while(numOfKids > 0) {
-			 tempRight = child.right;
+			 tempRight = child.getRight();
 			 moveToRoot(child);
-
-			 child.parent = null;
+			 child.setParent(null);
 
 			 child = tempRight;
 			 numOfKids--;
 		 }
 
-		 minN.left.right = minN.right;
-		 minN.right.left = minN.left;
-
-		 if( minN == minN.right ) {
+		 minN.getLeft().setRight(minN.getRight());
+		 minN.getRight().setLeft(minN.getLeft());
+				 
+		 if( minN == minN.getRight() ) {
 			 minNode = null;
 		 } else {
-			 minNode = minN.right;
+			 minNode = minN.getRight();
 			 consolidate();
 		 }
-		 
+				 
 		 size--;
-		 T min = minN.value;
+		 T min = minN.getValue();
+		 nodes.remove(min);
 		 return min;
 	 }
 
@@ -114,110 +179,127 @@ public class FibonacciHeap<T> {
         }
 
         int arraySize = ((int)Math.floor(Math.log(size)/LOG_PHI));
-
         List<Node<T>> nodeSequence = new ArrayList<Node<T>>(arraySize);
-        for(int i = 0; i < arraySize; i++) {
-            nodeSequence.add(i, null);
-        }
-
-        Node<T> current = minNode.right;
-        boolean first = true;
-		
-        while(current != minNode || first) {
-        	
-        	int degree = current.degree;
-            Node<T> next = current.right;
-            first = false;
-            
-            while(nodeSequence.get(degree) != null) {
-                Node<T> aux = nodeSequence.get(degree);
-
-                if(cmp.compare(current.value, aux.value) > 0) {
-                    Node<T> pointer = aux;
-                    aux = current;
-                    current = pointer;
-                }
-                
-                link(aux, current);
-                nodeSequence.set(degree, null);
-                degree++;
-            }
-
-            nodeSequence.set(degree, current);
-            current = next;
-        }
         
-        minNode = null;
+        for(int i = 0; i < arraySize; i++) {
+        	nodeSequence.add(i, null);
+		}
 
-        for(Node<T> node : nodeSequence) {
-            if(node != null) {
-            	moveToRoot(node);
-            }
+		Node<T> current = minNode;	
+		int numRoots = 0;
+
+        if(current != null) {
+            numRoots++;
+            current = current.getRight();
+            
+            while(current != minNode) {
+            	numRoots++;
+		        current = current.getRight();
+		    }
         }
+		        
+		while(numRoots > 0) {
+		   	int degree = current.getDegree();
+		    Node<T> next = current.getRight();
+		            
+		    while(nodeSequence.get(degree) != null) {
+		    	Node<T> aux = nodeSequence.get(degree);
+
+		        if(compare(current, aux) > 0) {
+		        	Node<T> pointer = aux;
+		            aux = current;
+		            current = pointer;
+		        }
+		                
+		        link(aux, current);
+		        nodeSequence.set(degree, null);
+		        degree++;
+		   }
+		   nodeSequence.set(degree, current);
+		   current = next;
+		   numRoots--;
+		}
+		        
+		minNode = null;
+
+		for(Node<T> node : nodeSequence) {
+		   	if(node != null) {
+		       	if(minNode == null) {
+		      		moveToRoot(node);
+		       		minNode = node;
+		       	} else {
+		       		moveToRoot(node);
+		       		if(compare(minNode,node) > 0) {
+		   				minNode = node;
+		   			}
+		       	}
+	    	}
+		}
 	}
-	    
-    private void link(Node<T> c, Node<T> p) {
-    	c.left.right = c.right;
-    	c.right.left = c.left;
+			    
+	private void link(Node<T> child, Node<T> parent) {
+		child.getLeft().setRight(child.getRight());
+		child.getRight().setLeft(child.getLeft());
+		child.setParent(parent);
 
-        c.parent = p;
-
-        if(p.child == null) {
-            p.child = c;
-            c.right = c;
-            c.left = c;
-        } else {
-            c.left = p.child;
-            c.right = p.child.right;
-            p.child.right = c;
-            c.right.left = c;
-        }
-
-        p.degree ++;
-
-        c.marked = false;
-    }
-    
-    public void decreaseKey(Node<T> node, T val) {
-        if(cmp.compare(val, node.value) > 0) {
-        	throw new IllegalArgumentException("entered value is wrong");
-        }
-        node.value = val;
-
-        Node<T> tempParent = node.parent;
-
-        if((tempParent != null) && (cmp.compare(node.value, tempParent.value) < 0)) {
-            cut(node,tempParent);
-            cascadingCut(tempParent);
-        }
-    }
+		if(parent.getChild() == null) {
+			parent.setChild(child);
+			child.setRight(child);
+			child.setLeft(child);
+		} else {
+			child.setRight(parent.getChild());
+			child.setLeft(parent.getChild().getLeft());
+			parent.getChild().getLeft().setRight(child);
+			parent.getChild().setLeft(child);
+		}
+		
+		parent.increaseDegree();
+		child.setMarked(false);
+	}
+		    
+	public void decreaseKey(T value, T newValue) {
+		Node node = nodes.get(value);
+		if(node == null) {
+			throw new NullPointerException("do not exist node with this value");
+		}
+		if(cmp.compare(newValue, value) > 0) {
+			throw new IllegalArgumentException("entered new value is wrong");
+		}
+		
+		node.setValue(newValue);
+		Node<T> tempParent = node.getParent();
+		
+		if((tempParent != null) && (compare(node,tempParent) < 0)) {
+			cut(node, tempParent);
+			cascadingCut(tempParent);
+		}
+		if(compare(minNode, node) > 0) {
+			minNode = node;
+		}
+	}
 
 	private void cut(Node<T> node, Node<T> tempParent) {
 		moveToRoot(node);
-
-        tempParent.degree--;
-        node.parent = null;
-
-        node.marked = false;;
+		tempParent.decreaseDegree();
+		node.setParent(null);
+		node.setMarked(false);
 	}
 
 	private void cascadingCut(Node<T> node) {
-        Node<T> tempParent = node.parent;
-
-        if(tempParent != null) {
-            if(!node.marked) {
-                node.marked = true;
-            } else {
-                cut(node, tempParent);
-                cascadingCut(tempParent);
-            }
-        }
+		Node<T> tempParent = node.getParent();
 		
+		if(tempParent != null) {
+			if(!node.isMarked()) {
+				node.setMarked(true);
+			} else {
+				cut(node, tempParent);
+				cascadingCut(tempParent);
+			}
+		}	
 	}
-	
-	public void delete(Node<T> node) {
-		decreaseKey(node, null);
+			
+	public void delete(T value) {
+		decreaseKey(value, null);
 		poll();
 	}
-
 }

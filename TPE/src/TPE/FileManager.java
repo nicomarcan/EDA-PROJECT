@@ -42,7 +42,7 @@ public class FileManager {
 					writer.write("Precio#" + price + newLine);
 					writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
 					for(Flight fl: route){
-						writer.write(fl.getOrigin() + "#" + /* aerolinea + "#" + codigo de vuelo + */ "#" + fl.getTarget() + newLine);
+						writer.write(fl.getOrigin() + "#" + fl.getAirline() + "#" + fl.getFlightNumber() + "#" + fl.getTarget() + newLine);
 					}
 					writer.close();
 				} catch (IOException e) {
@@ -54,19 +54,37 @@ public class FileManager {
 			if(stdout) {
 				System.out.println("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>");
 				System.out.println("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">");
+				System.out.println("<Document>");	// no se si hace falta este
+				// TODO el tiempo vuelo y tiempo total en la descripcion estan iguales
+				System.out.println("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>");
+				// El primer aeropuerto
 				System.out.println("<Placemark>");
-				System.out.println("<Precio> " + price + " </Precio>");
-				System.out.println("<TiempoVuelo> " + hoursFlight + "h" + minutesFlight + "m" + " </TiempoVuelo>");
-				System.out.println("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>");
-				System.out.println("<Ruta>");
-				for(Flight fl: route){
-					System.out.println("<Origen> " + fl.getOrigin() + " </Origen>");
-					System.out.println("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>");
-					System.out.println("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>");
-					System.out.println("<Destino> " + fl.getTarget() + " </Destino>");
-				}
-				System.out.println("</Ruta>");
+				System.out.println("<name>" + route.get(0).getAirline() + "#" + route.get(0).getFlightNumber() + "</name>");
+				System.out.println("<Point>");
+				System.out.println("<Description></Description>");
+				System.out.println("<coordinates>" + route.get(0).getOriginAirport().getLatitude() + ", " + route.get(0).getOriginAirport().getLongitude() + ",0" + "</coordinates>");
+				System.out.println("</Point>");
 				System.out.println("</Placemark>");
+				for(Flight fl : route) {
+					// El vuelo
+					System.out.println("<Placemark>");
+					System.out.println("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>");
+					System.out.println("<LineString>");
+					System.out.println("<tessellate>0</tessellate>");
+					System.out.println("<coordinates>" + fl.getOriginAirport().getLatitude() + ", " + fl.getOriginAirport().getLongitude() + ",0");
+					System.out.println(fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>");
+					System.out.println("</LineString>");
+					System.out.println("</Placemark>");
+					// El aeropuerto destino
+					System.out.println("<Placemark>");
+					System.out.println("<name>" + fl.getTarget() + "</name>");
+					System.out.println("<Point>");
+					System.out.println("<Description></Description>");
+					System.out.println("<coordinates>" + fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>");
+					System.out.println("</Point>");
+					System.out.println("</Placemark>");
+				}
+				System.out.println("</Document>");	// no se si hace falta este
 				System.out.println("</kml>");
 			} else {
 				try {
@@ -74,19 +92,37 @@ public class FileManager {
 					FileWriter writer = new FileWriter(toWrite, true);
 					writer.write("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>" + newLine);
 					writer.write("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">" + newLine);
+					writer.write("<Document>" + newLine);	// no se si hace falta este
+					// TODO el tiempo vuelo y tiempo total en la descripcion estan iguales
+					writer.write("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>" + newLine);
+					// El primer aeropuerto
 					writer.write("<Placemark>" + newLine);
-					writer.write("<Precio> " + price + " </Precio>" + newLine);
-					writer.write("<TiempoVuelo> " + hoursFlight + "h" + minutesFlight + "m" + " </TiempoVuelo>"  + newLine);
-					writer.write("<TiempoTotal> " + /*hoursFlight + "h" + minutesFlight + "m" + */ " </TiempoTotal>"  + newLine);
-					writer.write("<Ruta>" + newLine);
-					for(Flight fl: route){
-						writer.write("<Origen> " + fl.getOrigin() + " </Origen>" + newLine);
-						writer.write("<Aeroliena> " + /* aerolinea + */ " </Aeroliena>" + newLine);
-						writer.write("<NroVuelo> " + /* codigo de vuelo + */ " </NroVuelo>" + newLine);
-						writer.write("<Destino> " + fl.getTarget() + " </Destino>" + newLine);
-					}
-					writer.write("</Ruta>" + newLine);
+					writer.write("<name>" + route.get(0).getAirline() + "#" + route.get(0).getFlightNumber() + "</name>" + newLine);
+					writer.write("<Point>" + newLine);
+					writer.write("<Description></Description>" + newLine);
+					writer.write("<coordinates>" + route.get(0).getOriginAirport().getLatitude() + ", " + route.get(0).getOriginAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+					writer.write("</Point>" + newLine);
 					writer.write("</Placemark>" + newLine);
+					for(Flight fl : route) {
+						// El vuelo
+						writer.write("<Placemark>" + newLine);
+						writer.write("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>" + newLine);
+						writer.write("<LineString>" + newLine);
+						writer.write("<tessellate>0</tessellate>" + newLine);
+						writer.write("<coordinates>" + fl.getOriginAirport().getLatitude() + ", " + fl.getOriginAirport().getLongitude() + ",0" + newLine);
+						writer.write(fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+						writer.write("</LineString>" + newLine);
+						writer.write("</Placemark>" + newLine);
+						// El aeropuerto destino
+						writer.write("<Placemark>" + newLine);
+						writer.write("<name>" + fl.getTarget() + "</name>" + newLine);
+						writer.write("<Point>" + newLine);
+						writer.write("<Description></Description>" + newLine);
+						writer.write("<coordinates>" + fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+						writer.write("</Point>" + newLine);
+						writer.write("</Placemark>" + newLine);
+					}
+					writer.write("</Document>" + newLine);	// no se si hace falta este
 					writer.write("</kml>" + newLine);
 					writer.close();
 				} catch (IOException e) {

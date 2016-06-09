@@ -4,11 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Flight implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5924995540657522567L;
+public class Flight {
+
 	private String airline;
 	private String flightNumber;
 	private List<Day> days;

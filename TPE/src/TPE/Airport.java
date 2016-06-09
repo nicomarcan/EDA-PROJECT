@@ -3,11 +3,8 @@ package TPE;
 import java.io.Serializable;
 
 
-public class Airport implements Serializable{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5662306771878072876L;
+public class Airport {
+	
 	private String name;
 	private Double lat;
 	private Double length;

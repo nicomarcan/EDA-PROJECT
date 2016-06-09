@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class Parser {
-	
+	public static OutputFormat outputFormat = null;
+	public static String output = null;
 	public static boolean parseCommand(String command) throws ClassNotFoundException, IOException { 
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
 		FileManager f = new FileManager();
+		
+		
 		
 		String HELP_MESSAGE = "***HELP MESSAGE***";
 		String helpExp = "[hH]";
@@ -24,7 +27,8 @@ public class Parser {
 		String delAllFlExp = "delete all flight";
 		String findRouteExp = "findRoute src=[a-z A-Z]{3} dst=[a-z A-Z]{3} priority=(pr|tt|ft)( weekdays=(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*)?$";
 		String outputFormatExp = "outputFormat ((text)|(KML))";
-		String outputExp = "output ((stdout)|(file [a-z A-Z 0-9]+\\.txt))";
+		String outputExp = "output stdout";
+		String outputExpFile = "output file [a-z A-Z 0-9]+(\\.txt|\\.kml)";
 		String exitAndSaveExp = "exitAndSave";
 		String quitExp = "quit";
 		
@@ -101,7 +105,11 @@ public class Parser {
 			String p = res[3].split("=")[1];
 			
 			RoutePriority priority;
-			
+			System.out.println(output+" "+outputFormat);
+			if(output==null || outputFormat == null){
+				System.out.println("falta formato de salida");
+				return true;
+			}
 			if(p.equals("ft"))
 				priority = RoutePriority.TIME;
 			else if (p.equals("pr"))
@@ -115,18 +123,41 @@ public class Parser {
 				if(!Day.checkDays(days))
 					System.out.println("Ingreso dias repetidos");
 				List<Day> newDays = Day.getDays(days); 
-				AirportManager.getInstance().findRoute(source,target,priority,newDays);
+				AirportManager.getInstance().findRoute(source,target,priority,newDays, outputFormat, output);
 			}else
-				AirportManager.getInstance().findRoute(source,target,priority,Day.getAllDays());
+				AirportManager.getInstance().findRoute(source,target,priority,Day.getAllDays(), outputFormat, output);
 			return false;
 		}
 		
 		else if(Pattern.matches(outputFormatExp, command)){
-			System.out.println("*matches output format command*");
+			String[] strings = command.split(" ");
+			if(strings[1].equals("text")) {
+				outputFormat = OutputFormat.TEXT;
+			} else {
+				outputFormat = OutputFormat.KML;
+			}
 			return false;
 		}
 		else if(Pattern.matches(outputExp, command)){
-			System.out.println("*matches output command*");
+			output = "stdout";
+		}
+		else if(Pattern.matches(outputExpFile, command)){
+			String[] strings = command.split(" ");
+			String[] strings2 = strings[2].split("\\.");
+			String extension = strings2[1];
+			
+			
+				if(extension.equals("kml") && outputFormat.equals(OutputFormat.TEXT)) {
+					System.out.println("Error: el nombre de archivo termina con .kml pero el formato esta seteado en texto.");
+					return false;
+				}
+				if(extension.equals("txt") && outputFormat.equals(OutputFormat.KML)) {
+					System.out.println("Error: el nombre de archivo termina con .txt pero el formato esta seteado en kml.");
+					return false;
+				}
+				output = strings[2];
+			
+		
 			return false;
 		}
 		

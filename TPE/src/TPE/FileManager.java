@@ -6,16 +6,43 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+
+import TPE.AirportManager.Node;
 /** cambiar regexp en readflight**/
 public class FileManager {
 
-	public boolean writeRoute(List<Flight> route, String nameFile, boolean stdout, String format){
-		String kmlFormat = "kml";
-		String txtFormat = "txt";
+	public void save(String outputAirports, String outputFlights) {
+		String newLine = System.getProperty("line.separator");
+		
+		try {
+			File airportFile = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",outputAirports);
+			FileWriter writer = new FileWriter(airportFile, true);
+			AirportManager manager = AirportManager.getInstance();
+			for(Node air : manager.getAirportsDijkstra()){
+				writer.write(air.airport.getName() + "#" + air.airport.getLatitude() + "#" + air.airport.getLongitude() + newLine);
+			}
+			writer.close();
+			File flightFile = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",outputAirports);
+			writer = new FileWriter(flightFile, true);
+			manager = AirportManager.getInstance();
+			for(Flight fl : manager.getFlightsDijkstra()){
+				writer.write(fl.getAirline() + "#" + fl.getFlightNumber() + "#" + fl.getDays()Lu-Ju-Ma-Sa + "#" + fl.getOrigin() + "#" + fl.getTarget() + "#" + fl.getDepartureTime()08:46 + "#" + fl.getFlightTime() 14h45m + "#" + fl.getPrice() + newLine);
+			}
+			writer.close();
+		} catch (IOException e) {
+			System.out.println("NotFound");
+		}
+		return;
+	}
+	
+	public void load(String airportFile, String flightFile) throws ClassNotFoundException, IOException {
+		readAirports(airportFile);
+		readFlights(flightFile);
+	}
+	public boolean writeRoute(List<Flight> route, String output, OutputFormat outputFormat){
 		String newLine = System.getProperty("line.separator");
 		
 		double price = 0;
@@ -29,8 +56,8 @@ public class FileManager {
 		int hoursFlight = flightTime/60;
 		int minutesFlight = flightTime%60;
 		
-		if(Pattern.matches(txtFormat, format)) {
-			if(stdout) {
+		if(outputFormat.equals(OutputFormat.TEXT)) {
+			if(output.equals("stdout")) {
 				System.out.println("Precio#" + price);
 				System.out.println("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m");
 				for(Flight fl: route){
@@ -38,7 +65,7 @@ public class FileManager {
 				}
 			} else {
 				try {
-					File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",nameFile+ "." + format);
+					File toWrite = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",output);
 					FileWriter writer = new FileWriter(toWrite, true);
 					writer.write("Precio#" + price + newLine);
 					writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
@@ -51,8 +78,8 @@ public class FileManager {
 					return false;
 				}
 			}
-		} else if(Pattern.matches(kmlFormat, format)){
-			if(stdout) {
+		} else if(outputFormat.equals(OutputFormat.KML)){
+			if(output.equals("stdout")) {
 				System.out.println("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>");
 				System.out.println("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">");
 				System.out.println("<Document>");	// no se si hace falta este
@@ -60,10 +87,10 @@ public class FileManager {
 				System.out.println("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>");
 				// El primer aeropuerto
 				System.out.println("<Placemark>");
-				System.out.println("<name>" + route.get(0).getAirline() + "#" + route.get(0).getFlightNumber() + "</name>");
+				System.out.println("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>");
 				System.out.println("<Point>");
 				System.out.println("<Description></Description>");
-				System.out.println("<coordinates>" + route.get(0).getOriginAirport().getLatitude() + ", " + route.get(0).getOriginAirport().getLongitude() + ",0" + "</coordinates>");
+				System.out.println("<coordinates>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLongitude() + ",0" + "</coordinates>");
 				System.out.println("</Point>");
 				System.out.println("</Placemark>");
 				for(Flight fl : route) {
@@ -72,8 +99,8 @@ public class FileManager {
 					System.out.println("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>");
 					System.out.println("<LineString>");
 					System.out.println("<tessellate>0</tessellate>");
-					System.out.println("<coordinates>" + fl.getOriginAirport().getLatitude() + ", " + fl.getOriginAirport().getLongitude() + ",0");
-					System.out.println(fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>");
+					System.out.println("<coordinates>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLongitude() + ",0");
+					System.out.println(AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>");
 					System.out.println("</LineString>");
 					System.out.println("</Placemark>");
 					// El aeropuerto destino
@@ -81,7 +108,7 @@ public class FileManager {
 					System.out.println("<name>" + fl.getTarget() + "</name>");
 					System.out.println("<Point>");
 					System.out.println("<Description></Description>");
-					System.out.println("<coordinates>" + fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>");
+					System.out.println("<coordinates>" + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>");
 					System.out.println("</Point>");
 					System.out.println("</Placemark>");
 				}
@@ -89,7 +116,7 @@ public class FileManager {
 				System.out.println("</kml>");
 			} else {
 				try {
-					File toWrite = new File("F:/git/eda-2016-04/TPE/src/Datos",nameFile+ "." + format);
+					File toWrite = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",output);
 					FileWriter writer = new FileWriter(toWrite, true);
 					writer.write("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>" + newLine);
 					writer.write("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">" + newLine);
@@ -98,10 +125,10 @@ public class FileManager {
 					writer.write("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>" + newLine);
 					// El primer aeropuerto
 					writer.write("<Placemark>" + newLine);
-					writer.write("<name>" + route.get(0).getAirline() + "#" + route.get(0).getFlightNumber() + "</name>" + newLine);
+					writer.write("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>" + newLine);
 					writer.write("<Point>" + newLine);
 					writer.write("<Description></Description>" + newLine);
-					writer.write("<coordinates>" + route.get(0).getOriginAirport().getLatitude() + ", " + route.get(0).getOriginAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+					writer.write("<coordinates>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getLongitude() + ",0" + "</coordinates>" + newLine);
 					writer.write("</Point>" + newLine);
 					writer.write("</Placemark>" + newLine);
 					for(Flight fl : route) {
@@ -110,8 +137,8 @@ public class FileManager {
 						writer.write("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>" + newLine);
 						writer.write("<LineString>" + newLine);
 						writer.write("<tessellate>0</tessellate>" + newLine);
-						writer.write("<coordinates>" + fl.getOriginAirport().getLatitude() + ", " + fl.getOriginAirport().getLongitude() + ",0" + newLine);
-						writer.write(fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+						writer.write("<coordinates>" +  AirportManager.getInstance().getAirports().get(fl.getOrigin()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getOrigin()).airport.getLongitude() + ",0" + newLine);
+						writer.write(AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>" + newLine);
 						writer.write("</LineString>" + newLine);
 						writer.write("</Placemark>" + newLine);
 						// El aeropuerto destino
@@ -119,7 +146,7 @@ public class FileManager {
 						writer.write("<name>" + fl.getTarget() + "</name>" + newLine);
 						writer.write("<Point>" + newLine);
 						writer.write("<Description></Description>" + newLine);
-						writer.write("<coordinates>" + fl.getDestinationAirport().getLatitude() + ", " + fl.getDestinationAirport().getLongitude() + ",0" + "</coordinates>" + newLine);
+						writer.write("<coordinates>" + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>" + newLine);
 						writer.write("</Point>" + newLine);
 						writer.write("</Placemark>" + newLine);
 					}
@@ -142,7 +169,7 @@ public class FileManager {
 	public  void readFlights(String file) throws FileNotFoundException{
 		FlightCreator flightC = new FlightCreator();
 		//System.out.println(file);
-		File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",file);
+		File toRead = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",file);
 		try {
 			int i = 1;
 			Scanner sc = new Scanner(toRead);
@@ -168,7 +195,7 @@ public class FileManager {
 	
 	public  void readAirports(String name) throws IOException, ClassNotFoundException {
 			AirportCreator airportC = new AirportCreator();
-	        File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",name);
+	        File toRead = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",name);
 	        try {
 	        	Scanner sc = new Scanner(toRead);
 	        	while(sc.hasNextLine()){

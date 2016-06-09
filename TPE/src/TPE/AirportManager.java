@@ -230,15 +230,16 @@ public class AirportManager {
 		}
 	}
 
-	public void findRoute(String source,String target,RoutePriority priority,List<Day> days){
+	public void findRoute(String source,String target,RoutePriority priority,List<Day> days, OutputFormat outputFormat, String output){
 		Node sourceN = airports.get(source);
 		Node targetN = airports.get(target);
+		System.out.println(output+" "+outputFormat);
 		if(sourceN == null || targetN == null){
 			System.out.println("Alguno de los aeropuertos es invalido");
 		}
 		Dijkstra d = new Dijkstra(sourceN.airport,targetN.airport,priority,days);
 		FileManager fm = new FileManager();
-		fm.writeRoute(d.findRoute(), "asd", true, "txt");
+		fm.writeRoute(d.findRoute(), output, outputFormat);
 		return ;
 	}
 

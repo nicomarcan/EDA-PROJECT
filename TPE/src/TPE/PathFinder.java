@@ -13,6 +13,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import TPE.AirportManager.Node;
+import TPE.TimeAVL.FlightEl;
 
 public class PathFinder {
 	public static List<Flight> findPath(Collection<Node> airports,Node source,Node dest,List<Day> departDays){
@@ -21,65 +22,80 @@ public class PathFinder {
 		//List<Node> nodes = new LinkedList<Node>();
 		//Flight last = null;
  		for(int i = 0;i<departDays.size();i++){
-			for(Node a : airports){
-				if(!a.equals(source) && source.priceFlight.get(a.airport)!=null){
+			for(Airport a : source.priceFlight.keySet()){
 					//System.out.println(departDays.get(i));
 					//System.out.println(source.priceFlight.get(a.airport).get(departDays.get(i)));
-					for(Flight f : source.priceFlight.get(a.airport).get(departDays.get(i))){
-						Flight min =source.waitingTimes.get(a.airport).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
-						if(min.getDepartureTime()+min.getCurrentDayIndex()*(60*24) == f.getDepartureTime()+f.getCurrentDayIndex()*(60*24)){
+					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){
+						FlightEl min =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*60*24,((f.getCurrentDayIndex()+1)*60*24)-1);
+						if(min.getF().getDepartureTime()+min.getF().getCurrentDayIndex()*(60*24) == f.getDepartureTime()+f.getCurrentDayIndex()*(60*24)){
 							
 							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
 							//last = null;
-						}else{
-							if(min.getCurrentDayIndex() != Day.getIndex(departDays.get(i))){
-								//last = f;
-								interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
-							}
-						}
+						}//else{
+//							if(min.getF().getCurrentDayIndex() != Day.getIndex(departDays.get(i))){
+//								//last = f;
+//								interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
+//							}
+						//}
 					}
 //					if(last != null){
 //						interval.add(last.getDepartureTime()+last.getCurrentDayIndex()*60*24);
 //					}
-				}
+				
 			}
 		}
  		System.out.println(interval);
 		 Map<Node,Entry> af = timeRefinement(airports,source,dest,interval);
 		// System.out.println(af);
 		 int min = Integer.MAX_VALUE;
+		 int optTi = -1 ;
 		 for(Integer i : interval){
 			Integer g = af.get(dest).af.getDepartToArrival().get(i);
 			if(g != Integer.MAX_VALUE){
 				if(min > g-i){
 					min = g - i ;
+					optTi = i;
 				}
 			}
 		 }
 		 if(min != Integer.MAX_VALUE){
-			 System.out.println(min);
-			// List<Flight> f = pathSelection(airports,af,source,dest,min);
+			 System.out.println(min/60 +" horas"+min%60+ " minutos"+optTi);
+			 List<Flight> f = pathSelection(airports,af,source,dest,optTi);
+			 System.out.println(f);
 	 }
-		 System.out.println("NOPE");
+		 //System.out.println("NOPE");
  		return null;
 	}
 
-	private static List<Flight> pathSelection(Set<Node> airports, Map<Node, ArriveFunction> af, Node source, Node dest,
+	private static List<Flight> pathSelection(Collection<Node> airports, Map<Node, Entry> af, Node source, Node dest,
 			int min) {
 		Node current = dest;
 		List<Flight> f = new LinkedList<Flight>();
 		while(!current.equals(source)){
-			for(Node n : airports){
-				for(Flight fl : n.waitingTimes.get(current.airport)){
-					if(af.get(n).getDepartToArrival().get(min)+n.waitingTimes.get(current.airport).earliestArrivalTime(min).getFlightTime() == af.get(source).getDepartToArrival().get(min)){
-						current = n;
-						f.add(0,fl);
-						break;
-					}
+			for(Node n : current.incidentAirports){
+					if(n.equals(source)){
+						int gj = af.get(current).af.getDepartToArrival().get(min);
+						int gI = af.get(n).af.getDepartToArrival().get(min);
+						int max = (((gI/(60*24))+1)*60*24)-1;
+						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getArrivalTime() == gj){		
+							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getF());					
+							current = n;
+							break;
+						}
+					}else{
+						int gj = af.get(current).af.getDepartToArrival().get(min);
+						int gI = af.get(n).af.getDepartToArrival().get(min);
+						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getArrivalTime() == gj){
+							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getF());
+							current = n;
+							break;
+						}
 				}
-				
 			}
-		}
+				
+				
+		
+	}
 		return f;
 	}
 
@@ -120,31 +136,39 @@ public class PathFinder {
 				
 				Integer minEdgeW = getMinEdgeW(source,airports,head.af.getDepartToArrival().get(head.time),i.af.getDst());
 				Integer maxT = null;
-				if(minEdgeW ==Integer.MAX_VALUE  ){
+				if(minEdgeW ==Integer.MAX_VALUE || head.af.getDepartToArrival().get(head.time) == Integer.MAX_VALUE ){
 					 maxT = interval.last();
 				}
 				else{
+					//System.out.println(head.af.getDepartToArrival().get(head.time));
 					 maxT = getMaxT(interval.subSet(i.time,true, interval.last(),true) ,minEdgeW+head.af.getDepartToArrival().get(head.time) , i);
-					// System.out.println(maxT);
+					  //System.out.println(maxT);
 				}
 					for(Airport n : i.af.getDst().waitingTimes.keySet()){
 						
 							
 								//Entry a = new Entry(res.get(AirportManager.getInstance().getAirports().get(n.getName())).time,res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.clone());
-								for(Flight f : i.af.getDst().waitingTimes.get(n)){
+								//for(Flight f : i.af.getDst().waitingTimes.get(n)){
 									//System.out.println("entro con f " +f);
 								//	System.out.println(interval.subSet(i.time,true, maxT,true));
+						
 									for(Integer k : interval.subSet(i.time,true, maxT,true)){
-										Integer gI = i.af.getDepartToArrival().get(k);							
-										Flight min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI);
-										if(min != null){
-											Integer aux =  min.getFlightTime() + min.getDepartureTime()+min.getCurrentDayIndex()*60*24;
+										Integer gI = i.af.getDepartToArrival().get(k);
+										FlightEl min;
+										//System.out.println(i.af.getDst());
+										if(!i.af.getDst().equals(source))
+											 min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI);
+										else
+											min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI,(((gI/(60*24))+1)*60*24)-1);
+										if(min.getF() != null){
+											Integer aux =  min.getArrivalTime();
+											//System.out.println(min.getF()+ " "+aux +"jojoojoj");
 											if(res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().get(k) > aux){							
 												res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().put(k, aux);
 											}
 										}
 									}						
-								}
+								//}
 								//System.out.println(pq);
 							//	System.out.println(res.get(n).af);
 								//pq.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
@@ -225,8 +249,8 @@ public class PathFinder {
 		//	System.out.println(i.af.getDepartToArrival().get(j));
 			if(i.af.getDepartToArrival().get(j) <= time){
 				 ans = j;
-			}
-			return ans;
+			}else
+				return ans;
 		}
 		return ans;
 	}
@@ -234,9 +258,9 @@ public class PathFinder {
 	private static Integer getMinEdgeW(Node source,Collection<Node> airports ,Integer time, Node dest) {
 		Integer min = Integer.MAX_VALUE;
 		for(Node n: dest.incidentAirports){
-			Flight f =  n.waitingTimes.get(dest.airport).earliestArrivalTime(time);
-			if( f != null){
-				Integer aux = f.getFlightTime() ;
+			FlightEl f =  n.waitingTimes.get(dest.airport).earliestArrivalTime(time);
+			if( f.getF() != null){
+				Integer aux = f.getF().getFlightTime() ;
 				if(aux < min){
 					min = aux;
 				}
@@ -306,7 +330,7 @@ public class PathFinder {
 			return c;
 		}
 		public String toString(){
-			return af.toString()+af.hashCode();
+			return af.getDst()+" TIME "+time+" "+af.getDepartToArrival().get(time);
 		}
 		
 		

@@ -1,37 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="AirportManager"/>
-<fullyQualifiedTypeName name="java.lang.Double"/>
-<fullyQualifiedTypeName name="java.time.MonthDay"/>
-<fullyQualifiedTypeName name="AirportManager.Node"/>
-<fullyQualifiedTypeName name="java.security.KeyStore.Entry"/>
-<fullyQualifiedTypeName name="AirportManager.Entry"/>
-<fullyQualifiedTypeName name="FlightAssisstant"/>
-<fullyQualifiedTypeName name="TPE.FileManager"/>
-<fullyQualifiedTypeName name="java.util.Scanner"/>
-<fullyQualifiedTypeName name="java.io.FileInputStream"/>
-<fullyQualifiedTypeName name="java.util.regex.Pattern"/>
-<fullyQualifiedTypeName name="TPE.Heap"/>
-<fullyQualifiedTypeName name="TPE.Airport"/>
-<fullyQualifiedTypeName name="TPE.AVL.Node"/>
-<fullyQualifiedTypeName name="TPE.TimeAVL"/>
-<fullyQualifiedTypeName name="java.util.HashMap"/>
-<fullyQualifiedTypeName name="java.lang.System"/>
-<fullyQualifiedTypeName name="java.lang.Integer"/>
-<fullyQualifiedTypeName name="java.util.List"/>
-<fullyQualifiedTypeName name="java.util.HashSet"/>
-<fullyQualifiedTypeName name="java.util.LinkedList"/>
-<fullyQualifiedTypeName name="java.util.Comparator"/>
-<fullyQualifiedTypeName name="java.nio.file.Path"/>
-<fullyQualifiedTypeName name="TPE.PathFinder"/>
-<fullyQualifiedTypeName name="java.util.TreeSet"/>
-<fullyQualifiedTypeName name="java.util.NavigableSet"/>
-<fullyQualifiedTypeName name="TPE.AirportManager"/>
-<fullyQualifiedTypeName name="java.util.PriorityQueue"/>
-<fullyQualifiedTypeName name="TPE.ArriveFunction"/>
-<fullyQualifiedTypeName name="TPE.AirportManager.Node"/>
-<fullyQualifiedTypeName name="TPE.PathFinder.Entry"/>
 <fullyQualifiedTypeName name="TPE.Day"/>
 <fullyQualifiedTypeName name="TPE.Flight"/>
-<fullyQualifiedTypeName name="TPE.FibonacciHeap"/>
+<fullyQualifiedTypeName name="TPE.TimeAVL.FlightEl"/>
+<fullyQualifiedTypeName name="java.lang.Integer"/>
 </qualifiedTypeNameHistroy>

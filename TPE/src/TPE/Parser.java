@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 /**
- * Esta clase se encarga del analisis sintáctico de los comandos y argumentos enviados por el usuario.
+ * Esta clase se encarga del analisis sintactico de los comandos y argumentos enviados por el usuario.
  *
  */
 public class Parser {

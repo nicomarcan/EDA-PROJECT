@@ -5,7 +5,7 @@ import java.util.Map;
 
 import TPE.AirportManager.Node;
 /**Esta clase es utilizada para el algoritmo de tiempo total.
- * Representa una función que dependiendo el tiempo de partida del aeropuerto src
+ * Representa una funcion que dependiendo el tiempo de partida del aeropuerto src
  * devuelve el tiempo de llegada al aeropuerto dst
  *
  */

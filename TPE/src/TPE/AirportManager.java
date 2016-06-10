@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**Esta clase es la que maneja el sistema de vuelos, en síntesis, representa el grafo generado a partir de los vuelos y los aeropuertos 
+/**Esta clase es la que maneja el sistema de vuelos, en sintesis, representa el grafo generado a partir de los vuelos y los aeropuertos 
  * 
- * Cada nodo tiene una referencia a su aeropuerto, a los aeropuertos que inciden en él y almacena sus vuelos en tres estructuras diferentes,que se especifican más abajo.
+ * Cada nodo tiene una referencia a su aeropuerto, a los aeropuertos que inciden en el y almacena sus vuelos en tres estructuras diferentes,que se especifican mï¿½s abajo.
  *  
  *  Se encarga tanto de agregar y remover vuelos y aeropuertos, como de encontrar las rutas entre dos aeropuertos.
  */
@@ -90,7 +90,7 @@ public class AirportManager {
 	}
 	
 	/**
-	 * Borra el aeropuerto name, y recorre todos los demás aeropuertos ,borrando los vuelos cuyo destino fueran el aeropuerto name, 
+	 * Borra el aeropuerto name, y recorre todos los demas aeropuertos ,borrando los vuelos cuyo destino fueran el aeropuerto name, 
 	 * y luego recorre todos los nodos destino de sus vuelos, borrando en ellos la referencia de que el aeropuerto incide.
 	 * 
 	 * @param name
@@ -131,7 +131,7 @@ public class AirportManager {
 	
 
 	/**
-	 * Agrega el vuelo f en el nodo origen.Si ya existían vuelos hacia el nodo destino, simplemente actualiza sus 3 estructuras.En caso
+	 * Agrega el vuelo f en el nodo origen.Si ya existian vuelos hacia el nodo destino, simplemente actualiza sus 3 estructuras.En caso
 	 * contrario, agrega la key del nodo destino a los 3 mapas(priceFlight,timeFlight y waitingTimes),genera las estructuras y agrega los vuelos.
 	 * @param f
 	 */
@@ -140,9 +140,9 @@ public class AirportManager {
 		Node target = airports.get(f.getTarget());
 		if(origin == null || target == null){
 			if(origin!= null)
-				System.out.println("El aeropuerto: "+f.getTarget()+" es inválido");
+				System.out.println("El aeropuerto: "+f.getTarget()+" es invalido");
 			else
-				System.out.println("El aeropuerto: "+f.getOrigin()+" es inválido");
+				System.out.println("El aeropuerto: "+f.getOrigin()+" es invalido");
 			return;
 		}
 		if(flights.containsKey(new FlightID(f.getAirline(),f.getFlightNumber())))
@@ -189,7 +189,7 @@ public class AirportManager {
 	
 	/**
 	 * Borra un vuelo y, en caso de que fuera el unico hacia ese destino,borra en el nodo destino
-	 * que el nodo origen incide en él.
+	 * que el nodo origen incide en el.
 	 * @param airline
 	 * @param flightNumber
 	 */
@@ -226,7 +226,7 @@ public class AirportManager {
  * 
  * En caso de ser tiempo total usa un algoritmo adjuntado en el informe, caso contrario usa dijkstra normal, con 
  * la particularidad de que antes de hacer dijkstra recorre sus nodos para sacar los mejores hacia un destino particular,
- * y así eliminar las multiaristas.
+ * y asi eliminar las multiaristas.
  * 
  */
 	public void findRoute(String source,String target,RoutePriority priority,List<Day> days, OutputFormat outputFormat, String output){
@@ -249,19 +249,19 @@ public class AirportManager {
 	}
 	/**Esta clase representa un nodo en el grafo. Contiene una referencia a su aeropuerto
 	 * y almacena sus vuelos por tres ordenes distintos: precio,tiempo de vuelo y tiempo de llegada al aeropuerto destino.
-	 * Además tiene una referencia a los nodos que inciden en él.
+	 * Ademas tiene una referencia a los nodos que inciden en el.
 	 * 
-	 * Las estructuras que ordenan por tiempo y precio poseen los vuelos separados por días para que el algoritmo de dijkstra sea 
-	 * mas rápido en caso de que se especifique el día de partida.
+	 * Las estructuras que ordenan por tiempo y precio poseen los vuelos separados por dias para que el algoritmo de dijkstra sea 
+	 * mas rapido en caso de que se especifique el dia de partida.
 	 *
 	 */
-	protected static class Node{
-		Airport airport;
+	public static class Node{
+		public Airport airport;
 		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por precio**/
 		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por tiempo de vuelo**/
 		Map<Airport,TimeAVL> waitingTimes = new HashMap<Airport,TimeAVL>();/** vuelos ordenados por horario de llegada, es decir 
-																								que un vuelo que estï¿½ en el dï¿½a x no necesariamente saliï¿½
-																								ese dï¿½a**/
+																								que un vuelo que esta en el dia x no necesariamente salir
+																								ese dia**/
 																						
 		Set<Node> incidentAirports = new HashSet<Node>();
 		public boolean visited;

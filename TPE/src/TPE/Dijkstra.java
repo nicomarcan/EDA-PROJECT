@@ -40,7 +40,7 @@ public class Dijkstra {
 	AirportManager airportManager = AirportManager.getInstance();
 
 	/**
-	 * Se encarga de inicializar cada vértice, eliminando las multiaristas pues solo agrega los vuelos óptimos
+	 * Se encarga de inicializar cada vertice, eliminando las multiaristas pues solo agrega los vuelos optimos
 	 * hacia los destinos posibles.
 	 * @param sourceAirport
 	 * @param destinationAirport

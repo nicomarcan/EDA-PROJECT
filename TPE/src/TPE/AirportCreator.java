@@ -1,7 +1,7 @@
 package TPE;
 
 /**Esta clase se encarga de crear y borrar aeropuertos a partir de la entrada elegida por el usuario
- * (archivo o entrada estándar)
+ * (archivo o entrada estandar)
  */
 public class AirportCreator {
 	private AirportManager airportM = AirportManager.getInstance();

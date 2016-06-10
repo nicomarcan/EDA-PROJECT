@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 /**
- * Esta clase representa un día de la semana y provee métodos para que la conversión de indice a objeto Día sea simple
+ * Esta clase representa un dia de la semana y provee metodos para que la conversion de indice a objeto Dia sea simple
  * 
  *
  */
@@ -102,8 +102,8 @@ public class Day {
 			return ans;
 		}
 	    /**
-	     * Chequea que no se hayan ingresado dos strings que representan al mismo día.
-	     * Previamente en el parser se corrobora que estos strings representen un día,
+	     * Chequea que no se hayan ingresado dos strings que representan al mismo dia.
+	     * Previamente en el parser se corrobora que estos strings representen un dia,
 	     * es decir que sean (Lu-Ma-Mi-Ju-Vi-Sa-Do)
 	     * @param days
 	     * @return

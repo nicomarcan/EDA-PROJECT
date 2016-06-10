@@ -7,9 +7,9 @@ import java.util.LinkedList;
 
 
 
-/** Implementación particular de un AVL de vuelos, en la que se ordena por tiempo de llegada, 
+/** Implementacion particular de un AVL de vuelos, en la que se ordena por tiempo de llegada, 
  * pero cada nodo tiene referencia al maximo y al minimo tiempo de salida de sus hijos, 
- * para facilitar la elección del vuelo que menor tiempo tarda pero que puedo tomar**/
+ * para facilitar la eleccion del vuelo que menor tiempo tarda pero que puedo tomar**/
 public class TimeAVL implements Iterable<Flight>{
 	private int size = 0;
 	private final int dayMins = 60*24;/** minutos en un dia**/
@@ -431,7 +431,7 @@ public class TimeAVL implements Iterable<Flight>{
 			
 		}
 		/**
-		 * Busca el vuelo que llega antes a partir de departureTime pero que tiene un limite máximo de tiempo de partida
+		 * Busca el vuelo que llega antes a partir de departureTime pero que tiene un limite mï¿½ximo de tiempo de partida
 		 * @param departureTime
 		 * @param maxDepTime
 		 * @return

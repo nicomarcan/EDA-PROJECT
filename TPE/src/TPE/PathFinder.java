@@ -16,10 +16,10 @@ import TPE.TimeAVL.FlightEl;
 /**
  * Esta clase se encarga del problema del tiempo total, llevando a cabo el algoritmo especificado en el informe.
  * 
- * En un inicio decide el intervalo discreto de posibles tiempos de salida que representan los vuelos óptimos
+ * En un inicio decide el intervalo discreto de posibles tiempos de salida que representan los vuelos optimos
  * del aeropuerto origen, y luego arma las arriveFunctions para todos los aeropuertos
- * en el método timeRefinement, es decir arma por cada aeropuerto las funciones que a partir de un tiempo de partida especifico,devuelven el minimo
- * tiempo de llegada desde el origen hasta éste.
+ * en el metodo timeRefinement, es decir arma por cada aeropuerto las funciones que a partir de un tiempo de partida especifico,devuelven el minimo
+ * tiempo de llegada desde el origen hasta este.
  * 
  */
 public class PathFinder {
@@ -34,7 +34,7 @@ public class PathFinder {
 		boolean look = false;
  		for(int i = 0;i<departDays.size();i++){
 			for(Airport a : source.priceFlight.keySet()){
-					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){/**si se trata de la fuente chequea que sea el vuelo óptimo que sale el día especificado,no uno siguiente**/		
+					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){/**si se trata de la fuente chequea que sea el vuelo optimo que sale el dia especificado,no uno siguiente**/		
 						FlightEl minF =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins,((f.getCurrentDayIndex()+1)*dayMins)-1);
 						if(minF.getF().getDepartureTime()+minF.getF().getCurrentDayIndex()*dayMins == f.getDepartureTime()+f.getCurrentDayIndex()*dayMins){
 							
@@ -76,7 +76,7 @@ public class PathFinder {
 	}
 /**
  * Busca el camino cuyo tiempo de salida del origen es igual al tiempo min.
- * y corrobora en cada iteración que las aristas elegidas sean las que corresponden
+ * y corrobora en cada iteracion que las aristas elegidas sean las que corresponden
  * al minimo tiempo total,usando para ellos las arriveFunctions
  * @param airports
  * @param af
@@ -117,7 +117,7 @@ public class PathFinder {
 		return f;
 	}
 	/**
-	 * Crea las arriveFunctions óptimas, implementando una especie de algoritmo de dijkstra.
+	 * Crea las arriveFunctions optimas, implementando una especie de algoritmo de dijkstra.
 	 * @param airports
 	 * @param source
 	 * @param dest
@@ -138,8 +138,8 @@ public class PathFinder {
 	});
 		/**
 		 * Inicializa los entrys (tiempo de salida,arriveFunction) de cada nodo
-		 * en caso de ser la fuente la arriveFunction representa la función identidad,
-		 * caso contrario se les asigna "infinito" pues aún no han sido alcanzados
+		 * en caso de ser la fuente la arriveFunction representa la funcion identidad,
+		 * caso contrario se les asigna "infinito" pues aun no han sido alcanzados
 		 */
 		for(Node airport : airports){
 			if(!airport.equals(source)){
@@ -211,7 +211,7 @@ public class PathFinder {
 		
 
 /**
- * Busca el mayor tiempo dentro del intervalo de salida que cumple la condición pedida en el algoritmo.
+ * Busca el mayor tiempo dentro del intervalo de salida que cumple la condicion pedida en el algoritmo.
  * @param interval
  * @param time
  * @param i
@@ -229,9 +229,9 @@ public class PathFinder {
 		return ans;
 	}
 	/**
-	 * Busca el menor peso de cualquier arista hacia el nodo dest,que es el que actualmente se llega mas rápido
+	 * Busca el menor peso de cualquier arista hacia el nodo dest,que es el que actualmente se llega mas rapido
 	 * desde el origen.	 
-	 * Este peso se evalúa en el tiempo en que tarda en llegar al segundo nodo más rapido de alcanzar.
+	 * Este peso se evalua en el tiempo en que tarda en llegar al segundo nodo mas rapido de alcanzar.
 	 * 
 	 * @param source
 	 * @param airports

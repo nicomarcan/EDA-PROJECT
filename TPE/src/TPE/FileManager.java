@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import TPE.AirportManager.Node;
 
 /**
- * Esta clase se encarga del manejo de archivos, en síntesis, carga masivamente aeropuertos y vuelos, los guarda en disco, imprime rutas de vuelo 
+ * Esta clase se encarga del manejo de archivos, en sintesis, carga masivamente aeropuertos y vuelos, los guarda en disco, imprime rutas de vuelo 
  * 
  * o las guarda en un arcivo(de texto o kml).
  *
@@ -116,7 +116,7 @@ public class FileManager {
 	
 	/**
 	 * Recibe una lista con los vuelos(route) y devuelve por salida estandar o en un archivo el precio total, las horas de vuelo, el tiempo total de viaje,
-	 * aeropuerto origen y destino, y la descripción de la ruta ([aeropuerto1],[aerolinea1],[nroVuelo1],[aeropuerto2],[aeropuerto2],[aerolinea2],[nroVuelo2],[aeropuerto3]...).
+	 * aeropuerto origen y destino, y la descripcion de la ruta ([aeropuerto1],[aerolinea1],[nroVuelo1],[aeropuerto2],[aeropuerto2],[aerolinea2],[nroVuelo2],[aeropuerto3]...).
 	 * 
 	 * 
 	 * @param route

@@ -1,0 +1,288 @@
+package TPE;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import TPE.AirportManager.Node;
+import TPE.TimeAVL.FlightEl;
+
+public class PathFinder {
+	public static List<Flight> findPath(Collection<Node> airports,Node source,Node dest,List<Day> departDays){
+		NavigableSet<Integer> interval = new TreeSet<Integer>();
+ 		for(int i = 0;i<departDays.size();i++){
+			for(Airport a : source.priceFlight.keySet()){
+					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){
+						FlightEl min =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*60*24,((f.getCurrentDayIndex()+1)*60*24)-1);
+						if(min.getF().getDepartureTime()+min.getF().getCurrentDayIndex()*(60*24) == f.getDepartureTime()+f.getCurrentDayIndex()*(60*24)){
+							
+							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
+						}
+					}	
+			}
+		}
+ 		if(interval.size() == 0){
+ 			return null;
+ 		}
+		 Map<Node,Entry> af = timeRefinement(airports,source,dest,interval);
+		 int min = Integer.MAX_VALUE;
+		 int optTi = -1 ;
+		 for(Integer i : interval){
+			Integer g = af.get(dest).af.getDepartToArrival().get(i);
+			if(g != Integer.MAX_VALUE){
+				if(min > g-i){
+					min = g - i ;
+					optTi = i;
+				}
+			}
+		 }
+		 if(min != Integer.MAX_VALUE){
+			 List<Flight> f = pathSelection(airports,af,source,dest,optTi);
+			 System.out.println(f);
+			 return f;
+	 }
+ 		return null;
+	}
+
+	private static List<Flight> pathSelection(Collection<Node> airports, Map<Node, Entry> af, Node source, Node dest,
+			int min) {
+		Node current = dest;
+		List<Flight> f = new LinkedList<Flight>();
+		while(!current.equals(source)){
+			for(Node n : current.incidentAirports){
+					if(n.equals(source)){
+						int gj = af.get(current).af.getDepartToArrival().get(min);
+						int gI = af.get(n).af.getDepartToArrival().get(min);
+						int max = (((gI/(60*24))+1)*60*24)-1;
+						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getArrivalTime() == gj){		
+							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getF());					
+							current = n;
+							break;
+						}
+					}else{
+						int gj = af.get(current).af.getDepartToArrival().get(min);
+						int gI = af.get(n).af.getDepartToArrival().get(min);
+						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getArrivalTime() == gj){
+							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getF());
+							current = n;
+							break;
+						}
+				}
+			}
+				
+				
+		
+	}
+		return f;
+	}
+
+	private static Map<Node,Entry> timeRefinement(Collection<Node> airports, Node source, Node dest,
+			NavigableSet<Integer> interval) {
+		Map<Node,Entry> res = new HashMap<Node,Entry>();
+		TreeSet<Integer> subInterval = new TreeSet<Integer>();
+		subInterval.add(interval.first());
+	PriorityQueue<Entry> fb = new PriorityQueue<>(new Comparator<Entry>() {
+		
+		@Override
+		public int compare(Entry o1, Entry o2) {
+			return o1.compareTo(o2);
+		}
+	});
+		
+		for(Node airport : airports){
+			if(!airport.equals(source)){
+				ArriveFunction a = new ArriveFunction(source,airport);
+				for(Integer i : interval){
+					a.getDepartToArrival().put(i, Integer.MAX_VALUE);
+				}
+				res.put(airport, new Entry(subInterval.first(),a));
+				fb.offer(new Entry(subInterval.first(),a));
+			}else{
+				ArriveFunction a = new ArriveFunction(source,source);
+				for(Integer i : interval){
+					a.getDepartToArrival().put(i, i);
+				}
+				res.put(airport, new Entry(subInterval.first(),a));
+				fb.offer(new Entry(subInterval.first(),a));
+			}
+		}
+			
+			while(fb.size() >= 2){
+				Entry i = fb.poll();
+				Entry head = fb.peek();
+				
+				Integer minEdgeW = getMinEdgeW(source,airports,head.af.getDepartToArrival().get(head.time),i.af.getDst());
+				Integer maxT = null;
+				if(minEdgeW ==Integer.MAX_VALUE || head.af.getDepartToArrival().get(head.time) == Integer.MAX_VALUE ){
+					 maxT = interval.last();
+				}
+				else{
+					//System.out.println(head.af.getDepartToArrival().get(head.time));
+					 maxT = getMaxT(interval.subSet(i.time,true, interval.last(),true) ,minEdgeW+head.af.getDepartToArrival().get(head.time) , i);
+					  //System.out.println(maxT);
+				}
+					for(Airport n : i.af.getDst().waitingTimes.keySet()){				
+									for(Integer k : interval.subSet(i.time,true, maxT,true)){
+										Integer gI = i.af.getDepartToArrival().get(k);
+										FlightEl min;
+										//System.out.println(i.af.getDst());
+										if(!i.af.getDst().equals(source))
+											 min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI);
+										else
+											min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI,(((gI/(60*24))+1)*60*24)-1);
+										if(min.getF() != null){
+											Integer aux =  min.getArrivalTime();
+											//System.out.println(min.getF()+ " "+aux +"jojoojoj");
+											if(res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().get(k) > aux){							
+												res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().put(k, aux);
+											}
+										}
+									}						
+								//}
+								//System.out.println(pq);
+							//	System.out.println(res.get(n).af);
+								//pq.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
+								//System.out.println(pq);
+								//	System.out.println(AirportManager.getInstance().getAirports().get(n.getName()) +n.getName());
+							//	pq.offer(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
+								//System.out.println(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
+								//System.out.println(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
+								//System.out.println(fb.contains(res.get(AirportManager.getInstance().getAirports().get(n.getName()))));
+								//System.out.println(fb.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName()))));
+								if(fb.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName()))))
+									fb.offer(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
+								
+							
+						
+					}
+					boolean offer = false;
+					if(i.time != maxT){
+						i.time = maxT;
+						offer = true;
+					}
+					if(maxT == interval.last()){
+						if(i.af.getDst() == dest){
+							return res;
+						}
+					//	airports.remove(i.af.getDst());
+					}else{
+						if(offer)
+							fb.offer(new Entry(i.time,i.af));
+					}
+					
+					}
+												
+				return res;
+			}
+		
+		
+		
+
+
+	private static Integer getMaxT(SortedSet<Integer> interval, Integer time, Entry i) {
+		Integer ans = null;
+		for(Integer j : interval){
+			//System.out.println(time+"jeje");
+		//	System.out.println(i.af.getDepartToArrival().get(j));
+			if(i.af.getDepartToArrival().get(j) <= time){
+				 ans = j;
+			}else
+				return ans;
+		}
+		return ans;
+	}
+
+	private static Integer getMinEdgeW(Node source,Collection<Node> airports ,Integer time, Node dest) {
+		Integer min = Integer.MAX_VALUE;
+		for(Node n: dest.incidentAirports){
+			FlightEl f =  n.waitingTimes.get(dest.airport).earliestArrivalTime(time);
+			if( f.getF() != null){
+				Integer aux = f.getF().getFlightTime() ;
+				if(aux < min){
+					min = aux;
+				}
+			}
+		}
+		return min;
+		
+	}
+
+
+	private static class Entry implements Comparable<Entry>{
+		private Integer time;
+		private ArriveFunction af;
+		
+		public Entry(Integer time, ArriveFunction af) {
+			super();
+			this.time = time;
+			this.af = af;
+		}
+		
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((af == null) ? 0 : af.hashCode());
+			return result;
+		}
+
+
+		@Override
+		public boolean equals(Object obj) {
+			//System.out.println("entro con "+this+" "+obj);
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Entry other = (Entry) obj;
+			if (af == null) {
+				if (other.af != null)
+					return false;
+			} else if (!af.equals(other.af))
+				return false;
+			//System.out.println("pase"+this.hashCode() +" "+other.hashCode());
+			return true;
+		}
+
+
+		@Override
+		public int compareTo(Entry o) {
+			//System.out.println(this.af.getDst());
+		//	System.out.println(o.af.getDst());
+			int c = this.af.getDepartToArrival().get(this.time)-o.af.getDepartToArrival().get(o.time);
+			if(c == 0){
+				if(af.equals(o.af)){
+					return 0;
+				}
+				return this.af.hashCode()-o.af.hashCode();
+			}	
+		//	System.out.println(time+" "+af);
+			//System.out.println(this.af.getDepartToArrival().get(o.time));
+			//System.out.println(this.af.getDepartToArrival().get(this.time));
+//			System.out.println(af + " contra "+o.af);
+//			System.out.println(af.getDepartToArrival().get(this.time)+ " contr "+o.af.getDepartToArrival().get(o.time));
+			return c;
+		}
+		public String toString(){
+			return af.getDst()+" TIME "+time+" "+af.getDepartToArrival().get(time);
+		}
+		
+		
+	}
+
+	
+
+
+} 
+

@@ -2,7 +2,6 @@
 
 package TPE;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -10,22 +9,25 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-
 import TPE.AirportManager.Node;
+
 
 public class FileManager {
 
 	
 	public void deleteExistingFiles(String outputAirports, String outputFlights) {
-		File airportOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputAirports);
+		File airportOldFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputAirports);
 		if(airportOldFile.exists()) {
 			airportOldFile.delete();
 		}
-		File flightOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputFlights);
+		File flightOldFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputFlights);
 		if(flightOldFile.exists()) {
 			flightOldFile.delete();
 		}
 	}
+	
+
+	
 	public void save(String outputAirports, String outputFlights) {
 		String newLine = System.getProperty("line.separator");
 		AirportManager manager = AirportManager.getInstance();
@@ -34,7 +36,7 @@ public class FileManager {
 			System.out.println("NotFound");
 		} else {
 			try {
-				File airportFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputAirports);
+				File airportFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputAirports);
 				FileWriter AirportWriter = new FileWriter(airportFile, true);
 				
 				for(Node air : manager.getAirportsDijkstra()){
@@ -42,7 +44,7 @@ public class FileManager {
 				}
 				AirportWriter.close();
 				if(!manager.getFlights().values().isEmpty()) {
-					File flightFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputFlights);
+					File flightFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputFlights);
 					FileWriter flightWriter = new FileWriter(flightFile, true);
 					manager = AirportManager.getInstance();
 					for(Flight fl : manager.getFlights().values()){
@@ -107,11 +109,22 @@ public class FileManager {
 		String newLine = System.getProperty("line.separator");
 		double price = 0;
 		int flightTime = 0;
-		int totalTime = 0;/** falta hacer esto**/
+		int totalTime = 0;
+		int initialTime = route.get(0).getDepartureTime()+route.get(0).getCurrentDayIndex()*(60*24);
+		int arrivalTime = initialTime;
 		for(Flight fl: route){
+			int aux ;
+			if(fl.getDepartureTime()+fl.getCurrentDayIndex()*(60*24) >= (arrivalTime%(60*7*24))){
+				aux = Math.abs(fl.getDepartureTime()+fl.getCurrentDayIndex()*(60*24)-(arrivalTime%(60*7*24)));
+			}else
+				aux = (7*60*24) - Math.abs(fl.getDepartureTime()+fl.getCurrentDayIndex()*(60*24)-(arrivalTime%(60*7*24)));
+			arrivalTime += fl.getFlightTime()+aux;
 			price += fl.getPrice();
 			flightTime += fl.getFlightTime();
 		}
+		totalTime = arrivalTime-initialTime;
+		int totalHours = totalTime/60;
+		int totalMins = totalTime%60;
 		
 		int hoursFlight = flightTime/60;
 		int minutesFlight = flightTime%60;
@@ -120,19 +133,25 @@ public class FileManager {
 			if(output.equals("stdout")) {
 				System.out.println("Precio#" + price);
 				System.out.println("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m");
+				System.out.println("TiempoTotal#"+ totalHours+ "h"+totalMins+"m");
 				for(Flight fl: route){
-					System.out.println(fl.getOrigin() + "#" + fl.getAirline() + "#" + fl.getFlightNumber()+ "#" + fl.getTarget()+"#"+fl.getDays());
+					System.out.println(fl.getOrigin() + "#" + fl.getAirline() + "#" + fl.getFlightNumber()+ "#" + fl.getTarget());
 				}
 			} else {
 				try {
-					File toWrite = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",output);
+					File toWrite = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",output);
+					if(toWrite.exists()){
+						toWrite.delete();
+					}
 					FileWriter writer = new FileWriter(toWrite, true);
 					writer.write("Precio#" + price + newLine);
 					writer.write("TiempoVuelo#" + hoursFlight + "h" + minutesFlight + "m" + newLine);
+					writer.write("TiempoTotal#"+ totalHours+ "h"+totalMins+"m"+newLine);
 					for(Flight fl: route){
 						writer.write(fl.getOrigin() + "#" + fl.getAirline() + "#" + fl.getFlightNumber() + "#" + fl.getTarget() + newLine);
 					}
 					writer.close();
+					System.out.println("Se ha cargado el resultado en el archivo: "+output);
 				} catch (IOException e) {
 					System.out.println("NotFound");
 					return false;
@@ -142,9 +161,9 @@ public class FileManager {
 			if(output.equals("stdout")) {
 				System.out.println("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>");
 				System.out.println("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">");
-				System.out.println("<Document>");	// no se si hace falta este
-				// TODO el tiempo vuelo y tiempo total en la descripcion estan iguales
-				System.out.println("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>");
+				System.out.println("<Document>");	
+				
+				System.out.println("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + totalHours + "h" + totalMins + "m" + "</description>");
 				// El primer aeropuerto
 				System.out.println("<Placemark>");
 				System.out.println("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>");
@@ -176,13 +195,16 @@ public class FileManager {
 				System.out.println("</kml>");
 			} else {
 				try {
-					File toWrite = new File("C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos",output);
+					File toWrite = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",output);
+					if(toWrite.exists()){
+						toWrite.delete();
+					}
 					FileWriter writer = new FileWriter(toWrite, true);
 					writer.write("<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>" + newLine);
 					writer.write("<kml xmlns=" + "\"http://www.opengis.net/kml/2.2\"" + ">" + newLine);
-					writer.write("<Document>" + newLine);	// no se si hace falta este
-					// TODO el tiempo vuelo y tiempo total en la descripcion estan iguales
-					writer.write("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + hoursFlight + "h" + minutesFlight + "m" + "</description>" + newLine);
+					writer.write("<Document>" + newLine);	
+					
+					writer.write("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + totalHours + "h" + totalMins + "m" + "</description>" + newLine);
 					// El primer aeropuerto
 					writer.write("<Placemark>" + newLine);
 					writer.write("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>" + newLine);
@@ -213,6 +235,7 @@ public class FileManager {
 					writer.write("</Document>" + newLine);	// no se si hace falta este
 					writer.write("</kml>" + newLine);
 					writer.close();
+					System.out.println("Se ha cargado el resultado en el archivo: "+output);
 				} catch (IOException e) {
 					System.out.println("NotFound");
 					return false;
@@ -228,35 +251,32 @@ public class FileManager {
 	
 	public  void readFlights(String file) throws FileNotFoundException{
 		FlightCreator flightC = new FlightCreator();
-		File toRead = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",file);
+		File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",file);
 		try {
 			int i = 1;
 			Scanner sc = new Scanner(toRead);
 	        while(sc.hasNextLine()){
 	        	String s = sc.nextLine();
-	        	String format = "[a-z A-Z]{1,3}#[0-9]{1,7}#(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*#[a-z A-Z]{1,3}#[a-z A-Z]{1,3}#([0-1][0-9]|2[0-3]):[0-5][0-9]#([1-9]h|[1-9][0-9]h)?[0-5][0-9]m#[0-9]+\\.[0-9]+$";
+	        	String format = "[a-z A-Z]{1,3}#[0-9]{1,7}#(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*#[a-z A-Z]{1,3}#[a-z A-Z]{1,3}#([0-1][0-9]|2[0-3]):[0-5][0-9]#([1-9]h|[1-9][0-9]h)?([0-9]|[0-5][0-9])m#[0-9]+\\.[0-9]+$";
 		        if(!Pattern.matches(format, s)){
-		        	System.out.println("formato no valido, tiene un error en la linea "+i);
-		        	System.out.println(s);
+		        	System.out.println("formato no valido en la linea "+i);
 		        } else {
 		        	String[] res =  s.split("#");
 			        flightC.addFlight(res[0], res[1], res[2], res[3], res[4], res[5], res[6], new Double(res[7]));
 		        }
 		        i++;
-		        
-		        
-		    	        		        	
+		        		  	    	        		        	
 	        }
+	        sc.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("NotFound");
 		}
-		
    
 	}
 	
 	public  void readAirports(String name) throws IOException, ClassNotFoundException{
 			AirportCreator airportC = new AirportCreator();
-	        File toRead = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",name);
+	        File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",name);
 	        try {
 	        	Scanner sc = new Scanner(toRead);
 	        	while(sc.hasNextLine()){
@@ -264,15 +284,17 @@ public class FileManager {
 		        	String format = "[a-z A-Z]{3}#-?[0-9]+\\.[0-9]+#-?[0-9]+\\.[0-9]+$";
 			        if(!Pattern.matches(format, s)){
 			        	System.out.println("formato no valido");
-			        	System.out.println(s);
 			        } else {
 			        	String[] res = s.split("#");
 					    airportC.addAirport(res[0], new Double(res[1]), new Double(res[2]));
-			        }
+			        }			       
 		        }
+	        	 sc.close();
 			} catch (IOException e) {
 				System.out.println("NotFound");
 			} 
 	    } 
+	
+
 }
 

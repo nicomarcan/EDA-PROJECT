@@ -4,4 +4,7 @@
 <fullyQualifiedTypeName name="TPE.Flight"/>
 <fullyQualifiedTypeName name="TPE.TimeAVL.FlightEl"/>
 <fullyQualifiedTypeName name="java.lang.Integer"/>
+<fullyQualifiedTypeName name="TPE.RoutePriority"/>
+<fullyQualifiedTypeName name="TPE.AirportManager"/>
+<fullyQualifiedTypeName name="TPE.Parser"/>
 </qualifiedTypeNameHistroy>

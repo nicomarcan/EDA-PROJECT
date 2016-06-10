@@ -8,49 +8,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import TPE.AirportManager.Node;
 import TPE.TimeAVL.FlightEl;
-
+/**
+ * Esta clase se encarga del problema del tiempo total, llevando a cabo el algoritmo especificado en el informe.
+ * 
+ * En un inicio decide el intervalo discreto de posibles tiempos de salida que representan los vuelos óptimos
+ * del aeropuerto origen, y luego arma las arriveFunctions para todos los aeropuertos
+ * en el método timeRefinement, es decir arma por cada aeropuerto las funciones que a partir de un tiempo de partida especifico,devuelven el minimo
+ * tiempo de llegada desde el origen hasta éste.
+ * 
+ */
 public class PathFinder {
+	private static final int dayMins = 60*24;/** minutos en un dia**/
+	
+	
 	public static List<Flight> findPath(Collection<Node> airports,Node source,Node dest,List<Day> departDays){
 		NavigableSet<Integer> interval = new TreeSet<Integer>();
-		//Set<Node> posibleAirports = new HashSet<Node>();
-		//List<Node> nodes = new LinkedList<Node>();
-		//Flight last = null;
  		for(int i = 0;i<departDays.size();i++){
 			for(Airport a : source.priceFlight.keySet()){
-					//System.out.println(departDays.get(i));
-					//System.out.println(source.priceFlight.get(a.airport).get(departDays.get(i)));
-					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){
-						FlightEl min =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*60*24,((f.getCurrentDayIndex()+1)*60*24)-1);
-						if(min.getF().getDepartureTime()+min.getF().getCurrentDayIndex()*(60*24) == f.getDepartureTime()+f.getCurrentDayIndex()*(60*24)){
+					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){/**si se trata de la fuente chequea que sea el vuelo óptimo que sale el día especificado,no uno siguiente**/		
+						FlightEl min =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins,((f.getCurrentDayIndex()+1)*dayMins)-1);
+						if(min.getF().getDepartureTime()+min.getF().getCurrentDayIndex()*dayMins == f.getDepartureTime()+f.getCurrentDayIndex()*dayMins){
 							
-							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
-							//last = null;
-						}//else{
-//							if(min.getF().getCurrentDayIndex() != Day.getIndex(departDays.get(i))){
-//								//last = f;
-//								interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*60*24);
-//							}
-						//}
-					}
-//					if(last != null){
-//						interval.add(last.getDepartureTime()+last.getCurrentDayIndex()*60*24);
-//					}
-				
+							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins);
+						}
+					}	
 			}
 		}
- 		System.out.println(interval);
-		 Map<Node,Entry> af = timeRefinement(airports,source,dest,interval);
-		// System.out.println(af);
+ 		if(interval.size() == 0){
+ 			return null;
+ 		}
+		 Map<Node,Entry> aFunctions = timeRefinement(airports,source,dest,interval);
 		 int min = Integer.MAX_VALUE;
 		 int optTi = -1 ;
 		 for(Integer i : interval){
-			Integer g = af.get(dest).af.getDepartToArrival().get(i);
+			Integer g = aFunctions.get(dest).af.getDepartToArrival().get(i);
 			if(g != Integer.MAX_VALUE){
 				if(min > g-i){
 					min = g - i ;
@@ -59,32 +55,40 @@ public class PathFinder {
 			}
 		 }
 		 if(min != Integer.MAX_VALUE){
-			 System.out.println(min/60 +" horas"+min%60+ " minutos"+optTi);
-			 List<Flight> f = pathSelection(airports,af,source,dest,optTi);
-			 System.out.println(f);
+			 List<Flight> f = pathSelection(airports,aFunctions ,source,dest,optTi);
+			 return f;
 	 }
-		 //System.out.println("NOPE");
  		return null;
 	}
-
-	private static List<Flight> pathSelection(Collection<Node> airports, Map<Node, Entry> af, Node source, Node dest,
+/**
+ * Busca el camino cuyo tiempo de salida del origen es igual al tiempo min.
+ * y corrobora en cada iteración que las aristas elegidas sean las que corresponden
+ * al minimo tiempo total,usando para ellos las arriveFunctions
+ * @param airports
+ * @param af
+ * @param source
+ * @param dest
+ * @param min
+ * @return
+ */
+	private static List<Flight> pathSelection(Collection<Node> airports, Map<Node, Entry> aFunctions, Node source, Node dest,
 			int min) {
 		Node current = dest;
 		List<Flight> f = new LinkedList<Flight>();
 		while(!current.equals(source)){
 			for(Node n : current.incidentAirports){
 					if(n.equals(source)){
-						int gj = af.get(current).af.getDepartToArrival().get(min);
-						int gI = af.get(n).af.getDepartToArrival().get(min);
-						int max = (((gI/(60*24))+1)*60*24)-1;
+						int gj = aFunctions.get(current).af.getDepartToArrival().get(min);
+						int gI = aFunctions.get(n).af.getDepartToArrival().get(min);
+						int max = (((gI/dayMins)+1)*dayMins)-1;
 						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getArrivalTime() == gj){		
 							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI,max).getF());					
 							current = n;
 							break;
 						}
 					}else{
-						int gj = af.get(current).af.getDepartToArrival().get(min);
-						int gI = af.get(n).af.getDepartToArrival().get(min);
+						int gj = aFunctions.get(current).af.getDepartToArrival().get(min);
+						int gI = aFunctions.get(n).af.getDepartToArrival().get(min);
 						if(n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getArrivalTime() == gj){
 							f.add(0, n.waitingTimes.get(current.airport).earliestArrivalTime(gI).getF());
 							current = n;
@@ -98,20 +102,31 @@ public class PathFinder {
 	}
 		return f;
 	}
-
+	/**
+	 * Crea las arriveFunctions óptimas, implementando una especie de algoritmo de dijkstra.
+	 * @param airports
+	 * @param source
+	 * @param dest
+	 * @param interval
+	 * @return
+	 */
 	private static Map<Node,Entry> timeRefinement(Collection<Node> airports, Node source, Node dest,
 			NavigableSet<Integer> interval) {
 		Map<Node,Entry> res = new HashMap<Node,Entry>();
 		TreeSet<Integer> subInterval = new TreeSet<Integer>();
 		subInterval.add(interval.first());
-	PriorityQueue<Entry> fb = new PriorityQueue<>(new Comparator<Entry>() {
+	PriorityQueue<Entry> pq = new PriorityQueue<>(new Comparator<Entry>() {
 		
 		@Override
 		public int compare(Entry o1, Entry o2) {
 			return o1.compareTo(o2);
 		}
 	});
-		
+		/**
+		 * Inicializa los entrys (tiempo de salida,arriveFunction) de cada nodo
+		 * en caso de ser la fuente la arriveFunction representa la función identidad,
+		 * caso contrario se les asigna "infinito" pues aún no han sido alcanzados
+		 */
 		for(Node airport : airports){
 			if(!airport.equals(source)){
 				ArriveFunction a = new ArriveFunction(source,airport);
@@ -119,71 +134,45 @@ public class PathFinder {
 					a.getDepartToArrival().put(i, Integer.MAX_VALUE);
 				}
 				res.put(airport, new Entry(subInterval.first(),a));
-				fb.offer(new Entry(subInterval.first(),a));
+				pq.offer(new Entry(subInterval.first(),a));
 			}else{
 				ArriveFunction a = new ArriveFunction(source,source);
 				for(Integer i : interval){
 					a.getDepartToArrival().put(i, i);
 				}
 				res.put(airport, new Entry(subInterval.first(),a));
-				fb.offer(new Entry(subInterval.first(),a));
+				pq.offer(new Entry(subInterval.first(),a));
 			}
 		}
 			
-			while(fb.size() >= 2){
-				Entry i = fb.poll();
-				Entry head = fb.peek();
+			while(pq.size() >= 2){
+				Entry i = pq.poll();
+				Entry head = pq.peek();
 				
 				Integer minEdgeW = getMinEdgeW(source,airports,head.af.getDepartToArrival().get(head.time),i.af.getDst());
 				Integer maxT = null;
-				if(minEdgeW ==Integer.MAX_VALUE || head.af.getDepartToArrival().get(head.time) == Integer.MAX_VALUE ){
+				if(minEdgeW ==Integer.MAX_VALUE || head.af.getDepartToArrival().get(head.time) == Integer.MAX_VALUE )
 					 maxT = interval.last();
-				}
-				else{
-					//System.out.println(head.af.getDepartToArrival().get(head.time));
-					 maxT = getMaxT(interval.subSet(i.time,true, interval.last(),true) ,minEdgeW+head.af.getDepartToArrival().get(head.time) , i);
-					  //System.out.println(maxT);
-				}
-					for(Airport n : i.af.getDst().waitingTimes.keySet()){
-						
-							
-								//Entry a = new Entry(res.get(AirportManager.getInstance().getAirports().get(n.getName())).time,res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.clone());
-								//for(Flight f : i.af.getDst().waitingTimes.get(n)){
-									//System.out.println("entro con f " +f);
-								//	System.out.println(interval.subSet(i.time,true, maxT,true));
-						
+				else
+					 maxT = getMaxT(interval.subSet(i.time,true, interval.last(),true) ,minEdgeW+head.af.getDepartToArrival().get(head.time) , i);	
+					for(Airport n : i.af.getDst().waitingTimes.keySet()){				
 									for(Integer k : interval.subSet(i.time,true, maxT,true)){
 										Integer gI = i.af.getDepartToArrival().get(k);
 										FlightEl min;
-										//System.out.println(i.af.getDst());
 										if(!i.af.getDst().equals(source))
 											 min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI);
 										else
-											min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI,(((gI/(60*24))+1)*60*24)-1);
+											min = i .af.getDst().waitingTimes.get(n).earliestArrivalTime(gI,(((gI/(dayMins))+1)*dayMins)-1);
 										if(min.getF() != null){
 											Integer aux =  min.getArrivalTime();
-											//System.out.println(min.getF()+ " "+aux +"jojoojoj");
 											if(res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().get(k) > aux){							
 												res.get(AirportManager.getInstance().getAirports().get(n.getName())).af.getDepartToArrival().put(k, aux);
 											}
 										}
 									}						
-								//}
-								//System.out.println(pq);
-							//	System.out.println(res.get(n).af);
-								//pq.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
-								//System.out.println(pq);
-								//	System.out.println(AirportManager.getInstance().getAirports().get(n.getName()) +n.getName());
-							//	pq.offer(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
-								//System.out.println(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
-								//System.out.println(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
-								//System.out.println(fb.contains(res.get(AirportManager.getInstance().getAirports().get(n.getName()))));
-								//System.out.println(fb.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName()))));
-								if(fb.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName()))))
-									fb.offer(res.get(AirportManager.getInstance().getAirports().get(n.getName())));
-								
-							
-						
+					
+								if(pq.remove(res.get(AirportManager.getInstance().getAirports().get(n.getName()))))
+									pq.offer(res.get(AirportManager.getInstance().getAirports().get(n.getName())));																		
 					}
 					boolean offer = false;
 					if(i.time != maxT){
@@ -194,10 +183,9 @@ public class PathFinder {
 						if(i.af.getDst() == dest){
 							return res;
 						}
-					//	airports.remove(i.af.getDst());
 					}else{
 						if(offer)
-							fb.offer(new Entry(i.time,i.af));
+							pq.offer(new Entry(i.time,i.af));
 					}
 					
 					}
@@ -207,46 +195,18 @@ public class PathFinder {
 		
 		
 		
-	
 
-	
-//	private static int getPredecesorArrivalTime(Node source,Entry i,Integer k){
-//		for(Flight f : source.flightsByDep){
-//			if(f.getDepartureTime() == k){
-//				int arriveF = f.getDepartureTime()+f.getCurrentDayIndex()*(60*24)+f.getFlightTime();
-//				int arrivalTime = getPredecesorArrivalTimeR(AirportManager.getInstance().getAirports().get(f.getTarget()), i,arriveF);
-//				if(arrivalTime != -1){
-//					return arrivalTime;
-//				}
-//			}
-//		}
-//		return -1;//nunca se da
-//	}
-//
-//	
-//
-//	private static int getPredecesorArrivalTimeR(Node source,Entry i, Integer k) {
-//		if(source == i.af.getDst() && k == i.af.getDepartToArrival().get(i.time)){
-//			return k;
-//		}if(k>i.af.getDepartToArrival().get(i.time)){
-//			return -1;
-//		}
-//		for(TimeAVL t : source.waitingTimes.values()){
-//				Flight b = t.earliestArrivalTime(k);				
-//				int arriveF = b.getDepartureTime()+b.getCurrentDayIndex()*(60*24)+b.getFlightTime();
-//				int arrivalTime = getPredecesorArrivalTimeR(AirportManager.getInstance().getAirports().get(b.getTarget()), i,arriveF);
-//				if(arrivalTime != -1){
-//					return arrivalTime;
-//				}
-//		}	
-//		return -1;//no se da nunca
-//	}
-
+/**
+ * Busca el mayor tiempo dentro del intervalo de salida que cumple la condición pedida en el algoritmo.
+ * @param interval
+ * @param time
+ * @param i
+ * @return
+ */
 	private static Integer getMaxT(SortedSet<Integer> interval, Integer time, Entry i) {
 		Integer ans = null;
 		for(Integer j : interval){
-			//System.out.println(time+"jeje");
-		//	System.out.println(i.af.getDepartToArrival().get(j));
+
 			if(i.af.getDepartToArrival().get(j) <= time){
 				 ans = j;
 			}else
@@ -254,7 +214,17 @@ public class PathFinder {
 		}
 		return ans;
 	}
-
+	/**
+	 * Busca el menor peso de cualquier arista hacia el nodo dest,que es el que actualmente se llega mas rápido
+	 * desde el origen.	 
+	 * Este peso se evalúa en el tiempo en que tarda en llegar al segundo nodo más rapido de alcanzar.
+	 * 
+	 * @param source
+	 * @param airports
+	 * @param time
+	 * @param dest
+	 * @return
+	 */
 	private static Integer getMinEdgeW(Node source,Collection<Node> airports ,Integer time, Node dest) {
 		Integer min = Integer.MAX_VALUE;
 		for(Node n: dest.incidentAirports){
@@ -293,7 +263,6 @@ public class PathFinder {
 
 		@Override
 		public boolean equals(Object obj) {
-			//System.out.println("entro con "+this+" "+obj);
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -306,15 +275,14 @@ public class PathFinder {
 					return false;
 			} else if (!af.equals(other.af))
 				return false;
-			//System.out.println("pase"+this.hashCode() +" "+other.hashCode());
+
 			return true;
 		}
 
 
 		@Override
 		public int compareTo(Entry o) {
-			//System.out.println(this.af.getDst());
-		//	System.out.println(o.af.getDst());
+
 			int c = this.af.getDepartToArrival().get(this.time)-o.af.getDepartToArrival().get(o.time);
 			if(c == 0){
 				if(af.equals(o.af)){
@@ -322,11 +290,7 @@ public class PathFinder {
 				}
 				return this.af.hashCode()-o.af.hashCode();
 			}	
-		//	System.out.println(time+" "+af);
-			//System.out.println(this.af.getDepartToArrival().get(o.time));
-			//System.out.println(this.af.getDepartToArrival().get(this.time));
-//			System.out.println(af + " contra "+o.af);
-//			System.out.println(af.getDepartToArrival().get(this.time)+ " contr "+o.af.getDepartToArrival().get(o.time));
+
 			return c;
 		}
 		public String toString(){

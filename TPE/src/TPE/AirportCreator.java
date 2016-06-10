@@ -1,20 +1,17 @@
 package TPE;
 
-import java.util.List;
-
+/**Esta clase se encarga de crear aeropuertos a partir de la entrada elegida por el usuario
+ * (archivo o entrada estándar)
+ */
 public class AirportCreator {
-	private FileManager f = new FileManager();
-	AirportManager airportM = AirportManager.getInstance();
-	
-
-	
+	private AirportManager airportM = AirportManager.getInstance();
+		
 	public void addAirport(String name,Double lat,Double length){
-			if(checkLat(lat) && checkLength(length)){
-				
+			if(checkLat(lat) && checkLength(length)){		
 				airportM.addAirport(new Airport(name,lat,length));
 			}
 			else{
-				System.out.println("mal");
+				System.out.println( "La longitud debe estar entre -180.0 y 180.0");
 			}
 	}
 	
@@ -22,12 +19,10 @@ public class AirportCreator {
 		String[] res = command.split(" ");
 		String name = res [2];
 		airportM.deleteAirport(name);
-		System.out.println(airportM.getAirports());
 	}
 	
 	private boolean checkLength(Double length) {
 		if(length > 180.0 || length < -180.0){
-			System.out.println( "La longitud debe estar entre -180.0 y 180.0");
 			return false;
 		}
 		return true;

@@ -3,7 +3,11 @@ package TPE;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
+/**
+ * Esta clase representa un día de la semana y provee métodos para que la conversión de indice a objeto Día sea simple
+ * 
+ *
+ */
 public class Day {
 	 	public static final Day MONDAY = new Day(0);
 	    public static final Day TUESDAY = new Day(1);
@@ -61,9 +65,7 @@ public class Day {
 	     	return 0;
 	     	
 	    }
-	    public static void main(String[] args) {
-			System.out.println(Day.getIndex(Day.TUESDAY));
-		}
+	 
 	    public String toString(){
 	    	String a = "";
 	    	return a+this.dayIndex;
@@ -99,7 +101,13 @@ public class Day {
 			}
 			return ans;
 		}
-	    
+	    /**
+	     * Chequea que no se hayan ingresado dos strings que representan al mismo día.
+	     * Previamente en el parser se corrobora que estos strings representen un día,
+	     * es decir que sean (Lu-Ma-Mi-Ju-Vi-Sa-Do)
+	     * @param days
+	     * @return
+	     */
 		public static boolean checkDays(String[] days) {
 			for(int i = 0; i < days.length;i++){
 				for(int j = i+1 ; j < days.length;j++){

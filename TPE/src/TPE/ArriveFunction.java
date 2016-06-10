@@ -4,16 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import TPE.AirportManager.Node;
-
+/**Esta clase es utilizada para el algoritmo de tiempo total.
+ * Representa una función que dependiendo el tiempo de partida del aeropuerto src
+ * devuelve el tiempo de llegada al aeropuerto dst
+ *
+ */
 public class ArriveFunction {
 	private Node source;
 	private Node dst;
+	private Map<Integer,Integer> departToArrival = new HashMap<Integer,Integer>();
+	
 	public ArriveFunction(Node source, Node dst) {
 		super();
 		this.source = source;
 		this.dst = dst;
 	}
-	private Map<Integer,Integer> departToArrival = new HashMap<Integer,Integer>();
 	public Map<Integer, Integer> getDepartToArrival() {
 		return departToArrival;
 	}

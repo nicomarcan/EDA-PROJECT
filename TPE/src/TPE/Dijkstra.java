@@ -15,23 +15,17 @@ import TPE.AirportManager.Node;
 
 
 /**
- * Algoritmo de Dijsktra con min-priority queue. Use el PriorityQueue de java por ahora, se puede cambiar. El
+ * Algoritmo de Dijsktra con min-priority queue. Usa el PriorityQueue de java . El
  * priorityqueue es para guardar los vertices que aun no fueron visitados y tener listo el mas cercano para visitar 
  * proximo.
  * 
  * El algoritmo crea una instancia de Vertex para cada aeropuerto y luego le agrega a cada vertex su lista de vuelos 
- * salientes, asi cuando el algoritmo se para en cada vertex solo visita los vertex que tiene de destino.
+ * salientes, asi cuando se para en cada vertex solo visita los vertex que tiene de destino.
  * 
- * Calcula la distancia hacia vertex vecinos una vez para cada vuelo saliente (quizas mas de un vuelo para el mismo
- * vecino) y le guarda a ese vertex vecino el vuelo de procedencia optimo que se uso para llegarle si hubo. Al final 
+ * Calcula la distancia hacia vertex vecinos una vez para cada vuelo saliente y le guarda a ese vertex vecino el vuelo de procedencia optimo que se uso para llegarle si hubo. Al final 
  * reconstruye el camino desde el ultimo vertex hacia atras usando los vuelos de procedencia que guardo en cada vertex.
  * 
- * Usa el mismo algoritmo para los 3 casos de prioridad, pero la de TotalTime es un poco distinta. Al tiempo del vuelo le 
- * suma el tiempo de espera desde que aterrizo el vuelo de procedencia hasta que despega el otro (tomando el dia mas 
- * cercano). falta hacer los dos metodos q calculan ese tiempo de espera, estan en Vertex.
  * 
- * Falta agregar que para el primer vertex solo considere vuelos en los dias especificados por comando, si les parece
- * q esta bien este dijsktra mas tarde lo agrego.
  **/
 public class Dijkstra {
 	
@@ -45,11 +39,18 @@ public class Dijkstra {
 
 	AirportManager airportManager = AirportManager.getInstance();
 
-	/* arma un vertex para cada airport, luego a cada vertex le agrega los flights q le salen */
+	/**
+	 * Se encarga de inicializar cada vértice, eliminando las multiaristas pues solo agrega los vuelos óptimos
+	 * hacia los destinos posibles.
+	 * @param sourceAirport
+	 * @param destinationAirport
+	 * @param priority
+	 * @param departureDays
+	 */
 	public Dijkstra(Airport sourceAirport, Airport destinationAirport, RoutePriority priority,List<Day> departureDays) {
 		this.priority = priority;
 		this.flights = new HashSet<Flight>();
-		this.airports = airportManager.getAirportsDijkstra(); // metodo dummy, seria un getAirports
+		this.airports = airportManager.getAirportsDijkstra(); 
 		for(Node n : airports) {
 			Vertex vertex = new Vertex(n.airport);
 			if(n.airport.equals(sourceAirport)){
@@ -72,7 +73,6 @@ public class Dijkstra {
 
 	public List<Flight> findRoute() {
 		if(startingVertex.getFlights().size() == 0){
-			System.out.println("Not Found");
 			return null;
 		}
 		clearMarks();
@@ -81,7 +81,7 @@ public class Dijkstra {
 		Vertex currentVertex = null;
 		
 		while(!unvisitedVertexes.isEmpty()) {
-			currentVertex = unvisitedVertexes.poll();	// agarra el primero del priority queue (menor distancia)
+			currentVertex = unvisitedVertexes.poll();
 			if(currentVertex.equals(finalVertex)) 
 				return constructRouteToDestination(finalVertex);
 			if(!currentVertex.visited){
@@ -109,7 +109,7 @@ public class Dijkstra {
 			
 		}
 		if(finalVertex.getSourceFlight() == null) {
-			return null; // no hay ruta
+			return null; 
 		}	
 		return null;
 	}
@@ -123,14 +123,14 @@ public class Dijkstra {
 
 
 
-	/* construye el camino agarrando sourceflights desde el vertex final hacia atras */
+	/** construye el camino agarrando sourceflights desde el vertex final hacia atras **/
 	public List<Flight> constructRouteToDestination(Vertex destination) {
 		List<Flight> route = new LinkedList<Flight>();
 		Vertex current = destination;
 		
 		while(current.getSourceFlight() != null) {
-			route.add(0, current.getSourceFlight()); // agrega al comienzo de la lista
-			current = getOriginVertex(current.getSourceFlight()); // retrocede un nodo
+			route.add(0, current.getSourceFlight()); 
+			current = getOriginVertex(current.getSourceFlight()); 
 		}
 		
 		return route;
@@ -146,21 +146,17 @@ public class Dijkstra {
 
 
 
-	/* updatea el priority queue cuando se le cambia la distancia a un vertex. nose si hay una mejor manera de hacerlo
-	 * con el priorityqueue de java */
+	
 	public void updateDistance(Vertex vertex, Double distance) {
 		unvisitedVertexes.remove(vertex);
 		vertex.setTotalDistance(distance);
 		unvisitedVertexes.offer(vertex);
 	}
 	
-	/* devuelve el vertex destino de algun flight */
+	
 	public Vertex getDestinationVertex(Flight flight) {
 		return airportToVertex.get(airportManager.getAirports().get(flight.getTarget()).airport);
 	}
-	
-	
-
 	
 	
 	
@@ -187,7 +183,6 @@ public class Dijkstra {
 		List<Flight> bestOnes = new LinkedList<Flight>();
 		if(priority == RoutePriority.PRICE){
 			for(Map<Day,TreeSet<Flight>> flights :airport.priceFlight.values()){
-			//System.out.println(flights+ " vuelos");
 				Flight bestOne = null;
 				for(int i = 0 ; i<days.size();i++){
 					TreeSet<Flight> dayFlights = flights.get(days.get(i));

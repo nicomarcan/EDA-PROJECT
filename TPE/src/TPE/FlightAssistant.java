@@ -2,7 +2,10 @@ package TPE;
 
 import java.io.IOException;
 import java.util.Scanner;
-
+/**
+ * Es la interfaz con la que el usuario se comunica
+ *
+ */
 public class FlightAssistant {
 	
 	public void start() throws ClassNotFoundException, IOException {	

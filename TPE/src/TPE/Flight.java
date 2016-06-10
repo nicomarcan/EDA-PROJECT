@@ -1,8 +1,7 @@
 package TPE;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+
 
 public class Flight {
 
@@ -12,12 +11,12 @@ public class Flight {
 	private String target;
 	private Double price;
 	private Integer flightTime;
+	private int departureTime;
+	private String origin;
 	
 	/** Dia en el que se esta usando el vuelo**/
 	private int currentDayIndex;
 	
-	
-
 
 
 
@@ -51,16 +50,13 @@ public class Flight {
 		return flightTime;
 	}
 
-	public void setFlightTime(int flightTime) {
-		this.flightTime = flightTime;
-	}
+
 
 	public int getDepartureTime() {
 		return departureTime;
 	}
 
-	private int departureTime;
-	private String origin;
+	
 	
 	public Flight(String airline, String flightNumber, List<Day> days, String origin, String target,
 			int departureTime, int flightTime, double price) {

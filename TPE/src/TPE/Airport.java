@@ -1,8 +1,10 @@
 package TPE;
 
-import java.io.Serializable;
-
-
+/**
+ * 
+ * Representa un aeropuerto, con los parámetros especificados en clase
+ *
+ */
 public class Airport {
 	
 	private String name;

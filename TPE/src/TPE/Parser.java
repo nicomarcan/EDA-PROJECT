@@ -1,7 +1,6 @@
 package TPE;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -40,78 +39,64 @@ public class Parser {
 			return false;
 		}
 		
-		/**listo**/
+	
 		if(Pattern.matches(addAirExp,command)){
 			String[] res = command.split(" ");
 			airportC.addAirport(res[2],new Double(res[3]),new Double(res[4]));
-			System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
-		/**listo**/
+	
 		else if(Pattern.matches(addAllAirExp,command)){
-			long initialT = System.currentTimeMillis();
 			String[] res = command.split(" ");
 			f.readAirports(res[3]);
-			long finalT = System.currentTimeMillis();
-			System.out.println(finalT-initialT +" milisegundos ");
-		//	System.out.println("Has tardado : 9123.56 segundos");
-		//	System.out.println(AirportManager.i+" repetidos "+AirportManager.getInstance().getAirports().size()+" no repetidos");
 			return false;
 		}
-		/**listo**/
+		
 		else if(Pattern.matches(delAirExp,command)){
 			airportC.deleteAirport(command);
 			return false;
 		}
-		/**listo**/
+		
 		else if(Pattern.matches(delAllAirExp, command)){
 			airportC.deleteAirports();
 			return false;
 		}
-		/**listo**/
+	
 		else if(Pattern.matches(addFlExp, command)){
 			String[] res = command.split(" ");
 			flightC.addFlight(res[2], res[3], res[4],res[5], res[6],res[7], res[8], new Double(res[9]));
-			System.out.println(AirportManager.getInstance().getFlights());
-			System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
-		/**listo**/
+		
 		else if(Pattern.matches(delFlExp, command)){
 			flightC.deleteFlight(command);
 			return false;
 		}
-		/**listo**/
+	
 		else if(Pattern.matches(addAllFlExp, command)){
 			String[] res = command.split(" ");
-			long initialT = System.currentTimeMillis();
 			f.readFlights(res[3]);
-			long finalT = System.currentTimeMillis();
-			System.out.println(finalT-initialT +" milisegundos ");
-		//	System.out.println(AirportManager.getInstance().getFlights());
-			//System.out.println(AirportManager.getInstance().getFlights());
-			//System.out.println(AirportManager.getInstance().getAirports());
 			return false;
 		}
-		/**listo**/
+	
 		else if(Pattern.matches(delAllFlExp, command)){
 			flightC.deleteFlights();
 			return false;
 		}
-		/**poner los metodos en Day**/
-		/**listo**/
+	
 		else if(Pattern.matches(findRouteExp, command)){
-			System.out.println("*matches find route command*");
 			String[] res = command.split(" ");
 			String source = res[1].split("=")[1];
 			String target = res[2].split("=")[1];
 			String p = res[3].split("=")[1];
 			
 			RoutePriority priority;
-			System.out.println(output+" "+outputFormat);
 			if(output==null || outputFormat == null){
-				System.out.println("falta formato de salida");
-				return true;
+				if(output !=null)
+					System.out.println("Falta indicar el formato de salida");
+				else
+					System.out.println("Falta indicar donde generar la salida");
+				return false;
 			}
 			if(p.equals("ft"))
 				priority = RoutePriority.TIME;
@@ -123,8 +108,10 @@ public class Parser {
 			if(res.length == 5){
 				String[] days = res[4].split("=");
 				days = days[1].split("-");
-				if(!Day.checkDays(days))
+				if(!Day.checkDays(days)){
 					System.out.println("Ingreso dias repetidos");
+					return false;
+				}
 				List<Day> newDays = Day.getDays(days); 
 				AirportManager.getInstance().findRoute(source,target,priority,newDays, outputFormat, output);
 			}else
@@ -183,7 +170,7 @@ public class Parser {
 	
 
 
-	/**listo**/
+	
 	public static boolean parseArguments(String[] args) throws ClassNotFoundException, IOException {
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();

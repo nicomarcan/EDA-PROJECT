@@ -1,11 +1,13 @@
 package TPE;
 
-import java.util.LinkedList;
 import java.util.List;
-
+/**Esta clase se encarga de crear vuelos a partir de la entrada elegida por el usuario
+ * (archivo o entrada estándar)
+ */
 public class FlightCreator {
 	AirportManager airportM = AirportManager.getInstance();
-
+	private final int  minsPerHour=60;
+	
 	public void addFlight(String airline, String flightNumber, String daysS, String origin, String target,
 					String departureTimeS, String flightTimeS, double price) {
 		String[] days = daysS.split("-");
@@ -14,7 +16,7 @@ public class FlightCreator {
 		}
 		List<Day> newDays = Day.getDays(days); 
 		String[] hoursAndMin = departureTimeS.split(":");
-		Integer departureTime = new Integer(hoursAndMin[0])*60+ new Integer(hoursAndMin[1]);
+		Integer departureTime = new Integer(hoursAndMin[0])*minsPerHour+ new Integer(hoursAndMin[1]);
 		String[] hours = flightTimeS.split("h");
 		Integer flightTime;
 		if(hours.length == 1){
@@ -22,15 +24,11 @@ public class FlightCreator {
 			 flightTime = new Integer(mins[0]);
 		}else{
 			String[]mins = hours[1].split("m");
-			flightTime = new Integer(hours[0])*60+ new Integer(mins[0]);
+			flightTime = new Integer(hours[0])*minsPerHour+ new Integer(mins[0]);
 		}
-//		System.out.println(flightTime);
-//		System.out.println(price);
-//		
-//		System.out.println(departureTime);
+
 		Flight f = new Flight(airline, flightNumber, newDays, origin, target, departureTime, flightTime, price);
 		airportM.addFlight(f);
-		//System.out.println(f);
 	} 
 	
 	

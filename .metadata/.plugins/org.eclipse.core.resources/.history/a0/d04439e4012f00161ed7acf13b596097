@@ -1,0 +1,357 @@
+package TPE;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**Esta clase es la que maneja el sistema de vuelos, en síntesis, representa el grafo generado a partir de los vuelos y los aeropuertos 
+ * 
+ * Cada nodo tiene una referencia a su aeropuerto, a los aeropuertos que inciden en él y almacena sus vuelos en tres estructuras diferentes,que se especifican más abajo.
+ *  
+ *  Se encarga tanto de agregar y remover vuelos y aeropuertos, como de encontrar las rutas entre dos aeropuertos.
+ */
+public class AirportManager {
+
+
+	private Map<String,Node> airports = new HashMap<String,Node>();
+	private Set<Node> airportsL = new HashSet<Node>(); 
+	private Map<Entry,Flight> flights = new HashMap<Entry,Flight>();	
+	private final int dayMins = 60*24;
+	private final int weekMins = 7*60*24;
+	private static AirportManager instance = new AirportManager();
+
+	/** comparator por precio**/
+	private Comparator<Flight> p = new Comparator<Flight>(){
+		@Override
+		public int compare(Flight o1, Flight o2) {
+			int c = o2.getPrice().compareTo(o1.getPrice());
+			if( c == 0){
+				if(o1.equals(o2)){
+					return c;
+				}else{
+					return o1.hashCode() - o2.hashCode();
+				}
+			}
+			return c;
+		}
+	
+	
+};
+	/** comparator por tiempo**/
+	private Comparator<Flight> t = new Comparator<Flight>(){
+
+		@Override
+		public int compare(Flight o1, Flight o2) {
+			int c = o2.getFlightTime().compareTo(o1.getFlightTime());
+			if( c == 0){
+				if(o1.equals(o2)){
+					return c;
+				}else{
+					return o1.hashCode() - o2.hashCode();
+				}
+			}
+			return c;
+		}
+		
+	};
+	/** comparator por tiempo de llegada**/
+	private Comparator<Flight> w = new Comparator<Flight>(){
+
+		@Override
+		public int compare(Flight o1, Flight o2) {		
+			return new Integer((o1.getCurrentDayIndex()*(dayMins)+o1.getDepartureTime()+o1.getFlightTime())%(weekMins)).compareTo((o2.getCurrentDayIndex()*(dayMins)+o2.getFlightTime()+o2.getDepartureTime())%(weekMins));
+		}
+		
+	};
+	
+	
+	private AirportManager() {
+		
+	}
+	
+	public static AirportManager getInstance() {
+		return instance;
+	}
+
+	public Map<String, Node> getAirports() {
+		return airports;
+	}
+
+	public void addAirport(Airport airport){
+		if(!airports.containsKey(airport.getName())){
+			airports.put(airport.getName(),new Node(airport));
+			airportsL.add(new Node(airport));
+		}
+	}
+	
+	/**
+	 * Borra el aeropuerto name, y recorre todos los demás aeropuertos ,borrando los vuelos cuyo destino fueran el aeropuerto name, 
+	 * y luego recorre todos los nodos destino de sus vuelos, borrando en ellos la referencia de que el aeropuerto incide.
+	 * 
+	 * @param name
+	 */
+	public void deleteAirport(String name){
+		if(airports.containsKey(name)){
+			Airport aux = airports.get(name).airport;
+		
+			
+			for(Node a : airports.get(name).incidentAirports){
+					a.priceFlight.remove(aux);
+					a.timeFlight.remove(aux);
+					a.waitingTimes.remove(aux);		
+			}
+			for(Airport a : airports.get(name).priceFlight.keySet()){
+				airports.get(a.getName()).incidentAirports.remove(airports.get(name));
+			}
+			airportsL.remove(airports.get(name));
+			airports.remove(name);
+			System.out.println(airportsL);
+		}
+	}
+	
+	public void deleteFlights(){
+		flights.clear();
+		for(Node n : airportsL){
+			n.priceFlight.clear();
+			n.timeFlight.clear();
+			n.waitingTimes.clear();
+		}
+	}
+
+	public void deleteAirports(){
+		airportsL.clear();
+		airports.clear();
+		flights.clear();
+	}
+	
+
+	/**
+	 * Agrega el vuelo f en el nodo origen.Si ya existían vuelos hacia el nodo destino, simplemente actualiza sus 3 estructuras.En caso
+	 * contrario, agrega la key del nodo destino a los 3 mapas(priceFlight,timeFlight y waitingTimes),genera las estructuras y agrega los vuelos.
+	 * @param f
+	 */
+	public void addFlight(Flight f){
+		Node origin = airports.get(f.getOrigin());
+		Node target = airports.get(f.getTarget());
+		if(origin == null || target == null){
+			if(origin!= null)
+				System.out.println("El aeropuerto: "+f.getTarget()+" es inválido");
+			else
+				System.out.println("El aeropuerto: "+f.getOrigin()+" es inválido");
+			return;
+		}
+		if(flights.containsKey(new Entry(f.getAirline(),f.getFlightNumber())))
+			return;
+		flights.put(new Entry(f.getAirline(),f.getFlightNumber()),f);
+		
+		if(origin.priceFlight.containsKey(airports.get(f.getTarget()).airport)){
+			for(int i = 0;i < f.getDays().size();i++){
+				Flight g = f.clone();
+				g.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));		
+				origin.priceFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).add(g); 
+				origin.timeFlight.get(airports.get(f.getTarget()).airport).get(f.getDays().get(i)).add(g);
+				origin.waitingTimes.get(airports.get(f.getTarget()).airport).insert(g);
+			}
+		}else{
+				HashMap<Day,TreeSet<Flight>> priceDay = new HashMap<Day,TreeSet<Flight>>();
+				HashMap<Day,TreeSet<Flight>> timeDay = new HashMap<Day,TreeSet<Flight>>();
+				TimeAVL timeAVL = new TimeAVL(w);
+				for(int i = 0;i < Day.size;i++){
+					priceDay.put(Day.getDay(i), new TreeSet<Flight>(p));
+					
+					timeDay.put(Day.getDay(i), new TreeSet<Flight>(t));
+					
+					
+				}
+				for(int j = 0; j < f.getDays().size(); j++ ){
+					Flight g = f.clone();
+					g.setCurrentDayIndex(Day.getIndex(f.getDays().get(j)));	
+					priceDay.get(f.getDays().get(j)).add(g);
+					timeDay.get(f.getDays().get(j)).add(g);
+					timeAVL.insert(g);
+				}
+				origin.priceFlight.put(airports.get(f.getTarget()).airport, priceDay);
+				origin.timeFlight.put(airports.get(f.getTarget()).airport, timeDay);
+				origin.waitingTimes.put(airports.get(f.getTarget()).airport, timeAVL);
+		}
+		target.incidentAirports.add(origin);
+	}
+	
+	
+									
+		
+		
+	
+	/**
+	 * Borra un vuelo y, en caso de que fuera el unico hacia ese destino,borra en el nodo destino
+	 * que el nodo origen incide en él.
+	 * @param airline
+	 * @param flightNumber
+	 */
+	public void deleteFlight(String airline,String flightNumber){
+		Entry e = new Entry(airline, flightNumber);
+		Flight f = flights.get(e);
+		if(f != null){
+			flights.remove(e);
+			Node origin = airports.get(f.getOrigin());
+			Airport target = airports.get(f.getTarget()).airport;
+			for(int i = 0;i < f.getDays().size();i++){
+				f.setCurrentDayIndex(Day.getIndex(f.getDays().get(i)));
+				origin.priceFlight.get(target).get(f.getDays().get(i)).remove(f);
+				origin.timeFlight.get(target).get(f.getDays().get(i)).remove(f);	
+			}
+			origin.waitingTimes.get(target).remove(f);
+			if(origin.waitingTimes.get(target).size() == 0){
+				airports.get(f.getTarget()).incidentAirports.remove(origin);
+			}
+		
+		}
+		return;
+	}
+	
+
+
+	
+	public Map<Entry, Flight> getFlights() {
+		return flights;
+	}
+
+	
+
+	public void findRoute(String source,String target,RoutePriority priority,List<Day> days, OutputFormat outputFormat, String output){
+		Node sourceN = airports.get(source);
+		Node targetN = airports.get(target);
+		if(sourceN == null || targetN == null){
+			System.out.println("Alguno de los aeropuertos es invalido");
+			return;
+		}
+		FileManager fm = new FileManager();
+		List<Flight> route;
+		if(priority == RoutePriority.TOTALTIME){
+			route = PathFinder.findPath(AirportManager.getInstance().getAirportsDijkstra(), sourceN, targetN,days);
+		}else{
+			Dijkstra d = new Dijkstra(sourceN.airport,targetN.airport,priority,days);
+			route = d.findRoute();
+		}
+		fm.writeRoute(route, output, outputFormat);
+		return ;
+	}
+
+	protected static class Node{
+		Airport airport;
+		Map<Airport,Map<Day,TreeSet<Flight>>> priceFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por precio**/
+		Map<Airport,Map<Day,TreeSet<Flight>>> timeFlight = new HashMap<Airport,Map<Day,TreeSet<Flight>>>();/** vuelos ordenados por tiempo de vuelo**/
+		Map<Airport,TimeAVL> waitingTimes = new HashMap<Airport,TimeAVL>();/** vuelos ordenados por horario de llegada, es decir 
+																								que un vuelo que estï¿½ en el dï¿½a x no necesariamente saliï¿½
+																								ese dï¿½a**/
+																						
+		Set<Node> incidentAirports = new HashSet<Node>();
+		public boolean visited;
+			
+		public Node(Airport airport) {
+			this.airport = airport;
+		}		
+		
+		public String toString(){
+			String s =  airport.toString();
+			s+=" [";
+			for(Node n : incidentAirports){
+				s+=n.airport;
+		}
+			s+="]";
+			return s;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((airport == null) ? 0 : airport.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Node other = (Node) obj;
+			if (airport == null) {
+				if (other.airport != null)
+					return false;
+			} else if (!airport.equals(other.airport))
+				return false;
+			return true;
+		}
+		
+		
+	}
+	
+	
+	private static class Entry{
+		private String airline;
+		private String flightNumber;
+		public Entry(String airline, String flightNumber) {
+			super();
+			this.airline = airline;
+			this.flightNumber = flightNumber;
+		}
+		
+		public String toString(){
+			return airline + " "+flightNumber;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((airline == null) ? 0 : airline.hashCode());
+			result = prime * result + ((flightNumber == null) ? 0 : flightNumber.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Entry other = (Entry) obj;
+			if (airline == null) {
+				if (other.airline != null)
+					return false;
+			} else if (!airline.equals(other.airline))
+				return false;
+			if (flightNumber == null) {
+				if (other.flightNumber != null)
+					return false;
+			} else if (!flightNumber.equals(other.flightNumber))
+				return false;
+			return true;
+		}
+		
+	}
+			
+	public Collection<Node> getAirportsDijkstra() { 
+		return airports.values();
+	}
+			
+
+	
+	
+}

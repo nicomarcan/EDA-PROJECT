@@ -15,7 +15,21 @@ public class Parser {
 		
 		
 		
-		String HELP_MESSAGE = "***HELP MESSAGE***";
+		String HELP_MESSAGE = 	"*Commandos: \n" +
+				"*insert airport [nombre] [lat] [lng]\n" +
+				"*insert all airport [FILE]\n" +
+				"*delete airport [nombre]\n" +
+				"*delete all airport\n" +
+				"*insert flight [aerolinea] [nroVuelo] [diasSemana] [origen] [destino] [horaSalida] [duracion] [precio]\n" +
+				"*insert all flight [FILE]\n" +
+				"*delete flight [aerolinea] [nroVuelo]\n" +
+				"*delete all flight\n" +
+				"*findRoute src=[origen] dst=[destino] priority={ft|pr|tt} *weekdays=[diasSemana]\n" +
+				"*outputFormat {text|KML}\n" +
+				"*output {stdout|file [nombreArchivo]}\n" +
+				"*load\n" +
+				"*exitAndSave\n" +
+				"*quit";
 		String helpExp = "[hH]";
 		String addAirExp = "insert airport [a-z A-Z]{1,3} -?[0-9]+\\.[0-9]+ -?[0-9]+\\.[0-9]+";
 		String delAirExp = "delete airport [a-z A-Z]{1,3}";

@@ -1,5 +1,6 @@
 package TPE;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -110,7 +111,34 @@ public class Day {
 			return true;
 			
 		}
-	    
+	    public static String getDays(List<Day> list) {
+	    	String s = new String();
+	    	
+	    	Iterator<Day> it = list.iterator();
+	    	while(it.hasNext()) {
+	    		switch(Day.getIndex(it.next())){
+					case 0: s = s.concat("Lu");
+						break;
+					case 1: s =s.concat("Ma");
+						break;
+					case 2: s = s.concat("Mi");
+						break;
+					case 3: s = s.concat("Ju");
+						break;
+					case 4: s = s.concat("Vi");
+						break;
+					case 5: s = s.concat("Sa");
+						break;
+					case 6: s = s.concat("Do");
+						break;
+	    		}
+	    		if(it.hasNext()) {
+	    			s = s.concat("-");
+	    		}
+	    	}
+	    	
+	    	return s;
+	    }
 	    
 }
 

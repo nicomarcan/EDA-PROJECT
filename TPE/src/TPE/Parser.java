@@ -234,6 +234,7 @@ public class Parser {
 				}
 				else if(args[2].equals("--replace-flights")) {
 					f.load(AIRPORTFILE, FLIGHTFILE);
+					flightC.deleteFlights();
 					f.readFlights(args[1]);
 				}
 				else {

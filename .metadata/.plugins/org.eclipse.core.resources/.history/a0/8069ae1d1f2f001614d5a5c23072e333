@@ -28,46 +28,32 @@ public class PathFinder {
 	
 	public static List<Flight> findPath(Collection<Node> airports,Node source,Node dest,List<Day> departDays){
 		NavigableSet<Integer> interval = new TreeSet<Integer>();
-		int min = Integer.MAX_VALUE;
-		int optTi = -1;
-		Map<Node,Entry> aFunctions = null;
-		boolean look = false;
  		for(int i = 0;i<departDays.size();i++){
 			for(Airport a : source.priceFlight.keySet()){
 					for(Flight f : source.priceFlight.get(a).get(departDays.get(i))){/**si se trata de la fuente chequea que sea el vuelo óptimo que sale el día especificado,no uno siguiente**/		
-						FlightEl minF =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins,((f.getCurrentDayIndex()+1)*dayMins)-1);
-						if(minF.getF().getDepartureTime()+minF.getF().getCurrentDayIndex()*dayMins == f.getDepartureTime()+f.getCurrentDayIndex()*dayMins){
+						FlightEl min =source.waitingTimes.get(a).earliestArrivalTime(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins,((f.getCurrentDayIndex()+1)*dayMins)-1);
+						if(min.getF().getDepartureTime()+min.getF().getCurrentDayIndex()*dayMins == f.getDepartureTime()+f.getCurrentDayIndex()*dayMins){
 							
 							interval.add(f.getDepartureTime()+f.getCurrentDayIndex()*dayMins);
 						}
 					}	
 			}
-			if(interval.size() == 0){
-	 			look = false;
-	 		}else
-	 			look = true;
-			if(look){
-			 Map<Node,Entry> aFunctionsL = timeRefinement(airports,source,dest,interval);
-			  int minLocal = Integer.MAX_VALUE;
-			 int  optTiLocal = -1 ;
-			 for(Integer k : interval){
-				Integer g = aFunctionsL.get(dest).af.getDepartToArrival().get(k);
-				if(g != Integer.MAX_VALUE){
-					if(minLocal > g-k){
-						minLocal = g - k ;
-						optTiLocal = k;
-					}
-				}
-			 }
-			 if(minLocal < min){
-				 aFunctions = aFunctionsL;
-				 min = minLocal;
-				 optTi = optTiLocal;
-			 }
-			 interval.clear();
-			}
 		}
- 		
+ 		if(interval.size() == 0){
+ 			return null;
+ 		}
+		 Map<Node,Entry> aFunctions = timeRefinement(airports,source,dest,interval);
+		 int min = Integer.MAX_VALUE;
+		 int optTi = -1 ;
+		 for(Integer i : interval){
+			Integer g = aFunctions.get(dest).af.getDepartToArrival().get(i);
+			if(g != Integer.MAX_VALUE){
+				if(min > g-i){
+					min = g - i ;
+					optTi = i;
+				}
+			}
+		 }
 		 if(min != Integer.MAX_VALUE){
 			 List<Flight> f = pathSelection(airports,aFunctions ,source,dest,optTi);
 			 return f;

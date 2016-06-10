@@ -1,6 +1,6 @@
 package TPE;
 
-/**Esta clase se encarga de crear aeropuertos a partir de la entrada elegida por el usuario
+/**Esta clase se encarga de crear y borrar aeropuertos a partir de la entrada elegida por el usuario
  * (archivo o entrada estándar)
  */
 public class AirportCreator {

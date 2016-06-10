@@ -1,7 +1,7 @@
 package TPE;
 
 import java.util.List;
-/**Esta clase se encarga de crear vuelos a partir de la entrada elegida por el usuario
+/**Esta clase se encarga de crear y borrar vuelos a partir de la entrada elegida por el usuario
  * (archivo o entrada estándar)
  */
 public class FlightCreator {

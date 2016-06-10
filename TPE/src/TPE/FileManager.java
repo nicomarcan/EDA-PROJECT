@@ -11,23 +11,35 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import TPE.AirportManager.Node;
 
-
+/**
+ * Esta clase se encarga del manejo de archivos, en síntesis, carga masivamente aeropuertos y vuelos, los guarda en disco, imprime rutas de vuelo 
+ * 
+ * o las guarda en un arcivo(de texto o kml).
+ *
+ */
 public class FileManager {
 
+	private static final String path = "C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos";/**Carpeta en la cual cargan y guardan los archivos**/
 	
-	public void deleteExistingFiles(String outputAirports, String outputFlights) {
-		File airportOldFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputAirports);
+	public void deleteExistingAirportFile(String outputAirports) {
+		File airportOldFile = new File(path,outputAirports);
 		if(airportOldFile.exists()) {
 			airportOldFile.delete();
 		}
-		File flightOldFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputFlights);
+	}
+	
+	public void deleteExistingFlightFile(String outputFlights) {
+		File flightOldFile = new File(path,outputFlights);
 		if(flightOldFile.exists()) {
 			flightOldFile.delete();
 		}
 	}
-	
-
-	
+	/**
+	 * Guarda los vuelos y aeropuertos cargados hasta el momento en dos archivos de texto cuyos nombre son los pasados por parametros.
+	 * 
+	 * @param outputAirports
+	 * @param outputFlights
+	 */
 	public void save(String outputAirports, String outputFlights) {
 		String newLine = System.getProperty("line.separator");
 		AirportManager manager = AirportManager.getInstance();
@@ -36,7 +48,7 @@ public class FileManager {
 			System.out.println("NotFound");
 		} else {
 			try {
-				File airportFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputAirports);
+				File airportFile = new File(path,outputAirports);
 				FileWriter AirportWriter = new FileWriter(airportFile, true);
 				
 				for(Node air : manager.getAirportsDijkstra()){
@@ -44,7 +56,7 @@ public class FileManager {
 				}
 				AirportWriter.close();
 				if(!manager.getFlights().values().isEmpty()) {
-					File flightFile = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",outputFlights);
+					File flightFile = new File(path,outputFlights);
 					FileWriter flightWriter = new FileWriter(flightFile, true);
 					manager = AirportManager.getInstance();
 					for(Flight fl : manager.getFlights().values()){
@@ -101,6 +113,17 @@ public class FileManager {
 		readAirports(airportFile);
 		readFlights(flightFile);	
 	}
+	
+	/**
+	 * Recibe una lista con los vuelos(route) y devuelve por salida estandar o en un archivo el precio total, las horas de vuelo, el tiempo total de viaje,
+	 * aeropuerto origen y destino, y la descripción de la ruta ([aeropuerto1],[aerolinea1],[nroVuelo1],[aeropuerto2],[aeropuerto2],[aerolinea2],[nroVuelo2],[aeropuerto3]...).
+	 * 
+	 * 
+	 * @param route
+	 * @param output
+	 * @param outputFormat
+	 * @return
+	 */
 	public boolean writeRoute(List<Flight> route, String output, OutputFormat outputFormat){
 		if(route == null) {
 			System.out.println("NotFound");
@@ -139,7 +162,7 @@ public class FileManager {
 				}
 			} else {
 				try {
-					File toWrite = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",output);
+					File toWrite = new File(path,output);
 					if(toWrite.exists()){
 						toWrite.delete();
 					}
@@ -164,7 +187,7 @@ public class FileManager {
 				System.out.println("<Document>");	
 				
 				System.out.println("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + totalHours + "h" + totalMins + "m" + "</description>");
-				// El primer aeropuerto
+	
 				System.out.println("<Placemark>");
 				System.out.println("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>");
 				System.out.println("<Point>");
@@ -173,7 +196,7 @@ public class FileManager {
 				System.out.println("</Point>");
 				System.out.println("</Placemark>");
 				for(Flight fl : route) {
-					// El vuelo
+
 					System.out.println("<Placemark>");
 					System.out.println("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>");
 					System.out.println("<LineString>");
@@ -182,7 +205,7 @@ public class FileManager {
 					System.out.println(AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>");
 					System.out.println("</LineString>");
 					System.out.println("</Placemark>");
-					// El aeropuerto destino
+
 					System.out.println("<Placemark>");
 					System.out.println("<name>" + fl.getTarget() + "</name>");
 					System.out.println("<Point>");
@@ -191,11 +214,11 @@ public class FileManager {
 					System.out.println("</Point>");
 					System.out.println("</Placemark>");
 				}
-				System.out.println("</Document>");	// no se si hace falta este
+				System.out.println("</Document>");
 				System.out.println("</kml>");
 			} else {
 				try {
-					File toWrite = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",output);
+					File toWrite = new File(path,output);
 					if(toWrite.exists()){
 						toWrite.delete();
 					}
@@ -205,7 +228,7 @@ public class FileManager {
 					writer.write("<Document>" + newLine);	
 					
 					writer.write("<description>" + "Precio: " + price + " TiempoVuelo: " + hoursFlight + "h" + minutesFlight + "m" + " TiempoTotal: " + totalHours + "h" + totalMins + "m" + "</description>" + newLine);
-					// El primer aeropuerto
+
 					writer.write("<Placemark>" + newLine);
 					writer.write("<name>" + AirportManager.getInstance().getAirports().get(route.get(0).getOrigin()).airport.getName() + "</name>" + newLine);
 					writer.write("<Point>" + newLine);
@@ -214,7 +237,7 @@ public class FileManager {
 					writer.write("</Point>" + newLine);
 					writer.write("</Placemark>" + newLine);
 					for(Flight fl : route) {
-						// El vuelo
+
 						writer.write("<Placemark>" + newLine);
 						writer.write("<name>" + fl.getAirline() + "#" + fl.getFlightNumber() + "</name>" + newLine);
 						writer.write("<LineString>" + newLine);
@@ -223,7 +246,7 @@ public class FileManager {
 						writer.write(AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLatitude() + ", " + AirportManager.getInstance().getAirports().get(fl.getTarget()).airport.getLongitude() + ",0" + "</coordinates>" + newLine);
 						writer.write("</LineString>" + newLine);
 						writer.write("</Placemark>" + newLine);
-						// El aeropuerto destino
+
 						writer.write("<Placemark>" + newLine);
 						writer.write("<name>" + fl.getTarget() + "</name>" + newLine);
 						writer.write("<Point>" + newLine);
@@ -232,7 +255,7 @@ public class FileManager {
 						writer.write("</Point>" + newLine);
 						writer.write("</Placemark>" + newLine);
 					}
-					writer.write("</Document>" + newLine);	// no se si hace falta este
+					writer.write("</Document>" + newLine);
 					writer.write("</kml>" + newLine);
 					writer.close();
 					System.out.println("Se ha cargado el resultado en el archivo: "+output);
@@ -248,16 +271,16 @@ public class FileManager {
 		
 		return true;	
 	}
-	
+		
 	public  void readFlights(String file) throws FileNotFoundException{
 		FlightCreator flightC = new FlightCreator();
-		File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",file);
+		File toRead = new File(path,file);
 		try {
 			int i = 1;
 			Scanner sc = new Scanner(toRead);
 	        while(sc.hasNextLine()){
 	        	String s = sc.nextLine();
-	        	String format = "[a-z A-Z]{1,3}#[0-9]{1,7}#(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*#[a-z A-Z]{1,3}#[a-z A-Z]{1,3}#([0-1][0-9]|2[0-3]):[0-5][0-9]#([1-9]h|[1-9][0-9]h)?([0-9]|[0-5][0-9])m#[0-9]+\\.[0-9]+$";
+	        	String format = "[a-z A-Z]{1,3}#[0-9]{1,7}#(Lu|Ma|Mi|Ju|Vi|Sa|Do)(-(Lu|Ma|Mi|Ju|Vi|Sa|Do))*#[a-z A-Z]{1,3}#[a-z A-Z]{1,3}#([0-1][0-9]|2[0-3]):[0-5][0-9]#([1-9]h|[1-9][0-9]h)?[0-5][0-9]m#[0-9]+\\.[0-9]+$";
 		        if(!Pattern.matches(format, s)){
 		        	System.out.println("formato no valido en la linea "+i);
 		        } else {
@@ -276,7 +299,7 @@ public class FileManager {
 	
 	public  void readAirports(String name) throws IOException, ClassNotFoundException{
 			AirportCreator airportC = new AirportCreator();
-	        File toRead = new File("C:/Users/Usuario/Documents/eda-2016-04/TPE/src/Datos",name);
+	        File toRead = new File(path,name);
 	        try {
 	        	Scanner sc = new Scanner(toRead);
 	        	while(sc.hasNextLine()){
@@ -294,7 +317,5 @@ public class FileManager {
 				System.out.println("NotFound");
 			} 
 	    } 
-	
-
 }
 

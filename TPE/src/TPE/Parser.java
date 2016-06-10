@@ -3,10 +3,16 @@ package TPE;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
-
+/**
+ * Esta clase se encarga del analisis sintáctico de los comandos y argumentos enviados por el usuario.
+ *
+ */
 public class Parser {
 	public static OutputFormat outputFormat = null;
 	public static String output = null;
+	private static final String AIRPORTFILE = "airports.txt";/**Nombre del archivo donde guardan los aeropuertos**/
+	private static final String FLIGHTFILE = "flights.txt";/**Nombre del archivo donde guardan los vuelos**/
+
 	public static boolean parseCommand(String command) throws ClassNotFoundException, IOException { 
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
@@ -43,8 +49,6 @@ public class Parser {
 		String outputExp = "output stdout";
 		String outputExpFile = "output file [a-z A-Z 0-9]+(\\.txt|\\.kml)";
 		String exitAndSaveExp = "exitAndSave";
-		String airportFile = "airports.txt";
-		String flightFile = "flights.txt";
 		String loadExp = "load";
 		String quitExp = "quit";
 		
@@ -165,11 +169,12 @@ public class Parser {
 			return false;
 		}
 		else if(Pattern.matches(loadExp, command)) {
-			f.load(airportFile, flightFile);
+			f.load(AIRPORTFILE, FLIGHTFILE);
 		}
 		else if(Pattern.matches(exitAndSaveExp, command)){
-			f.deleteExistingFiles(airportFile, flightFile);
-			f.save(airportFile, flightFile);
+			f.deleteExistingAirportFile(AIRPORTFILE);
+			f.deleteExistingFlightFile(FLIGHTFILE);
+			f.save(AIRPORTFILE, FLIGHTFILE);
 			return true;	// true = exit
 		}
 		else if(Pattern.matches(quitExp, command)){
@@ -189,6 +194,7 @@ public class Parser {
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
 		FileManager f = new FileManager();
+		f.load(AIRPORTFILE, FLIGHTFILE);
 		
 		if(args.length == 1) {
 			if(args[0].equals("--delete-airports")) {
@@ -223,7 +229,7 @@ public class Parser {
 					f.readFlights(args[1]);
 				}
 				else if(args[2].equals("--replace-flights")) {
-					flightC.deleteFlights();
+					
 					f.readFlights(args[1]);
 				}
 				else {

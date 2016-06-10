@@ -30,6 +30,8 @@ public class Parser {
 		String outputExp = "output stdout";
 		String outputExpFile = "output file [a-z A-Z 0-9]+(\\.txt|\\.kml)";
 		String exitAndSaveExp = "exitAndSave";
+		String airportFile = "airports.txt";
+		String flightFile = "flights.txt";
 		String loadExp = "load";
 		String quitExp = "quit";
 		
@@ -162,10 +164,11 @@ public class Parser {
 			return false;
 		}
 		else if(Pattern.matches(loadExp, command)) {
-			// TODO poner aca el metodo load
+			f.load(airportFile, flightFile);
 		}
 		else if(Pattern.matches(exitAndSaveExp, command)){
-			// TODO poner aca el metodo save
+			f.deleteExistingFiles(airportFile, flightFile);
+			f.save(airportFile, flightFile);
 			return true;	// true = exit
 		}
 		else if(Pattern.matches(quitExp, command)){

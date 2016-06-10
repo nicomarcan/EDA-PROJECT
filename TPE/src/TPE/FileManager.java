@@ -2,6 +2,7 @@
 
 package TPE;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -14,6 +15,17 @@ import TPE.AirportManager.Node;
 
 public class FileManager {
 
+	
+	public void deleteExistingFiles(String outputAirports, String outputFlights) {
+		File airportOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputAirports);
+		if(airportOldFile.exists()) {
+			airportOldFile.delete();
+		}
+		File flightOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputFlights);
+		if(flightOldFile.exists()) {
+			flightOldFile.delete();
+		}
+	}
 	public void save(String outputAirports, String outputFlights) {
 		String newLine = System.getProperty("line.separator");
 		AirportManager manager = AirportManager.getInstance();
@@ -22,6 +34,10 @@ public class FileManager {
 			System.out.println("NotFound");
 		} else {
 			try {//C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos
+//				File airportOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputAirports);
+//				if(airportOldFile.exists()) {
+//					airportOldFile.delete();
+//				}
 				File airportFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputAirports);
 				FileWriter AirportWriter = new FileWriter(airportFile, true);
 				
@@ -30,6 +46,10 @@ public class FileManager {
 				}
 				AirportWriter.close();//C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos
 				if(!manager.getFlights().values().isEmpty()) {
+//					File flightOldFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputFlights);
+//					if(flightOldFile.exists()) {
+//						flightOldFile.delete();
+//					}
 					File flightFile = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",outputFlights);
 					FileWriter flightWriter = new FileWriter(flightFile, true);
 					manager = AirportManager.getInstance();
@@ -86,6 +106,21 @@ public class FileManager {
 	public void load(String airportFile, String flightFile) throws ClassNotFoundException, IOException {
 		readAirports(airportFile);
 		readFlights(flightFile);
+		try {//C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos
+			File airport = new File("C:/Users/Marcos/git/eda-2016-042/TPE/src/Datos",airportFile);
+			FileWriter AirportWriter = new FileWriter(airport, true);
+			Scanner sc = new Scanner(airport);
+        	while(sc.hasNextLine()){
+	        	String s = sc.nextLine();
+	        	String format = "[a-z A-Z 0-9]+$";
+		        if(!Pattern.matches(format, s)){
+		        	AirportWriter.write("");
+		        }
+	        }
+			AirportWriter.close();//C:/Users/SantiagoPC/git/eda-2016-04/TPE/src/Datos			
+		} catch (IOException e) {
+			System.out.println("NotFound");
+		}
 	}
 	public boolean writeRoute(List<Flight> route, String output, OutputFormat outputFormat){
 		if(route == null) {
@@ -263,6 +298,5 @@ public class FileManager {
 				System.out.println("NotFound");
 			} 
 	    } 
-	
 }
 

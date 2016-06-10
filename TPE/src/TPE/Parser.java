@@ -194,13 +194,14 @@ public class Parser {
 		AirportCreator airportC = new AirportCreator();
 		FlightCreator flightC = new FlightCreator();
 		FileManager f = new FileManager();
-		f.load(AIRPORTFILE, FLIGHTFILE);
-		
+
 		if(args.length == 1) {
 			if(args[0].equals("--delete-airports")) {
+				f.load(AIRPORTFILE, FLIGHTFILE);
 				airportC.deleteAirports();
 			}
 			else if(args[0].equals("--delete-flights")) {
+				f.load(AIRPORTFILE, FLIGHTFILE);
 				flightC.deleteFlights();
 			}
 			else {
@@ -212,9 +213,11 @@ public class Parser {
 				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
 					return false;
 				if(args[2].equals("--append-airports")) {
+					f.load(AIRPORTFILE, FLIGHTFILE);
 					f.readAirports(args[1]);
 				}
 				else if(args[2].equals("--replace-airports")) {
+					f.load(AIRPORTFILE, FLIGHTFILE);
 					airportC.deleteAirports();
 					f.readAirports(args[1]);
 				}
@@ -226,10 +229,11 @@ public class Parser {
 				if(!Pattern.matches("[a-z A-Z 0-9]+\\.txt", args[1]))
 					return false;
 				if(args[2].equals("--append-flights")) {
+					f.load(AIRPORTFILE, FLIGHTFILE);
 					f.readFlights(args[1]);
 				}
 				else if(args[2].equals("--replace-flights")) {
-					
+					f.load(AIRPORTFILE, FLIGHTFILE);
 					f.readFlights(args[1]);
 				}
 				else {

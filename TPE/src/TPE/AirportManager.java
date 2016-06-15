@@ -84,8 +84,9 @@ public class AirportManager {
 
 	public void addAirport(Airport airport){
 		if(!airports.containsKey(airport.getName())){
-			airports.put(airport.getName(),new Node(airport));
-			airportsL.add(new Node(airport));
+			Node a = new Node(airport);
+			airports.put(airport.getName(),a);
+			airportsL.add(a);
 		}
 	}
 	
@@ -117,6 +118,7 @@ public class AirportManager {
 	public void deleteFlights(){
 		flights.clear();
 		for(Node n : airportsL){
+			n.incidentAirports.clear();
 			n.priceFlight.clear();
 			n.timeFlight.clear();
 			n.waitingTimes.clear();
